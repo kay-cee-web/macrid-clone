@@ -46,7 +46,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `src/lib/agents/attachments.ts` appends image URLs for chat and splits them back out of history.
 - **Static data:** idea catalogue in `src/data/ideas` (`ideasFor`, `readinessOf`); platform chips in `src/data/platforms.ts`.
 - **Shared agent UI:** `TaskComposer` (also meant for the chat composer), `AgentAvatar`, `AgentCard`, `AgentActionsMenu` + `AgentDialogs` (mount the dialogs once per page), `WorkReceipt`, `IdeaCard`/`IdeaBrowser`.
-- **Layout:** `AppShell` (sidebar and mobile drawer) wraps every `/agents/*` route. `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
+- **Layout:** `AppShell` (sidebar and mobile drawer) wraps every signed-in route (`/agents/*`, `/records/*`). `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
 - **Agent workspace:**
   - `/agents/[id]/layout.tsx` renders `AgentWorkspace`: it loads the agent and shows the header (tabs Chat and Workflows, New conversation, Instructions, actions menu).
   - Views read the open agent with `useWorkspace()` and open the editor with `openInstructions()`.
@@ -66,7 +66,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **External connectors** (SMTP, Facebook) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
   - **Skills:** static data in `src/data/skills`; "Use in chat" drafts `/slug`.
   - `ConfirmModal` is the shared "are you sure?" dialog.
-- **Generic hooks:** `useAsync(load, deps)` for read-only requests, `useClipboard`, `useCountdown`. The UI kit also has `Switch`, `Select` (native) and `QrCode`.
+- **Records** (`/records/lists|lists/[listId]|deals|tasks|appointments|campaigns?channel=email|sms`):
+  - A read-only view of workspace data, so users can see what agents created. `/agents/{id}/actions` stays empty even after tool use, so these endpoints are the only source.
+  - Services: `lists`, `leads`, `deals`, `tasks`, `appointments`, `campaigns` (one file each). Normalisers are in `src/lib/records/`, and status labels and tones in `status.ts`.
+  - Rows are sorted newest first (`newestFirst`). Paginated endpoints go through `fetchAllPages` (`src/lib/api/paginate.ts`).
+  - Build each view from `RecordsView` (search, refresh, loading/error/empty states) + `ui/DataTable` (columns, `rowHref` makes the whole row a link) + the cell helpers in `records/cells.tsx`.
+- **Layout:** `(app)/layout.tsx` = `AuthGate` + `AppShell` for every signed-in section. `ui/RouteTabs` renders link tabs (the agent header and Records).
+- **Generic hooks:** `useAsync(load, deps)` for read-only requests (`refreshing` is true during `reload()`), `useClipboard`, `useCountdown`. The UI kit also has `Switch`, `Select` (native) and `QrCode`. Response helpers (`pickList`, `pickOne`, `toBool`, `toText`, `toNumber`) are in `src/lib/api/pick.ts`.
 
 # Project purpose
 
@@ -128,9 +134,9 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 | `GET /agents/{id}` | – | `{status, agent: row, stats: {messages, actions_total, sent_last_24h, blocked_last_24h, last_action_at}}` |
 | `PUT /agents/{id}` | Only the changed fields (allowlist above) | `{status, message: "Agent updated.", agent: row}` |
 | `DELETE /agents/{id}` | – | `{status, message}` |
-| `POST /agents/{id}/chat` | `{message, conversation_id?}` | `{status, reply, instructions_updated: bool, instructions: string\|null}` |
+| `POST /agents/{id}/chat` | `{message, conversation_id?}` | `{status, reply, instructions_updated: bool, instructions: string\|null, tokens_charged, tokens_remaining, using_own_key: bool}` |
 | `GET /agents/{id}/messages` | – | `{status, messages: [{id, role: "user"\|"assistant", content, created_at}]}`. Oldest first, whole thread, not paginated. |
-| `GET /agents/{id}/actions` | – | `{status, actions: []}`. An activity log of what the agent did. It has always come back empty, so the row shape is unknown. |
+| `GET /agents/{id}/actions` | – | `{status, actions: []}`. An activity log of what the agent did. It stays empty and `stats.actions_total` stays 0 even after `create_list`/`add_to_list` (tested 2026-09-15), so the row shape is unknown. |
 | `POST /agents/{id}/sending` | `{enabled: bool}` (required; 422 without it) | `{status, message: "X has stopped sending. It can still research and draft.", agent: row}` |
 
 **Agent row:** `{id, user_id, tenant_id, name, instructions, model, is_active, sending_enabled, created_at, updated_at}`.
@@ -230,6 +236,143 @@ Connections belong to the user's workspace, not to one agent.
 - `greetings.js`, `intro.js` (the first message for a new agent, built on the client)
 
 **UI with no backend yet (keep it local or hide it):** model choice, voice, memory, sharing, security, webhooks, folders, favourites, feedback, skill upload, connector requests, the conversations list.
+
+## Agent tools (backend, confirmed 2026-09-15)
+
+The agent runs **server-side with real tools**, so it does the CRM and outreach work itself. The clone only sends chat turns and never calls the CRM or outreach endpoints below. An agent listed its tools when asked:
+
+- **Records:** search_leads, read_lead, search_contacts, search_companies, create_lead, update_lead_status, update_record, delete_records, find_duplicates, merge_duplicates, score_leads
+- **Lists:** list_lists, create_list, add_to_list
+- **Pipeline:** list_deals, create_deal, move_deal_stage, pipeline_summary
+- **Tasks and calendar:** create_task, list_tasks, complete_task, list_calendar_events, book_appointment, list_appointments, reschedule_appointment
+- **Outreach:** send_email, send_sms, send_whatsapp, list_mail_accounts, verify_emails, check_sending_domain, check_email_copy, list_campaigns, campaign_recipients, campaign_performance, read_inbox
+- **Prospecting and funnels:** find_prospects, list_funnels, create_funnel, update_funnel
+- **Automation and account:** schedule_automation, list_automations, cancel_automation, plan_usage, check_connections
+
+Chat turns cost tokens: `tokens_charged` and `tokens_remaining` come back on every reply, and `using_own_key` is true when the user's own AI key paid for it. `sending_enabled` very likely blocks the send_* tools (inferred from the switch's message, not tested).
+
+## CRM and outreach (what agents operate)
+
+Read from Macrid's frontend; the backend itself was not read. The agent reaches these through its tools above. The endpoints show what each action does and what receipts could show.
+
+**Base URL:** `https://api.macrid.com/api/macrid-userend`. The public booking routes (`/book/...`) sit one level up, at `/api`, with no auth.
+
+### CRM
+
+**Lists**
+- `GET /lists` returns `{lists:[{id,name,description,contacts_count}]}`.
+- `POST /lists` and `PUT /lists/{id}` take `{name, description}`. Delete with `DELETE /lists/{id}`.
+- Bulk delete: `POST /lists/bulk-delete {ids:[…]}`.
+
+**Leads**
+- `GET /leads?page&per_page&list&status&leadsource&country` returns a paginator at `data`.
+  - **`search` is ignored**, so Macrid fetches `per_page=1000` and filters in the browser.
+- Fields returned: `id, first_name, last_name, email, phone, website, address, city, country, lead_status, score, track_code, list_id`.
+- Create one: `POST /leads {list_id, name, email, website, phone, city, lead_status}` (sends `name`, not `first_name`).
+- Update: `PUT /leads/{id}` (same body without `name`); moving to another list is `PUT {list_id}`.
+- Import: `POST /multiple-leads {list_id, leads:[{email, first_name, phone, website, city, lead_status:"not_contacted"}]}`. Prospect Finder and the deliverability check also save leads this way.
+- Bulk delete: `DELETE /bulk-delete-leads` with body `{ids:"1,2,3"}` (a comma-separated string).
+- `lead_status` casing is mixed (`ACTIVE`, `CONTACTED`, `CLOSED`, `not_contacted`, `booked`), so normalise it before comparing.
+- Export to an email platform: `POST /ar-export {service, data:[{name,email}]}`.
+
+**Companies**
+- `GET /companies?page` returns `{companies, teams}`.
+- `POST /companies` and `PUT /companies/{id}` take `{name, email, domain, owner, industry, type, status (PROSPECT|CLIENT|PARTNER), city, state, postal_code, num_employee, annual_revenue, time_zone, description, linkedin_company_page}`.
+- Bulk delete: `DELETE /bulk-delete-companies {ids:"1,2"}`.
+- Companies are **not** linked by id to leads or deals.
+
+**Deals**
+- `GET /deals` returns `data.deals`.
+- `POST /deals` and `PUT /deals/{id}` take `{name, owner, contact (lead id), company (free text), pipeline, industry, type, priority, stage, amount, item, close_date, source, next_action, next_action_date, note, status}`.
+- Move stage: `POST /update-deal-stage {id, stage}`.
+- **Stages are fixed in the frontend:** Prospecting, Qualification, Proposal, Negotiation, Closing Won, Closing Lost.
+- `GET /deal-details/{id}` returns `{deal, dealcampaigns, tasks, teams, contacts, companies, mailAccounts}`.
+- Email from a deal: `POST /deal-send-email {emailto, emailsubject, emailbody, dealId}` (uses Gmail).
+
+**Tasks**
+- `GET /tasks` returns `{tasks:[{id,name,type,priority,deal_id,start_date,end_date,status,note}]}`.
+- **Write names differ from read names:** `POST /tasks` and `PUT /tasks/{id}` take `{dealId, taskname, taskstart_date, taskend_date, tasktype, taskpriority, tasknote, status}`.
+- Every task needs a deal.
+- Allowed values:
+  - type: Task, Email, Meeting, Call, Follow-up, Other
+  - priority: Low, Medium, High, Urgent
+  - status: Pending, In Progress, Completed, Cancelled
+
+**Appointments** (Macrid code: `crm/appointment/_lib/`)
+- `GET /appointments?when=all|upcoming&page`.
+- `POST /appointments {title, start_at (ISO with offset), duration_minutes|end_at, timezone, attendee_name/email/phone, lead_id, deal_id, location, meeting_url, allow_overlap}`.
+  - A clash returns 409 with `conflict`; resend with `allow_overlap:true` to book anyway.
+- `POST /appointments/{id}/status {status: pending|confirmed|completed|cancelled|no_show, reason?}`.
+- `GET /appointments/availability?date&duration_minutes`.
+- Calendar sync: `POST /appointments/{id}/sync` and `POST /appointments/sync-all` (25 per call).
+- Public booking: `GET /book/{track_code}/slots` and `POST /book/{track_code}`.
+- **Backend bug:** the time offset on `start_at` is dropped, so appointments are stored an hour late (see `APPOINTMENTS-API-ISSUES.md`).
+
+**Inbox** (Gmail only)
+- `GET /emails` returns the messages grouped by mailbox, with `nextPageToken`.
+- Send: `POST /emails/send {emailto, emailsubject, emailbody}`. Reply: `POST /emails/reply/{id}`.
+- When Google needs re-authorising, get the link from `GET /google/auth-url`.
+
+**Team**
+- `GET /teams`; `POST /teams {name, username, email, role}`.
+- `role` is accepted but not stored yet. There is no invite email.
+
+### Email outreach
+
+**Senders (SMTP)**
+- `GET /mail-accounts`; `POST /mail-accounts` and `PUT /mail-accounts/{id}` take `{host, port, username, password, encryption_type (TLS|SSL|None), senderemail, sendername}`.
+- There is no verify or test-connection endpoint.
+
+**Simple campaign**
+- `POST /email-campaigns` (multipart) with `{subject, body (HTML), mailaccount_id, schedule_datetime ('' = now), list_id + lead_ids[] | recipients[] (emails)}`. Sends immediately or schedules.
+
+**Editor campaign**
+- Create: `POST /email-campaigns/store-create-from-template {email_html}` returns `{campaign:{slug}}`.
+- Save: `POST /email-campaigns/update-template {slug, body}`.
+- Send: `POST /email-campaigns/update-send-template {mailaccount_id, subject, slug, body, status:'4', recipientDetails: manually|existing, list, schedule_datetime}`.
+- Test send: `POST /email-campaign/send-test-email-to-user` (note the singular `email-campaign`).
+
+**Merge tags** (single braces): `{username} {fullname} {email} {company} {date} {unsubscribe}`.
+
+**AI drafting**
+- `POST /email-campaigns/generate-email-subject` or `/generate-email-body` with `{prompt_type, description, email_type}`.
+- `email_type` is one of `cold_email|follow_up|welcome|promotional|newsletter|announcement|transactional`.
+
+**Stats**
+- `GET /email-campaigns` returns rows with `open_rate, click_rate, clicks, unsubscribers, status (sent|pending|scheduled|draft|failed)`.
+- There are no endpoints for sequences, follow-ups or reply tracking.
+
+**Deliverability check**
+- `POST /verify-emails {emails:[…]}` (batches of 10) returns `{results:[{email, status: valid|invalid|unknown, risk, tags}]}`.
+- It is **not** part of the send flow, so an agent should run it before sending.
+
+### SMS (Twilio, user's own credentials)
+
+**Senders**
+- `GET /sms-senders`; `POST /sms-senders {sid, auth_token, sender}`.
+- **Bug:** `PUT` sends camelCase `authToken`, which doesn't match the create call.
+
+**Send**
+- `POST /send-sms {message (≤1000), contacts:[+E.164 numbers], type, smssender_id (1 = system sender), sender_name (≤11), datetime (null = now)}`.
+- There is no `list_id`: Macrid loads `/leads?list=` and sends the phone numbers.
+- There are no merge tags.
+
+**Templates, history, balance**
+- Templates: `GET /sms-templates`; `POST /sms-templates {name, message, type}` (the templates screen in Macrid's UI is broken).
+- History:
+  - `GET /sms-campaigns`
+  - `GET /sms-logs`
+  - `GET /sms-logs/sms-campaign-id?smscampaign_id=` returns `{to, status: delivered|pending|failed, error_message, cost}`
+- Balance: `GET /sms-balance` (may not exist).
+
+### WhatsApp outreach
+
+- **Connect:** Meta embedded signup, then `POST /whatsapp/fetch-phones {access_token}`, then `POST /whatsapp/connect {waba_id, phone_number_id, phone_number, display_name, access_token}`.
+- **Templates:** `GET /whatsapp/templates` (use only `APPROVED` ones).
+- **Send:**
+  - `POST /whatsapp/send-bulk {mode: text|template, content, leads:[{id, name, phone, vars}]}` returns `{sent, failed, errors}`; `{{name}}` and `{{business}}` work in `content`.
+  - `POST /whatsapp/send {lead_id, to_phone, to_name, mode, message}`.
+- **Not built:** the 24-hour messaging window, scheduling and a team inbox have no backend.
 
 ## Macrid bugs not to repeat
 

@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { splitAttachments, withAttachments } from "@/lib/agents/attachments";
-import { pickList } from "@/lib/agents/normalize";
+import { pickList } from "@/lib/api/pick";
 import type { ChatImage, ChatMessage, ChatReply } from "@/types/agent";
 
 type MessageRow = { id?: number | string; role?: string; content?: string; created_at?: string };

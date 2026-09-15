@@ -1,4 +1,5 @@
 import ReactMarkdown, { type Components } from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/cn";
 
@@ -36,10 +37,11 @@ const components: Components = {
   td: (props) => <td className="border-b border-line px-3 py-2 align-top last:border-b-0" {...props} />,
 };
 
+/** Single newlines are real line breaks: the agent writes "Heading:\nlist" without blank lines. */
 export function Markdown({ children, className }: { children: string; className?: string }) {
   return (
     <div className={cn("min-w-0 text-[14.5px] leading-relaxed text-ink [overflow-wrap:anywhere]", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
         {children}
       </ReactMarkdown>
     </div>

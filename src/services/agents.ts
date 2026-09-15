@@ -1,6 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
-import { normalizeAgent, normalizeStats, pickList, pickOne, toAgentPayload } from "@/lib/agents/normalize";
+import { normalizeAgent, normalizeStats, toAgentPayload } from "@/lib/agents/normalize";
+import { pickList, pickOne } from "@/lib/api/pick";
 import type { Agent, AgentInput, AgentRow, AgentStats } from "@/types/agent";
 
 /**

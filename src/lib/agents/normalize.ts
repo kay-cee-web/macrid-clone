@@ -1,10 +1,5 @@
+import { toBool, toNumber } from "@/lib/api/pick";
 import type { Agent, AgentInput, AgentRow, AgentStats } from "@/types/agent";
-
-/** Laravel booleans arrive as true/false or 1/0. */
-export const toBool = (value: unknown, fallback: boolean) =>
-  value === undefined || value === null ? fallback : [true, 1, "1", "true"].includes(value as never);
-
-const toNumber = (value: unknown) => (Number.isFinite(Number(value)) ? Number(value) : 0);
 
 export function normalizeAgent(row: AgentRow): Agent {
   return {
@@ -43,18 +38,4 @@ export function normalizeStats(raw: unknown): AgentStats | null {
     blockedLast24h: toNumber(s.blocked_last_24h),
     lastActionAt: typeof s.last_action_at === "string" ? s.last_action_at : null,
   };
-}
-
-/** The first array found among the usual envelope keys. */
-export function pickList<T>(data: unknown, key: string): T[] {
-  const d = data as Record<string, unknown> | undefined;
-  const nested = d?.data as Record<string, unknown> | undefined;
-  const found = [d?.[key], nested?.[key], d?.data, data].find(Array.isArray);
-  return (found as T[] | undefined) ?? [];
-}
-
-/** The single row out of a create/read/update response. */
-export function pickOne<T>(data: unknown, key: string): T {
-  const d = data as Record<string, unknown> | undefined;
-  return (d?.[key] ?? d?.data ?? d ?? {}) as T;
 }

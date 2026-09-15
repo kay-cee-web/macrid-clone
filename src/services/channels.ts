@@ -1,6 +1,6 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
-import { pickList } from "@/lib/agents/normalize";
+import { pickList } from "@/lib/api/pick";
 import type { ChannelLink, ChannelProvider, ChannelStatus, Pairing } from "@/types/channel";
 
 /**

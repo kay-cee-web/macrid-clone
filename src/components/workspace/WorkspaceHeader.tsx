@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FileText, SquarePen } from "lucide-react";
 import { AgentActionsMenu, type AgentDialog } from "@/components/agents/AgentActionsMenu";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Pill } from "@/components/ui/Pill";
-import { cn } from "@/lib/cn";
+import { RouteTabs } from "@/components/ui/RouteTabs";
 import { newConversationId } from "@/lib/chat/conversation";
 import type { Agent } from "@/types/agent";
 
@@ -20,7 +20,6 @@ type WorkspaceHeaderProps = {
 
 export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHeaderProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const base = `/agents/${agent.id}`;
   const tabs = [
     { href: base, label: "Chat" },
@@ -58,24 +57,7 @@ export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHe
         </IconButton>
         <AgentActionsMenu agent={agent} onDialog={onDialog} />
       </div>
-      <nav aria-label="Agent sections" className="flex gap-1 overflow-x-auto px-3 sm:px-5">
-        {tabs.map((tab) => {
-          const active = pathname === tab.href;
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "-mb-px border-b-2 px-2.5 pb-2.5 pt-3 text-[13.5px] transition-colors",
-                active ? "border-ink font-medium text-ink" : "border-transparent text-muted hover:text-ink",
-              )}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <RouteTabs label="Agent sections" tabs={tabs} className="px-3 sm:px-5" />
     </header>
   );
 }

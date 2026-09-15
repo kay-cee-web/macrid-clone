@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { House, LayoutGrid } from "lucide-react";
+import { Database, House, LayoutGrid } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { NavLink } from "./NavLink";
@@ -21,6 +21,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         </NavLink>
         <NavLink href="/agents/all" icon={<LayoutGrid />} onNavigate={onNavigate}>
           All agents
+        </NavLink>
+        <NavLink href="/records" icon={<Database />} matchPrefix onNavigate={onNavigate}>
+          Records
         </NavLink>
       </nav>
 

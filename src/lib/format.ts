@@ -19,6 +19,27 @@ export function timeAgo(value: string | null | undefined, now = Date.now()): str
   return dateOnly.format(then);
 }
 
+const dateTime = new Intl.DateTimeFormat("en", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+const compact = new Intl.NumberFormat("en", { maximumFractionDigits: 2 });
+
+/** "12 Sep 2026", or "" for missing and invalid dates. */
+export function formatDate(value: string | null | undefined): string {
+  const time = value ? new Date(value).getTime() : NaN;
+  return Number.isNaN(time) ? "" : dateOnly.format(time);
+}
+
+/** "12 Sep, 3:30 PM" in the viewer's time zone. */
+export function formatDateTime(value: string | null | undefined): string {
+  const time = value ? new Date(value).getTime() : NaN;
+  return Number.isNaN(time) ? "" : dateTime.format(time);
+}
+
+/** Plain number with up to 2 decimals; currency is unknown on Macrid rows. */
+export const formatAmount = (value: number | null) => (value === null ? "" : compact.format(value));
+
+/** "42%" from 42 or "42.5"; "" when there is no rate yet. */
+export const formatPercent = (value: number | null) => (value === null ? "" : `${compact.format(value)}%`);
+
 /** First name for greetings, from a full name. */
 export const firstName = (name?: string | null) => name?.trim().split(/\s+/)[0] ?? "";
 
