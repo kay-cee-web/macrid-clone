@@ -59,7 +59,7 @@ export function Modal({ open, onClose, title, description, footer, size = "md", 
               <X />
             </IconButton>
           </header>
-          <div className="overflow-y-auto px-5 py-4">{children}</div>
+          {children ? <div className="overflow-y-auto px-5 py-4">{children}</div> : <span />}
           {footer && (
             <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3">
               {footer}

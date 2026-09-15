@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export type MenuItem = {
@@ -9,6 +10,8 @@ export type MenuItem = {
   onSelect: () => void;
   tone?: "default" | "danger";
   disabled?: boolean;
+  /** Marks the current choice in a pick-one menu (e.g. sort). */
+  checked?: boolean;
 };
 
 type MenuProps = {
@@ -16,10 +19,11 @@ type MenuProps = {
   trigger: (props: { onClick: () => void; "aria-expanded": boolean; "aria-haspopup": "menu" }) => ReactNode;
   items: MenuItem[];
   align?: "start" | "end";
+  side?: "bottom" | "top";
   className?: string;
 };
 
-export function Menu({ trigger, items, align = "end", className }: MenuProps) {
+export function Menu({ trigger, items, align = "end", side = "bottom", className }: MenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +48,8 @@ export function Menu({ trigger, items, align = "end", className }: MenuProps) {
         <div
           role="menu"
           className={cn(
-            "absolute top-full z-50 mt-1.5 min-w-44 animate-fade-in rounded-[12px] border border-line",
-            "bg-surface p-1 shadow-float",
+            "absolute z-50 min-w-44 animate-fade-in rounded-[12px] border border-line bg-surface p-1 shadow-float",
+            side === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
             align === "end" ? "right-0" : "left-0",
           )}
         >
@@ -53,7 +57,8 @@ export function Menu({ trigger, items, align = "end", className }: MenuProps) {
             <button
               key={item.label}
               type="button"
-              role="menuitem"
+              role={item.checked === undefined ? "menuitem" : "menuitemradio"}
+              aria-checked={item.checked}
               disabled={item.disabled}
               onClick={() => {
                 setOpen(false);
@@ -66,7 +71,8 @@ export function Menu({ trigger, items, align = "end", className }: MenuProps) {
               )}
             >
               {item.icon}
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.checked && <Check className="text-accent" />}
             </button>
           ))}
         </div>

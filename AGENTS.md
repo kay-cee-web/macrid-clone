@@ -33,6 +33,41 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `services` for API calls (one file per resource), `lib` for helpers, `hooks` for hooks, `types` for shared types.
 - **API calls:** go through `api` from `src/lib/api/client.ts`. Check every response with `assertEnvelope` and turn errors into text with `extractApiError` (both in `src/lib/api/errors.ts`).
 
+## Clone architecture (reuse these; don't rebuild them)
+
+- **Auth:**
+  - `AuthProvider` + `useAuth()` for the session.
+  - `<AuthGate mode="guest|user|unverified">` handles every auth redirect.
+  - Signing out emits the `logout` event (`src/lib/auth/events.ts`).
+- **Agents data:**
+  - `src/services/agents.ts` and `src/services/chat.ts` hold the API calls.
+  - The shared store is `src/lib/agents/store.ts`, read with `useAgents()` / `useAgent(id)`. It resets on logout.
+  - Change agents only through `src/lib/agents/actions.ts`: create, update, setSending, delete, clone, mergeAgentLocally. Updates show immediately and roll back if the request fails.
+  - `src/lib/agents/attachments.ts` appends image URLs for chat and splits them back out of history.
+- **Static data:** idea catalogue in `src/data/ideas` (`ideasFor`, `readinessOf`); platform chips in `src/data/platforms.ts`.
+- **Shared agent UI:** `TaskComposer` (also meant for the chat composer), `AgentAvatar`, `AgentCard`, `AgentActionsMenu` + `AgentDialogs` (mount the dialogs once per page), `WorkReceipt`, `IdeaCard`/`IdeaBrowser`.
+- **Layout:** `AppShell` (sidebar and mobile drawer) wraps every `/agents/*` route. `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
+- **Agent workspace:**
+  - `/agents/[id]/layout.tsx` renders `AgentWorkspace`: it loads the agent and shows the header (tabs Chat and Workflows, New conversation, Instructions, actions menu).
+  - Views read the open agent with `useWorkspace()` and open the editor with `openInstructions()`.
+  - Add new tabs (Plugins, Settings) to `WorkspaceHeader`.
+- **Chat:**
+  - `useChat(agentId, conversationId)` handles history, sending, retry, and instruction rewrites (merged locally).
+  - `ChatView` reads the URL options: `?c=` conversation (a new id minted in this tab starts empty), `?task=` draft, `?img=` staged images, `?send=1` sends automatically once history has loaded.
+  - `ComposerWithAttachments` = `TaskComposer` + gallery image uploads (`useAttachments`, max 4 images, 5 MB each).
+  - Agent replies render with `ui/Markdown`.
+- **Settings** (`/agents/[id]/settings?section=general|channels|usage&channel=…`):
+  - **General:** the sending switch with its 24h counts, model (`PUT model`), agent ID, clone and delete.
+  - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
+  - **Usage:** stats and the `/actions` log.
+  - Build sections from `SettingsSection` + `SettingRow`.
+- **Plugins** (`/agents/[id]/plugins?tab=connectors|skills`):
+  - **Connectors:** catalogue in `src/data/connectors`; API in `src/services/connections.ts` (read `/connectors`, fall back to `/integrations`, plus `/platform-apis`; writes go to the routes of whichever read answered); OAuth via `useOAuthPopup`; key forms built from each connector's field list in `ApiKeyModal`.
+  - **External connectors** (SMTP, Facebook) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
+  - **Skills:** static data in `src/data/skills`; "Use in chat" drafts `/slug`.
+  - `ConfirmModal` is the shared "are you sure?" dialog.
+- **Generic hooks:** `useAsync(load, deps)` for read-only requests, `useClipboard`, `useCountdown`. The UI kit also has `Switch`, `Select` (native) and `QrCode`.
+
 # Project purpose
 
 This is a rebuild of the **Agents** section of Macrid, a marketing and sales platform.
