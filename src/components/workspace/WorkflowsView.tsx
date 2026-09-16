@@ -7,6 +7,7 @@ import { HairlineGrid } from "@/components/ui/HairlineGrid";
 import { Tabs } from "@/components/ui/Tabs";
 import { CATEGORIES, ideasFor } from "@/data/ideas";
 import type { IdeaCategory } from "@/types/idea";
+import { ScheduledWork } from "./ScheduledWork";
 import { useWorkspace } from "./WorkspaceContext";
 
 type Filter = "suggested" | IdeaCategory;
@@ -20,6 +21,7 @@ export function WorkflowsView() {
 
   const sendToChat = (text: string) =>
     router.push(`/agents/${agent.id}?task=${encodeURIComponent(text)}&send=1`);
+  const draftInChat = (text: string) => router.push(`/agents/${agent.id}?task=${encodeURIComponent(text)}`);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -31,6 +33,8 @@ export function WorkflowsView() {
             starts on it.
           </p>
         </div>
+
+        <ScheduledWork agentName={agent.name} onSend={sendToChat} onDraft={draftInChat} />
 
         <Tabs
           label="Workflow categories"

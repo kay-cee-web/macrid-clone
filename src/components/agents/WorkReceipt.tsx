@@ -9,11 +9,13 @@ type WorkReceiptProps = {
   area: string;
   stats: ReceiptStat[];
   badge?: ReactNode;
+  /** Detail below the stats, e.g. one line per change. */
+  children?: ReactNode;
   className?: string;
 };
 
 /** Signature element: what an agent did, where, and how much. */
-export function WorkReceipt({ area, stats, badge, className }: WorkReceiptProps) {
+export function WorkReceipt({ area, stats, badge, children, className }: WorkReceiptProps) {
   return (
     <div className={cn("overflow-hidden rounded-[12px] border border-line bg-surface", className)}>
       <header className="flex items-center gap-2 border-b border-dashed border-line px-3 py-2">
@@ -33,6 +35,7 @@ export function WorkReceipt({ area, stats, badge, className }: WorkReceiptProps)
           </div>
         ))}
       </dl>
+      {children && <div className="border-t border-dashed border-line">{children}</div>}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { splitAttachments, withAttachments } from "@/lib/agents/attachments";
-import { pickList } from "@/lib/api/pick";
+import { pickList, toBool, toMaybeNumber } from "@/lib/api/pick";
 import type { ChatImage, ChatMessage, ChatReply } from "@/types/agent";
 
 type MessageRow = { id?: number | string; role?: string; content?: string; created_at?: string };
@@ -36,10 +36,10 @@ export async function fetchMessages(agentId: string): Promise<ChatMessage[]> {
  */
 export async function sendChatMessage(
   agentId: string,
-  input: { message: string; conversationId?: string; images?: ChatImage[] },
+  input: { message: string; images?: ChatImage[] },
 ): Promise<ChatReply> {
-  const body: Record<string, string> = { message: withAttachments(input.message, input.images) };
-  if (input.conversationId) body.conversation_id = input.conversationId;
+  // No `conversation_id`: the backend ignores it and keeps one thread per agent.
+  const body = { message: withAttachments(input.message, input.images) };
 
   const { data } = await api.post(`/agents/${agentId}/chat`, body);
   assertEnvelope(data, "The agent could not answer");
@@ -47,5 +47,13 @@ export async function sendChatMessage(
   // `message` on this API is the envelope's status line, never the reply.
   const reply = typeof data?.reply === "string" ? data.reply.trim() : "";
   const updated = data?.instructions_updated === true && typeof data?.instructions === "string";
-  return { reply, instructions: updated ? data.instructions : null };
+  return {
+    reply,
+    instructions: updated ? data.instructions : null,
+    usage: {
+      charged: toMaybeNumber(data?.tokens_charged),
+      remaining: toMaybeNumber(data?.tokens_remaining),
+      usingOwnKey: toBool(data?.using_own_key, false),
+    },
+  };
 }

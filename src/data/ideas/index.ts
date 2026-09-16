@@ -1,3 +1,4 @@
+import { missingIn, platformNames, type WorkspaceSetup } from "@/lib/setup/platforms";
 import type { Idea, IdeaCategory } from "@/types/idea";
 import { ANALYTICS } from "./analytics";
 import { BUSINESS } from "./business";
@@ -51,10 +52,21 @@ export function ideasFor(category?: string | null): CategorizedIdea[] {
   return MIXED;
 }
 
-export function readinessOf(idea: Idea) {
-  if (idea.ready) return { ready: true, label: "Ready", reason: "Works end to end today" };
-  if (idea.blocked) return { ready: false, label: "Needs setup", reason: `Waiting on ${idea.blocked}` };
-  return { ready: false, label: "Needs setup", reason: "Not switched on yet" };
+export type Readiness = { ready: boolean; tone: "good" | "warn" | "neutral"; label: string; reason: string };
+
+/**
+ * Two layers: `ready`/`blocked` say whether the agent's tools can do the whole
+ * task; `setup` (the workspace's real connections, null while unknown) says
+ * whether the platforms it needs are connected.
+ */
+export function readinessOf(idea: Idea, setup: WorkspaceSetup | null = null): Readiness {
+  if (idea.blocked) return { ready: false, tone: "neutral", label: "Not available", reason: `Waiting on ${idea.blocked}` };
+  if (!idea.ready) return { ready: false, tone: "neutral", label: "Partly", reason: "The agent can't do every step of this yet" };
+  const missing = missingIn(setup, idea.platforms);
+  if (missing.length) {
+    return { ready: false, tone: "warn", label: `Connect ${platformNames(missing)}`, reason: setup?.[missing[0]].note ?? "" };
+  }
+  return { ready: true, tone: "good", label: "Ready", reason: "Works end to end today" };
 }
 
 export const readyCountIn = (category: IdeaCategory) => IDEAS[category].filter((idea) => idea.ready).length;

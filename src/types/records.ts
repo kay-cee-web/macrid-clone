@@ -73,6 +73,44 @@ export type EmailCampaign = {
   createdAt: string | null;
 };
 
+export type Company = {
+  id: string;
+  name: string;
+  domain: string;
+  email: string;
+  industry: string;
+  /** PROSPECT | CLIENT | PARTNER, or a free type. */
+  type: string;
+  location: string;
+  owner: string;
+  createdAt: string | null;
+};
+
+export type WhatsAppCampaign = {
+  id: string;
+  name: string;
+  status: string;
+  recipients: number | null;
+  sent: number | null;
+  delivered: number | null;
+  read: number | null;
+  replied: number | null;
+  failed: number | null;
+  sendAt: string | null;
+  createdAt: string | null;
+};
+
+/** One text in an SMS campaign: who it went to and how it ended. */
+export type SmsLog = {
+  id: string;
+  campaignId: string;
+  to: string;
+  status: string;
+  error: string;
+  cost: number | null;
+  at: string | null;
+};
+
 export type SmsCampaign = {
   id: string;
   name: string;

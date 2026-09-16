@@ -34,13 +34,14 @@ export function SmsCampaignsView({ switcher }: { switcher: ReactNode }) {
       rows={rows}
       columns={columns}
       rowKey={(c) => c.id}
+      rowHref={(c) => `/records/campaigns/sms/${c.id}`}
       matches={matches}
       searchPlaceholder="Search by name, message or status"
       toolbar={switcher}
       empty={{
         icon: <MessageSquareText />,
         title: "No SMS campaigns yet",
-        description: "Ask an agent to text a list. It needs a Twilio sender set up in Macrid.",
+        description: "Ask an agent to text a list. Open a campaign to see each message's delivery.",
       }}
     />
   );

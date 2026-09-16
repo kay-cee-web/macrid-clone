@@ -21,8 +21,20 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
   const { Icon } = connector;
   const connected = connection?.status === "connected";
 
+  // Mailboxes and SMS senders can be several; add more here, remove them in Macrid.
+  const multiple = connector.store === "mail_accounts" || connector.store === "sms_senders";
+
   const action = connected ? (
-    connector.auth === "external" ? (
+    multiple ? (
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" size="sm" onClick={() => onConnect(connector)}>
+          Add another
+        </Button>
+        <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "ghost", size: "sm" })}>
+          Manage <ExternalLink className="size-3.5" />
+        </a>
+      </div>
+    ) : connector.auth === "external" ? (
       <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "secondary", size: "sm" })}>
         Manage in Macrid <ExternalLink className="size-3.5" />
       </a>
@@ -37,7 +49,7 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
     </a>
   ) : (
     <Button size="sm" loading={busy} onClick={() => onConnect(connector)}>
-      {connector.auth === "api_key" ? "Add key" : "Connect"}
+      {multiple ? "Add sender" : connector.auth === "api_key" ? "Add key" : "Connect"}
     </Button>
   );
 
@@ -57,7 +69,9 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
               {connection?.detail && <span className="truncate text-[12px] text-faint">{connection.detail}</span>}
             </span>
           ) : (
-            <span className="text-[12px] text-faint">{connector.optional ? "Optional" : "Not connected"}</span>
+            <span className="text-[12px] text-faint">
+              {connector.auth === "external" && connection?.status === "unknown" ? "Set up in Macrid" : connector.optional ? "Optional" : "Not connected"}
+            </span>
           )}
         </div>
       </div>

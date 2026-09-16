@@ -42,7 +42,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Agents data:**
   - `src/services/agents.ts` and `src/services/chat.ts` hold the API calls.
   - The shared store is `src/lib/agents/store.ts`, read with `useAgents()` / `useAgent(id)`. It resets on logout.
-  - Change agents only through `src/lib/agents/actions.ts`: create, update, setSending, delete, clone, mergeAgentLocally. Updates show immediately and roll back if the request fails.
+  - Change agents only through `src/lib/agents/actions.ts`: create, update, setSending, delete, clone, startConversation, leaveAgent, mergeAgentLocally. Updates show immediately and roll back if the request fails.
   - `src/lib/agents/attachments.ts` appends image URLs for chat and splits them back out of history.
 - **Static data:** idea catalogue in `src/data/ideas` (`ideasFor`, `readinessOf`); platform chips in `src/data/platforms.ts`.
 - **Shared agent UI:** `TaskComposer` (also meant for the chat composer), `AgentAvatar`, `AgentCard`, `AgentActionsMenu` + `AgentDialogs` (mount the dialogs once per page), `WorkReceipt`, `IdeaCard`/`IdeaBrowser`.
@@ -52,23 +52,54 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - Views read the open agent with `useWorkspace()` and open the editor with `openInstructions()`.
   - Add new tabs (Plugins, Settings) to `WorkspaceHeader`.
 - **Chat:**
-  - `useChat(agentId, conversationId)` handles history, sending, retry, and instruction rewrites (merged locally).
-  - `ChatView` reads the URL options: `?c=` conversation (a new id minted in this tab starts empty), `?task=` draft, `?img=` staged images, `?send=1` sends automatically once history has loaded.
+  - `useChat(agentId)` handles history, sending, retry, and instruction rewrites (merged locally). There is one thread per agent.
+  - `ChatView` reads the URL options: `?task=` draft, `?img=` staged images, `?send=1` sends automatically once history has loaded. There is no `?c=`.
+  - **New conversation = copy the agent.** The backend has no endpoint for separate conversations, so `useNewConversation` → `startConversation` creates a copy named `<name> clone <n>` (`src/lib/agents/copyName.ts`: the next free number, counted from the original name, so a clone of "X clone 1" becomes "X clone 2") with the same instructions, model, `is_active` and `sending_enabled`, then opens `/agents/{copyId}`. Earlier conversations stay on the earlier agents (in Recents and All agents).
+    - Channels (WhatsApp, Telegram, extension), history and stats stay on the original agent; they are not copied.
+    - `src/lib/agents/fresh.ts` tracks copies that haven't been used yet. Clicking New conversation on one opens it again instead of copying again. Leaving it (`AgentWorkspace` unmount → `leaveAgent`) deletes it quietly.
+    - A copy counts as used after it sends a message, is edited (`updateAgent`, `setSending`) or starts a channel pairing. Only this tab's memory tracks this, so a reload keeps the copy as a normal agent.
+  - **Work receipts** (`src/lib/records/receipts.ts`): `/actions` is always empty, so `useChat` reads Records before and after each turn (`snapshot.ts`) and compares them (`diff.ts`). The changes show as a `TurnReceipt` (built on `WorkReceipt`) under the reply, failed turns included, and each line links to its Records page.
+    - A snapshot covers lists (lead counts come from `contacts_count`, not from reading every lead), deals, tasks, appointments, email, SMS and WhatsApp campaigns, and funnels. A read that fails is skipped, so it never shows up as "deleted".
+    - A snapshot under 60s old is reused as the next turn's "before". If the "before" reads take longer than 4s, the turn gets no receipt rather than holding the message back.
+    - Changes made elsewhere during the turn show up too, and the receipt says so. Receipts exist only for turns sent in this session; they are gone after a reload.
+  - **Tokens:** `sendChatMessage` returns `usage` (`tokens_charged`, `tokens_remaining`, `using_own_key`). `TurnUsage` shows the cost beside the reply's time. `src/lib/tokens/balance.ts` (`useTokenBalance`) keeps the last known balance for `TokenBalance` in the workspace header; there is no balance endpoint, so nothing shows before the first reply. A failed turn that ran out of tokens (`isTokenExhausted`) gets an "Upgrade plan" link to Macrid's `/settings/plans`.
+  - `linkRecordMentions` (`src/lib/records/mentions.ts`) turns "list ID 168" in replies into a link to `/records/lists/168`. `ui/Markdown` opens in-app (`/…`) links in the same tab.
   - `ComposerWithAttachments` = `TaskComposer` + gallery image uploads (`useAttachments`, max 4 images, 5 MB each).
   - Agent replies render with `ui/Markdown`.
+  - **Above the composer:**
+    - `SetupNotice` warns while the draft names a platform with nothing connected (`platformsMentioned` + `missingIn`), or asks to send while the agent's sending is off. It never blocks the send.
+    - `ApprovalBar` offers Send / Don't send / Ask for changes when "Ask before sending" is on and the last reply asks for a go-ahead (`asksForApproval`).
+- **Workspace setup** (`src/lib/setup/`): `setupFrom(connections)` gives each platform one of `ready | shared | missing | unknown`.
+  - email: SMTP, Gmail or Outlook connected. sms: `shared` without Twilio (Macrid's system sender, `smssender_id: 1`).
+  - google_maps: `shared` without the user's own Places key. google_business: needs GBP.
+  - whatsapp, linkedin and facebook are `unknown`: no endpoint reports them, and `unknown` never blocks.
+  - `useWorkspaceSetup()` reads it through a shared store (5 min cache). `ConnectorsPanel` primes the store with every fresh read.
+  - `readinessOf(idea, setup)`: `blocked` → "Not available"; `ready` missing → "Partly" (the tools can't do every step); a needed platform missing → "Connect X"; otherwise "Ready".
+- **Ask before sending** (`src/lib/agents/approval.ts`): there is no approval queue, so `ApprovalSetting` writes an `[Approval rule]…[/Approval rule]` block into the instructions.
+  - The block says: show the draft, the recipients and the checks, then wait for "send".
+  - The switch reads its state back from the text, because a chat turn can rewrite the instructions.
+- **Scheduled work:** there is no automations endpoint, so `ScheduledWork` (top of Workflows) asks the agent to list, create or cancel automations in chat. Its tools do the work.
 - **Settings** (`/agents/[id]/settings?section=general|channels|usage&channel=…`):
-  - **General:** the sending switch with its 24h counts, model (`PUT model`), agent ID, clone and delete.
+  - **General:** the sending switch with its 24h counts, "Ask before sending", model (`PUT model`), agent ID, clone and delete.
   - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
   - **Usage:** stats and the `/actions` log.
   - Build sections from `SettingsSection` + `SettingRow`.
 - **Plugins** (`/agents/[id]/plugins?tab=connectors|skills`):
   - **Connectors:** catalogue in `src/data/connectors`; API in `src/services/connections.ts` (read `/connectors`, fall back to `/integrations`, plus `/platform-apis`; writes go to the routes of whichever read answered); OAuth via `useOAuthPopup`; key forms built from each connector's field list in `ApiKeyModal`.
-  - **External connectors** (SMTP, Facebook) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
+  - **Senders** (`src/services/senders.ts`) are set up in the clone:
+    - SMTP (`store: "mail_accounts"`): `POST /mail-accounts` with `port` as a number and encryption `TLS|SSL|None`.
+    - Twilio (`store: "sms_senders"`): `POST /sms-senders {sid, auth_token, sender}`.
+    - These can hold several senders, so their cards offer "Add another" and "Manage" (in Macrid) instead of Disconnect. `/mail-accounts` and `/sms-senders` override whatever `/connectors` says about them.
+  - **`POST /platform-apis` replaces the whole row** (the Places key and every AI key). `savePlatformKeys` reads the row first and sends it all back with only the changed fields.
+  - **External connectors** (WhatsApp Business via Meta, Facebook) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
   - **Skills:** static data in `src/data/skills`; "Use in chat" drafts `/slug`.
   - `ConfirmModal` is the shared "are you sure?" dialog.
-- **Records** (`/records/lists|lists/[listId]|deals|tasks|appointments|campaigns?channel=email|sms`):
+- **Records** (`/records/lists|lists/[listId]|leads|companies|deals|tasks|appointments|campaigns?channel=email|sms|whatsapp|campaigns/sms/[id]|funnels|funnels/[slug]|analytics`):
   - A read-only view of workspace data, so users can see what agents created. `/agents/{id}/actions` stays empty even after tool use, so these endpoints are the only source.
-  - Services: `lists`, `leads`, `deals`, `tasks`, `appointments`, `campaigns` (one file each). Normalisers are in `src/lib/records/`, and status labels and tones in `status.ts`.
+  - Services: `lists`, `leads`, `companies`, `deals`, `tasks`, `appointments`, `campaigns` (email, SMS + logs, WhatsApp), `funnels` (one file per resource). Normalisers are in `src/lib/records/`, and status labels and tones in `status.ts`.
+  - **Leads:** every lead, with its list and a status filter. **SMS campaigns:** each row opens its delivery log.
+  - **Funnels:** a row opens its stats and latest events; the view accepts a slug or an id.
+  - **Analytics** (`src/lib/records/analytics.ts`) is computed in the browser from campaign rows and `/sms-logs`, over a 7/30/90-day or all-time range. `ui/StatGrid` draws the KPI tiles.
   - Rows are sorted newest first (`newestFirst`). Paginated endpoints go through `fetchAllPages` (`src/lib/api/paginate.ts`).
   - Build each view from `RecordsView` (search, refresh, loading/error/empty states) + `ui/DataTable` (columns, `rowHref` makes the whole row a link) + the cell helpers in `records/cells.tsx`.
 - **Layout:** `(app)/layout.tsx` = `AuthGate` + `AppShell` for every signed-in section. `ui/RouteTabs` renders link tabs (the agent header and Records).
@@ -148,7 +179,7 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 - **`POST /chat` can rewrite the agent's own instructions.** When `instructions_updated` is true, update the local agent with the new `instructions` and do **not** send a PUT, because the backend has already saved it.
 - **No real reply field besides `reply`.** `message` in a response is the status line, never the reply.
 - **Chat has no attachment field.** Upload images to `/gallery` first, then append their URLs to the message text. Macrid appends: `"\n\nAttached images (already hosted, open these URLs to view them):\n- name: url"`.
-- **History is per agent, not per conversation.** `conversation_id` doesn't split history.
+- **History is per agent, not per conversation.** `conversation_id` doesn't split history, and no endpoint lists or loads past conversations, so every message is added to the end of one thread. The clone doesn't send `conversation_id`; "New conversation" copies the agent instead (see Chat above).
 - **One request per chat turn.** No streaming, SSE or polling.
 - **Sort order:** Macrid re-sorts the list by `updated_at` for "Recents". Sort options on the catalog are: edited, created, name A–Z, name Z–A.
 - **`sending` is a kill switch, not a send button.** It sets `sending_enabled`; a stopped agent still researches and drafts. Show it beside "active" in settings, together with `stats.blocked_last_24h`.
@@ -235,7 +266,7 @@ Connections belong to the user's workspace, not to one agent.
 - `skills.js`, `platforms.js`, `surfaces.js`
 - `greetings.js`, `intro.js` (the first message for a new agent, built on the client)
 
-**UI with no backend yet (keep it local or hide it):** model choice, voice, memory, sharing, security, webhooks, folders, favourites, feedback, skill upload, connector requests, the conversations list.
+**UI with no backend yet (keep it local or hide it):** model choice, voice, memory, sharing, security, webhooks, folders, favourites, feedback, skill upload, connector requests, the conversations list (in the clone, past conversations are the earlier copies of the agent).
 
 ## Agent tools (backend, confirmed 2026-09-15)
 
@@ -276,7 +307,7 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 - Export to an email platform: `POST /ar-export {service, data:[{name,email}]}`.
 
 **Companies**
-- `GET /companies?page` returns `{companies, teams}`.
+- `GET /companies?page` returns `{companies, teams}`. Macrid's code treats `companies` as both a plain array and a paginator, so `fetchCompanies` accepts either. Rows: `id, name, industry, type, email, domain, city, state, owner, owner_name, created_at`.
 - `POST /companies` and `PUT /companies/{id}` take `{name, email, domain, owner, industry, type, status (PROSPECT|CLIENT|PARTNER), city, state, postal_code, num_employee, annual_revenue, time_zone, description, linkedin_company_page}`.
 - Bulk delete: `DELETE /bulk-delete-companies {ids:"1,2"}`.
 - Companies are **not** linked by id to leads or deals.
@@ -317,10 +348,23 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 - `GET /teams`; `POST /teams {name, username, email, role}`.
 - `role` is accepted but not stored yet. There is no invite email.
 
+### Funnels
+
+- `GET /funnel-campaigns` returns rows at `data`: `id, slug, name, format, status (1 = published), created_at, custom_domain, temp_url, funnelcampaign_url`. The list has no view or click counts.
+- **Public URL** comes from the backend: landing pages use `custom_domain`, falling back to `temp_url` (`*.macridsites.com`); other formats use `funnelcampaign_url`. Add `https://` when it's missing.
+- `GET /funnel-campaign-events/{slug}/stats` returns flat fields: `views, clicks, unique_visitors, views_change, clicks_change, visitors_change, conversion_change, campaign_name`. CTR is computed in the browser.
+- `GET /funnel-campaign-events?slug&per_page&page[&action=view|click][&from&to]` returns a paginator at `data`. Rows: `action, country, city, browser, os, device_type, referrer, created_at`.
+- Publish: `POST /funnel-campaigns/publish {slug}` and `/unpublish {slug}`. Delete: `DELETE /funnel-campaigns/{id}`.
+
+### Automations
+
+- **No endpoint lists, creates or cancels automations.** Only the agent's tools (`schedule_automation`, `list_automations`, `cancel_automation`) reach them. Scheduling otherwise exists only as a field on a send (email `schedule_datetime`, SMS `datetime`).
+
 ### Email outreach
 
 **Senders (SMTP)**
-- `GET /mail-accounts`; `POST /mail-accounts` and `PUT /mail-accounts/{id}` take `{host, port, username, password, encryption_type (TLS|SSL|None), senderemail, sendername}`.
+- `GET /mail-accounts` (rows at `data`); `POST /mail-accounts` and `PUT /mail-accounts/{id}` take `{host, port (number), username, password, encryption_type (TLS|SSL|None), senderemail, sendername}`.
+- **Delete is on a different path:** `DELETE /email-accounts/{id}`, bulk `POST /email-accounts/bulk-delete {ids}`.
 - There is no verify or test-connection endpoint.
 
 **Simple campaign**
@@ -341,6 +385,7 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 **Stats**
 - `GET /email-campaigns` returns rows with `open_rate, click_rate, clicks, unsubscribers, status (sent|pending|scheduled|draft|failed)`.
 - There are no endpoints for sequences, follow-ups or reply tracking.
+- **There are no `/analytics/*` endpoints.** Macrid's analytics pages compute everything in the browser from `/email-campaigns`, `/sms-campaigns` + `/sms-logs`, and the WhatsApp campaigns list (its WhatsApp analytics page is empty).
 
 **Deliverability check**
 - `POST /verify-emails {emails:[…]}` (batches of 10) returns `{results:[{email, status: valid|invalid|unknown, risk, tags}]}`.
@@ -349,8 +394,9 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 ### SMS (Twilio, user's own credentials)
 
 **Senders**
-- `GET /sms-senders`; `POST /sms-senders {sid, auth_token, sender}`.
+- `GET /sms-senders` (rows `{id, sid, sender, status ("1" = active), messages_count}`); `POST /sms-senders {sid, auth_token, sender}`; `DELETE /sms-senders/{id}`.
 - **Bug:** `PUT` sends camelCase `authToken`, which doesn't match the create call.
+- Without a sender of your own, SMS still goes out on Macrid's system sender (`smssender_id: 1`).
 
 **Send**
 - `POST /send-sms {message (≤1000), contacts:[+E.164 numbers], type, smssender_id (1 = system sender), sender_name (≤11), datetime (null = now)}`.
@@ -362,12 +408,16 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 - History:
   - `GET /sms-campaigns`
   - `GET /sms-logs`
-  - `GET /sms-logs/sms-campaign-id?smscampaign_id=` returns `{to, status: delivered|pending|failed, error_message, cost}`
+  - `GET /sms-logs/sms-campaign-id?smscampaign_id=` returns `{to, status: delivered|pending|failed, error_message, cost, datetime}` (an array, or at `logs`/`data`)
+  - `GET /sms-logs` rows carry `smscampaign_id`, which the analytics use to match logs to campaigns.
 - Balance: `GET /sms-balance` (may not exist).
 
 ### WhatsApp outreach
 
 - **Connect:** Meta embedded signup, then `POST /whatsapp/fetch-phones {access_token}`, then `POST /whatsapp/connect {waba_id, phone_number_id, phone_number, display_name, access_token}`.
+  - **No endpoint reports whether WhatsApp Business is connected.** Macrid only checks `localStorage.macrid_wa_connection`, so the clone treats it as unknown.
+- **Broadcasts:** Macrid lists them at `GET "/whatsapp.campaigns"` (with a dot, params `from`/`to`); the detail route is `GET /whatsapp/campaigns/{id}`. The clone tries the dot path first, then the slash on a 404.
+  - Row fields have had two names each: `total_recipients|recipients, sent_count|successful, delivered_count, read_count|read, replied_count|replied, failed_count|failed, scheduled_at|started_at`.
 - **Templates:** `GET /whatsapp/templates` (use only `APPROVED` ones).
 - **Send:**
   - `POST /whatsapp/send-bulk {mode: text|template, content, leads:[{id, name, phone, vars}]}` returns `{sent, failed, errors}`; `{{name}}` and `{{business}}` work in `content`.

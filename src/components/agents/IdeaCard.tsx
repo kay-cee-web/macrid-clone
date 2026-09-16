@@ -1,6 +1,7 @@
 import { PLATFORMS } from "@/data/platforms";
 import { readinessOf } from "@/data/ideas";
 import { Pill } from "@/components/ui/Pill";
+import { useWorkspaceSetup } from "@/hooks/useWorkspaceSetup";
 import type { Idea } from "@/types/idea";
 
 type IdeaCardProps = {
@@ -12,7 +13,7 @@ type IdeaCardProps = {
 
 /** A standing task. What picking does is up to the caller. */
 export function IdeaCard({ idea, onPick, eyebrow }: IdeaCardProps) {
-  const readiness = readinessOf(idea);
+  const readiness = readinessOf(idea, useWorkspaceSetup());
 
   return (
     <button
@@ -39,7 +40,7 @@ export function IdeaCard({ idea, onPick, eyebrow }: IdeaCardProps) {
           );
         })}
         <span title={readiness.reason} className="ml-auto">
-          <Pill tone={readiness.ready ? "good" : "neutral"} dot={readiness.ready}>
+          <Pill tone={readiness.tone} dot={readiness.tone !== "neutral"}>
             {readiness.label}
           </Pill>
         </span>

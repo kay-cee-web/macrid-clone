@@ -2,6 +2,7 @@ import axios, { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { getToken } from "@/lib/auth/session";
 import { emitAuthEvent } from "@/lib/auth/events";
+import { isTokenExhausted } from "./errors";
 
 /** The one HTTP client. Same Laravel API and auth scheme as Macrid. */
 export const api = axios.create({
@@ -29,11 +30,11 @@ api.interceptors.response.use(
     }
 
     const body = error.response.data ?? {};
-    const appError = typeof body.error === "string" ? body.error.toLowerCase() : "";
+    const appError = typeof body.error === "string" ? body.error : "";
     const message = typeof body.message === "string" ? body.message : "";
 
     // Out of AI tokens is a plan limit, not an expired session: warn, stay signed in.
-    if (appError.includes("run out of token")) {
+    if (isTokenExhausted(appError)) {
       if (!tokenWarningShown) {
         tokenWarningShown = true;
         toast.warning("You've run out of tokens. Upgrade your plan to keep your agents working.");

@@ -2,27 +2,12 @@
 
 import Link from "next/link";
 import { ArrowLeft, UserRound } from "lucide-react";
-import type { Column } from "@/components/ui/DataTable";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAsync } from "@/hooks/useAsync";
 import { fetchLeads } from "@/services/leads";
 import { fetchList } from "@/services/lists";
-import type { Lead } from "@/types/records";
-import { CreatedCell, StackCell, StatusCell, TextCell } from "./cells";
+import { LEAD_COLUMNS, leadMatches } from "./leadColumns";
 import { RecordsView } from "./RecordsView";
-
-const columns: Column<Lead>[] = [
-  { key: "name", header: "Lead", cell: (lead) => <StackCell primary={lead.name} secondary={lead.website} /> },
-  { key: "email", header: "Email", cell: (lead) => <TextCell value={lead.email} /> },
-  { key: "phone", header: "Phone", wide: true, cell: (lead) => <TextCell value={lead.phone} muted /> },
-  { key: "status", header: "Status", cell: (lead) => <StatusCell status={lead.status} /> },
-  { key: "score", header: "Score", numeric: true, wide: true, cell: (lead) => <TextCell value={lead.score} /> },
-  { key: "location", header: "Location", wide: true, cell: (lead) => <TextCell value={lead.location} muted /> },
-  { key: "created", header: "Added", cell: (lead) => <CreatedCell value={lead.createdAt} /> },
-];
-
-const matches = (lead: Lead, q: string) =>
-  [lead.name, lead.email, lead.phone, lead.website, lead.location].some((field) => field.toLowerCase().includes(q));
 
 export function ListLeadsView({ listId }: { listId: string }) {
   const state = useAsync(
@@ -52,9 +37,9 @@ export function ListLeadsView({ listId }: { listId: string }) {
       <RecordsView
         noun="leads"
         rows={{ ...state, data: state.data?.leads ?? null }}
-        columns={columns}
+        columns={LEAD_COLUMNS}
         rowKey={(lead) => lead.id}
-        matches={matches}
+        matches={leadMatches}
         searchPlaceholder="Search by name, email, phone or website"
         empty={{
           icon: <UserRound />,

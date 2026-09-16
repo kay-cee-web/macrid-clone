@@ -1,5 +1,7 @@
 import * as service from "@/services/agents";
 import type { Agent, AgentInput } from "@/types/agent";
+import { conversationCopyName } from "./copyName";
+import { isUnusedCopy, markUnused, markUsed, scheduleDiscard } from "./fresh";
 import { getAgentsState, setAgents } from "./store";
 
 /**
@@ -22,6 +24,7 @@ export async function createAgent(input: AgentInput = {}) {
 }
 
 export async function updateAgent(id: string, patch: AgentInput) {
+  markUsed(id);
   const previous = findAgent(id);
   if (previous) upsert({ ...previous, ...patch, updatedAt: now() });
   try {
@@ -35,6 +38,7 @@ export async function updateAgent(id: string, patch: AgentInput) {
 }
 
 export async function setSending(id: string, enabled: boolean) {
+  markUsed(id);
   const previous = findAgent(id);
   if (previous) upsert({ ...previous, sendingEnabled: enabled });
   try {
@@ -48,6 +52,7 @@ export async function setSending(id: string, enabled: boolean) {
 }
 
 export async function deleteAgent(id: string) {
+  markUsed(id);
   const previous = findAgent(id);
   setAgents((agents) => agents.filter((agent) => agent.id !== id));
   try {
@@ -58,13 +63,35 @@ export async function deleteAgent(id: string) {
   }
 }
 
+/** Everything the API lets us copy. Channels, history and stats stay on the original. */
+const copyOf = (agent: Agent, name: string): AgentInput => ({
+  name,
+  instructions: agent.instructions,
+  isActive: agent.isActive,
+  sendingEnabled: agent.sendingEnabled,
+  ...(agent.model ? { model: agent.model } : {}),
+});
+
 /** Not optimistic: the copy has no id until the backend creates it. */
 export function cloneAgent(agent: Agent) {
-  return createAgent({
-    name: `${agent.name} copy`,
-    instructions: agent.instructions,
-    ...(agent.model ? { model: agent.model } : {}),
-  });
+  return createAgent(copyOf(agent, `${agent.name} copy`));
+}
+
+/**
+ * History is stored per agent, so a new conversation is a copy ("<name> clone
+ * <n>") with an empty thread. An unused copy is reused instead of copied again.
+ */
+export async function startConversation(agent: Agent) {
+  if (isUnusedCopy(agent.id)) return agent;
+  const names = getAgentsState().agents.map((a) => a.name);
+  const copy = await createAgent(copyOf(agent, conversationCopyName(agent.name, names)));
+  markUnused(copy.id);
+  return copy;
+}
+
+/** Leaving a copy that was never used deletes it quietly. */
+export function leaveAgent(id: string) {
+  scheduleDiscard(id, () => void deleteAgent(id).catch(() => {}));
 }
 
 /**

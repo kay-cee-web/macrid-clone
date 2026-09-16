@@ -9,25 +9,26 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import { useChat } from "@/hooks/useChat";
 import { nameFromUrl } from "@/lib/files";
+import { ApprovalBar } from "./ApprovalBar";
 import { ChatEmpty } from "./ChatEmpty";
+import { SetupNotice } from "./SetupNotice";
 import { ChatThread } from "./ChatThread";
 import { ComposerWithAttachments } from "./ComposerWithAttachments";
 
 /**
- * URL options: ?c= conversation, ?task= draft text, ?img= staged image URLs,
- * ?send=1 sends the task as soon as history has loaded.
+ * URL options: ?task= draft text, ?img= staged image URLs, ?send=1 sends the
+ * task as soon as history has loaded.
  */
 export function ChatView() {
   const { agent, openInstructions } = useWorkspace();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const conversationId = params.get("c");
   const autoSend = params.get("send") === "1";
 
   const [draft, setDraft] = useState(() => (autoSend ? "" : params.get("task") ?? ""));
   const [initialImages] = useState(() => (autoSend ? [] : params.getAll("img")));
-  const chat = useChat(agent.id, conversationId);
+  const chat = useChat(agent.id);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const autoSent = useRef(false);
   const historyReady = chat.historyStatus === "ready";
@@ -37,9 +38,8 @@ export function ChatView() {
     if (!autoSend || !task || !historyReady || autoSent.current) return;
     autoSent.current = true;
     void chat.send(task, params.getAll("img").map((url) => ({ url, name: nameFromUrl(url) })));
-    const keep = conversationId ? `?c=${conversationId}` : "";
-    router.replace(`${pathname}${keep}`, { scroll: false });
-  }, [autoSend, historyReady, params, chat, conversationId, pathname, router]);
+    router.replace(pathname, { scroll: false });
+  }, [autoSend, historyReady, params, chat, pathname, router]);
 
   const pick = (text: string) => {
     setDraft(text);
@@ -78,6 +78,14 @@ export function ChatView() {
       </div>
 
       <div className="shrink-0 px-4 pb-4 sm:px-6">
+        <ApprovalBar
+          agent={agent}
+          messages={chat.messages}
+          busy={chat.sending || !historyReady}
+          onReply={(text) => void chat.send(text)}
+          onEdit={() => pick("Change the draft: ")}
+        />
+        <SetupNotice agent={agent} draft={draft} />
         <ComposerWithAttachments
           id="chat-message"
           label={`Message ${agent.name}`}

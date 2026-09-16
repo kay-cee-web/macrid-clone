@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { markUsed } from "@/lib/agents/fresh";
 import { extractApiError } from "@/lib/api/errors";
 import { disconnectChannel, fetchChannelStatus, startChannelConnect } from "@/services/channels";
 import type { ChannelLink, ChannelProvider, Pairing } from "@/types/channel";
@@ -72,6 +73,7 @@ export function useChannelConnection(agentId: string, provider: ChannelProvider,
 
   const start = useCallback(async () => {
     setConnecting(true);
+    markUsed(agentId);
     try {
       setPairing(await startChannelConnect(agentId, provider));
     } catch (err) {

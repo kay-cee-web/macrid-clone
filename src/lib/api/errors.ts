@@ -58,6 +58,9 @@ export function extractApiError(err: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Out of AI tokens: a plan limit (upgrade), not a failure worth retrying as is. */
+export const isTokenExhausted = (text: string) => /run out of token/i.test(text);
+
 /**
  * This API can answer a failure inside a 200: `{ status: false, errors }`.
  * Throws so callers handle it like any other failed request.

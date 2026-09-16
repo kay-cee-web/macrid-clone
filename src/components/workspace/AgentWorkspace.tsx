@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Bot, CircleAlert } from "lucide-react";
 import { AgentDialogs } from "@/components/agents/AgentDialogs";
@@ -10,6 +10,8 @@ import { buttonStyles } from "@/components/ui/button-styles";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAgent } from "@/hooks/useAgents";
+import { leaveAgent } from "@/lib/agents/actions";
+import { cancelDiscard } from "@/lib/agents/fresh";
 import { InstructionsModal } from "./InstructionsModal";
 import { WorkspaceContext } from "./WorkspaceContext";
 import { WorkspaceHeader } from "./WorkspaceHeader";
@@ -19,6 +21,12 @@ export function AgentWorkspace({ id, children }: { id: string; children: ReactNo
   const { agent, status, error, reload } = useAgent(id);
   const [dialog, setDialog] = useState<AgentDialog>(null);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+
+  // An unused "New conversation" copy is deleted once the user leaves it.
+  useEffect(() => {
+    cancelDiscard(id);
+    return () => leaveAgent(id);
+  }, [id]);
 
   if (!agent && (status === "idle" || status === "loading")) {
     return (

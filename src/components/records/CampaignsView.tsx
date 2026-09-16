@@ -4,14 +4,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { EmailCampaignsView } from "./EmailCampaignsView";
 import { SmsCampaignsView } from "./SmsCampaignsView";
+import { WhatsAppCampaignsView } from "./WhatsAppCampaignsView";
 
-type Channel = "email" | "sms";
+const CHANNELS = ["email", "sms", "whatsapp"] as const;
+type Channel = (typeof CHANNELS)[number];
 
-/** ?channel=email|sms */
+/** ?channel=email|sms|whatsapp */
 export function CampaignsView() {
   const router = useRouter();
   const pathname = usePathname();
-  const channel: Channel = useSearchParams().get("channel") === "sms" ? "sms" : "email";
+  const requested = useSearchParams().get("channel");
+  const channel: Channel = CHANNELS.includes(requested as Channel) ? (requested as Channel) : "email";
 
   const switcher = (
     <SegmentedControl
@@ -21,9 +24,12 @@ export function CampaignsView() {
       options={[
         { value: "email", label: "Email" },
         { value: "sms", label: "SMS" },
+        { value: "whatsapp", label: "WhatsApp" },
       ]}
     />
   );
 
-  return channel === "sms" ? <SmsCampaignsView switcher={switcher} /> : <EmailCampaignsView switcher={switcher} />;
+  if (channel === "sms") return <SmsCampaignsView switcher={switcher} />;
+  if (channel === "whatsapp") return <WhatsAppCampaignsView switcher={switcher} />;
+  return <EmailCampaignsView switcher={switcher} />;
 }

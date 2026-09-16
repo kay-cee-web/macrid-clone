@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
@@ -6,9 +7,17 @@ import { cn } from "@/lib/cn";
 /** Element styles for agent replies, all from theme tokens. */
 const components: Components = {
   p: (props) => <p className="my-2 first:mt-0 last:mb-0" {...props} />,
-  a: ({ href, ...props }) => (
-    <a href={href} target="_blank" rel="noreferrer" className="font-medium text-accent underline underline-offset-2" {...props} />
-  ),
+  // In-app paths (e.g. linked record ids) stay in this tab; everything else opens a new one.
+  a: ({ href, children, ...props }) =>
+    href?.startsWith("/") ? (
+      <Link href={href} className="font-medium text-accent underline underline-offset-2">
+        {children}
+      </Link>
+    ) : (
+      <a href={href} target="_blank" rel="noreferrer" className="font-medium text-accent underline underline-offset-2" {...props}>
+        {children}
+      </a>
+    ),
   ul: (props) => <ul className="my-2 list-disc space-y-1 pl-5 marker:text-faint" {...props} />,
   ol: (props) => <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-faint" {...props} />,
   h1: (props) => <h3 className="mb-2 mt-4 text-[18px] font-semibold first:mt-0" {...props} />,

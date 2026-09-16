@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CircleAlert, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import { CONNECTORS, CONNECTOR_CATEGORIES } from "@/data/connectors";
 import { useAsync } from "@/hooks/useAsync";
 import { useOAuthPopup } from "@/hooks/useOAuthPopup";
 import { extractApiError } from "@/lib/api/errors";
+import { primeSetup } from "@/lib/setup/store";
 import { disconnectConnector, fetchConnections } from "@/services/connections";
 import type { Connector } from "@/types/connector";
 import { ApiKeyModal } from "./ApiKeyModal";
@@ -31,6 +32,11 @@ export function ConnectorsPanel() {
     // The popup may have finished even if it closed without a message.
     connections.reload();
   });
+
+  // Idea cards and the chat's setup check read the same connections.
+  useEffect(() => {
+    if (connections.data) primeSetup(connections.data);
+  }, [connections.data]);
 
   const q = query.trim().toLowerCase();
   const visible = CONNECTORS.filter((c) => !q || `${c.name} ${c.description}`.toLowerCase().includes(q));

@@ -11,13 +11,26 @@ export const SMTP_FIELDS: ConnectorField[] = [
     type: "select",
     required: true,
     options: [
-      { value: "tls", label: "TLS" },
-      { value: "ssl", label: "SSL" },
-      { value: "none", label: "None" },
+      { value: "TLS", label: "TLS" },
+      { value: "SSL", label: "SSL" },
+      { value: "None", label: "None" },
     ],
   },
   { name: "senderemail", label: "From address", type: "email", required: true },
   { name: "sendername", label: "From name", type: "text", required: true },
+];
+
+export const TWILIO_FIELDS: ConnectorField[] = [
+  { name: "sid", label: "Account SID", type: "text", placeholder: "AC…", required: true },
+  { name: "auth_token", label: "Auth token", type: "password", required: true },
+  {
+    name: "sender",
+    label: "Sender",
+    type: "text",
+    placeholder: "+15551234567 or MyBrand",
+    required: true,
+    help: "A Twilio number in +E.164 format, or an alphanumeric sender ID (up to 11 characters).",
+  },
 ];
 
 export const apiKeyFields = (...extra: ConnectorField[]): ConnectorField[] => [

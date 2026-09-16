@@ -3,12 +3,17 @@
 import { CircleAlert, RotateCw } from "lucide-react";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/Button";
+import { buttonStyles } from "@/components/ui/button-styles";
 import { Markdown } from "@/components/ui/Markdown";
 import { Pill } from "@/components/ui/Pill";
 import type { ThreadMessage } from "@/hooks/useChat";
+import { macridAppLink } from "@/lib/config";
 import { timeAgo } from "@/lib/format";
+import { linkRecordMentions } from "@/lib/records/mentions";
 import type { ChatImage } from "@/types/agent";
 import { MessageActions } from "./MessageActions";
+import { TurnReceipt } from "./TurnReceipt";
+import { TurnUsage } from "./TurnUsage";
 
 type ChatMessageItemProps = {
   message: ThreadMessage;
@@ -43,16 +48,28 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
     );
   }
 
+  const receipt = message.changes?.length ? <TurnReceipt changes={message.changes} className="ml-7" /> : null;
+
   if (message.error) {
     return (
-      <div role="alert" className="flex items-start gap-3 rounded-[12px] border border-bad/30 bg-bad-soft px-3.5 py-3 text-bad">
-        <CircleAlert className="mt-0.5 size-4 shrink-0" />
-        <p className="min-w-0 flex-1 text-[13.5px]">{message.text}</p>
-        {message.retry && (
-          <Button size="sm" variant="secondary" icon={<RotateCw className="size-3.5" />} onClick={() => onRetry(message)}>
-            Retry
-          </Button>
-        )}
+      <div className="grid gap-2">
+        <div role="alert" className="flex flex-wrap items-start gap-3 rounded-[12px] border border-bad/30 bg-bad-soft px-3.5 py-3 text-bad">
+          <CircleAlert className="mt-0.5 size-4 shrink-0" />
+          <p className="min-w-0 flex-1 text-[13.5px]">{message.text}</p>
+          <div className="flex gap-2">
+            {message.outOfTokens && (
+              <a href={macridAppLink("/settings/plans")} target="_blank" rel="noreferrer" className={buttonStyles({ size: "sm" })}>
+                Upgrade plan
+              </a>
+            )}
+            {message.retry && (
+              <Button size="sm" variant="secondary" icon={<RotateCw className="size-3.5" />} onClick={() => onRetry(message)}>
+                Retry
+              </Button>
+            )}
+          </div>
+        </div>
+        {receipt}
       </div>
     );
   }
@@ -63,8 +80,10 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
         <AgentAvatar name={agentName} size="xs" />
         <span className="font-medium text-ink">{agentName}</span>
         {new Date(message.at).getTime() > 0 && <span className="text-faint">{timeAgo(message.at)}</span>}
+        {message.usage && <TurnUsage usage={message.usage} />}
       </div>
-      <Markdown className="pl-7">{message.text}</Markdown>
+      <Markdown className="pl-7">{linkRecordMentions(message.text)}</Markdown>
+      {receipt}
       <div className="flex items-center gap-2 pl-6">
         {message.instructionsUpdated && (
           <button type="button" onClick={onViewInstructions} className="rounded-full" title="View the updated instructions">

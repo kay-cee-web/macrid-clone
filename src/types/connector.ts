@@ -31,8 +31,12 @@ export type Connector = {
   /** External: path inside the Macrid app where it's managed. */
   manageHref?: string;
   fields?: ConnectorField[];
-  /** Keys kept in platform_apis instead of integrations (Google Places). */
-  store?: "platform_apis";
+  /**
+   * Where the credentials live when it isn't /connectors or /integrations:
+   * platform_apis (Google Places), mail_accounts (SMTP), sms_senders (Twilio).
+   * The last two can hold several senders, so they are added, not disconnected.
+   */
+  store?: "platform_apis" | "mail_accounts" | "sms_senders";
   optional?: boolean;
 };
 

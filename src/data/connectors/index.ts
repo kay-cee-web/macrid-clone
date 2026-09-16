@@ -1,6 +1,8 @@
-import { AtSign, Boxes, Calendar, Flame, Layers, Mail, MapPin, Rocket, Send, Sheet, Store, Users, Waves } from "lucide-react";
+import {
+  AtSign, Boxes, Calendar, Flame, Layers, Mail, MapPin, MessageCircle, MessageSquare, Rocket, Send, Sheet, Store, Users, Waves,
+} from "lucide-react";
 import type { Connector, ConnectorCategory } from "@/types/connector";
-import { FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, apiKeyFields } from "./fields";
+import { FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS, apiKeyFields } from "./fields";
 
 /** Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js). */
 export const CONNECTOR_CATEGORIES: { key: ConnectorCategory; label: string; blurb: string }[] = [
@@ -13,9 +15,19 @@ const google = (service: string) => `/connectors/google/redirect?service=${servi
 
 export const CONNECTORS: Connector[] = [
   {
-    key: "smtp", name: "Email (SMTP)", category: "channel", auth: "external", Icon: Mail,
+    key: "smtp", name: "Email (SMTP)", category: "channel", auth: "api_key", Icon: Mail, store: "mail_accounts",
     manageHref: "/multi-channel-outreach/email", fields: SMTP_FIELDS,
     description: "Send campaigns and sequences from your own mailbox.",
+  },
+  {
+    key: "twilio", name: "SMS (Twilio)", category: "channel", auth: "api_key", Icon: MessageSquare, store: "sms_senders",
+    manageHref: "/multi-channel-outreach/sms", fields: TWILIO_FIELDS, optional: true,
+    description: "Text from your own number. Optional: without it, SMS goes out on Macrid's shared sender.",
+  },
+  {
+    key: "whatsapp_business", name: "WhatsApp Business", category: "channel", auth: "external", Icon: MessageCircle,
+    manageHref: "/settings/whatsapp-settings",
+    description: "Send WhatsApp broadcasts from your business number. Connected through Meta inside Macrid.",
   },
   {
     key: "gmail", name: "Gmail", category: "channel", auth: "oauth", Icon: Send, connect: google("gmail"),
@@ -84,5 +96,5 @@ export const CONNECTORS_BY_KEY: Record<string, Connector> = Object.fromEntries(C
 
 /** Aliases the backend has used for a connector's key. */
 export const CONNECTOR_ALIASES: Record<string, string> = {
-  email: "smtp", outlook: "outlook_mail", google_maps: "google_places", google_business: "gbp",
+  email: "smtp", sms: "twilio", outlook: "outlook_mail", google_maps: "google_places", google_business: "gbp",
 };

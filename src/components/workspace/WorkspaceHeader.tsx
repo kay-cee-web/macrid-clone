@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FileText, SquarePen } from "lucide-react";
 import { AgentActionsMenu, type AgentDialog } from "@/components/agents/AgentActionsMenu";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
@@ -9,8 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Pill } from "@/components/ui/Pill";
 import { RouteTabs } from "@/components/ui/RouteTabs";
-import { newConversationId } from "@/lib/chat/conversation";
+import { useNewConversation } from "@/hooks/useNewConversation";
 import type { Agent } from "@/types/agent";
+import { TokenBalance } from "./TokenBalance";
 
 type WorkspaceHeaderProps = {
   agent: Agent;
@@ -19,7 +19,7 @@ type WorkspaceHeaderProps = {
 };
 
 export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHeaderProps) {
-  const router = useRouter();
+  const conversation = useNewConversation(agent);
   const base = `/agents/${agent.id}`;
   const tabs = [
     { href: base, label: "Chat" },
@@ -40,16 +40,23 @@ export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHe
             </Pill>
           </Link>
         </div>
+        <TokenBalance className="hidden md:inline-flex" />
         <Button
           variant="secondary"
           size="sm"
           icon={<SquarePen className="size-3.5" />}
-          onClick={() => router.push(`${base}?c=${newConversationId()}`)}
+          loading={conversation.starting}
+          onClick={() => void conversation.start()}
           className="hidden sm:inline-flex"
         >
           New conversation
         </Button>
-        <IconButton label="New conversation" className="sm:hidden" onClick={() => router.push(`${base}?c=${newConversationId()}`)}>
+        <IconButton
+          label="New conversation"
+          className="sm:hidden"
+          disabled={conversation.starting}
+          onClick={() => void conversation.start()}
+        >
           <SquarePen />
         </IconButton>
         <IconButton label="Instructions" onClick={onInstructions}>

@@ -11,6 +11,7 @@ import { MODEL_GROUPS, isKnownModel, modelName } from "@/data/models";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cloneAgent, updateAgent } from "@/lib/agents/actions";
 import { extractApiError } from "@/lib/api/errors";
+import { ApprovalSetting } from "./ApprovalSetting";
 import { SendingSetting } from "./SendingSetting";
 import { SettingRow, SettingsSection } from "./SettingsSection";
 
@@ -48,6 +49,7 @@ export function GeneralSettings() {
     <div className="grid gap-8">
       <SettingsSection title="Behaviour">
         <SendingSetting agent={agent} />
+        <ApprovalSetting agent={agent} />
         <SettingRow label="Model" htmlFor="agent-model" description="The AI model this agent thinks with.">
           <Select
             id="agent-model"

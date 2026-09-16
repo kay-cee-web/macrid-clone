@@ -53,8 +53,17 @@ export type ChatMessage = {
   error?: boolean;
 };
 
+/** What a chat turn cost. Balances are account-wide, not per agent. */
+export type TokenUsage = {
+  charged: number | null;
+  remaining: number | null;
+  /** The user's own AI key paid for the turn, so no Macrid tokens were used. */
+  usingOwnKey: boolean;
+};
+
 export type ChatReply = {
   reply: string;
   /** The rewritten brief, when this turn changed the agent's own instructions. */
   instructions: string | null;
+  usage: TokenUsage;
 };

@@ -1,5 +1,5 @@
 import { toMaybeNumber, toNumber, toText } from "@/lib/api/pick";
-import type { Deal, Lead, RecordList, Task } from "@/types/records";
+import type { Company, Deal, Lead, RecordList, Task } from "@/types/records";
 
 type Row = Record<string, unknown>;
 
@@ -68,6 +68,20 @@ export function normalizeTask(row: Row): Task {
     endDate: textOrNull(row.end_date),
     status: toText(row.status),
     note: toText(row.note),
+    createdAt: textOrNull(row.created_at),
+  };
+}
+
+export function normalizeCompany(row: Row): Company {
+  return {
+    id: toText(row.id),
+    name: toText(row.name) || toText(row.domain) || "Untitled company",
+    domain: toText(row.domain),
+    email: toText(row.email),
+    industry: toText(row.industry),
+    type: toText(row.type) || toText(row.status),
+    location: [toText(row.city), toText(row.state)].filter(Boolean).join(", "),
+    owner: toText(row.owner_name) || toText(row.owner),
     createdAt: textOrNull(row.created_at),
   };
 }
