@@ -1,4 +1,4 @@
-import type { Skill } from "./index";
+import type { Skill } from "@/types/skill";
 
 export const SKILLS: Skill[] = [
   { slug: "prospect-sweep", category: "Find prospects", surface: "Prospecting",

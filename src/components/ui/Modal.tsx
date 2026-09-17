@@ -11,11 +11,11 @@ type ModalProps = {
   title: string;
   description?: ReactNode;
   footer?: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   children?: ReactNode;
 };
 
-const widths = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-3xl" };
+const widths = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-5xl" };
 
 /** Native <dialog>: focus trapping, Escape and top-layer stacking come free. */
 export function Modal({ open, onClose, title, description, footer, size = "md", children }: ModalProps) {

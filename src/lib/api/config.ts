@@ -2,8 +2,8 @@
  * Where the Laravel API lives, composed the way Macrid does it:
  *
  *   host              https://api.dexisphere.com
- *   API_ROOT          {host}/api                   public routes (e.g. /book/{track_code})
- *   USEREND_URL       {host}/api/{userend}         everything behind auth, plus login/register
+ *   API_ROOT          {host}/api                          public routes (e.g. /book/{track_code})
+ *   USEREND_URL       {host}/api/dexisphere-userend       everything behind auth, plus login/register
  *
  * Set NEXT_PUBLIC_API_HOST (and NEXT_PUBLIC_API_USEREND if the group was
  * renamed). The older NEXT_PUBLIC_API_URL, a full userend URL, still works
@@ -11,8 +11,8 @@
  */
 const trim = (value: string | undefined) => (value ?? "").trim().replace(/\/+$/, "");
 
-/** The route group name. Dexisphere keeps Macrid's "macrid-userend" (confirmed by the backend team). */
-export const USEREND = trim(process.env.NEXT_PUBLIC_API_USEREND).replace(/^\/+/, "") || "macrid-userend";
+/** The route group name. Dexisphere renamed Macrid's group to "dexisphere-userend". */
+export const USEREND = trim(process.env.NEXT_PUBLIC_API_USEREND).replace(/^\/+/, "") || "dexisphere-userend";
 
 const host = trim(process.env.NEXT_PUBLIC_API_HOST);
 const legacyUrl = trim(process.env.NEXT_PUBLIC_API_URL);

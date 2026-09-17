@@ -1,24 +1,8 @@
-import type { PlatformId } from "@/data/platforms";
+import type { Skill, SkillCategory } from "@/types/skill";
 import { SKILLS } from "./catalog";
+import { SKILL_DOCS } from "./docs";
 
-/** A named, reusable way of doing a job. Used by typing `/slug` in the chat. */
-export type Skill = {
-  slug: string;
-  category: SkillCategory;
-  /** Macrid product area it works in. */
-  surface: string;
-  description: string;
-  name?: string;
-  platforms?: PlatformId[];
-};
-
-export type SkillCategory =
-  | "Find prospects"
-  | "Build funnels"
-  | "Run outreach"
-  | "Work the pipeline"
-  | "Protect deliverability"
-  | "Study performance";
+export type { Skill, SkillCategory, SkillDoc } from "@/types/skill";
 
 export const SKILL_CATEGORIES: SkillCategory[] = [
   "Find prospects",
@@ -47,7 +31,18 @@ export const FEATURED_SKILLS: Skill[] = [
   },
 ];
 
-export { SKILLS };
+export { SKILLS, SKILL_DOCS };
+
+/** The whole catalogue, featured first, as the skills hub lists it. */
+export const ALL_SKILLS: Skill[] = [...FEATURED_SKILLS, ...SKILLS];
+
+export const isFeatured = (slug: string) => FEATURED_SKILLS.some((skill) => skill.slug === slug);
+
+export const docFor = (slug: string) => SKILL_DOCS[slug] ?? null;
+
+/** Display name: the given one, else the slug turned back into words. */
+export const skillName = (skill: Skill) =>
+  skill.name ?? skill.slug.split("-").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
 
 export const skillPrompt = (slug: string) => `/${slug} `;
 export const CREATE_SKILL_PROMPT = "Create a new skill for me. It should ";
