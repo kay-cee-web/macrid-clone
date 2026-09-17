@@ -35,7 +35,7 @@ export function SuggestionChips({ category, onPick, variant = "cards", className
             className="inline-flex max-w-full items-center gap-2.5 rounded-full bg-raised/80 px-5 py-3 text-base text-muted transition-colors hover:bg-raised hover:text-ink"
           >
             <PenLine className="size-4 shrink-0" />
-            <span className="truncate">{idea.title}</span>
+            <span className="min-w-0 truncate">{idea.title}</span>
           </button>
         ))}
         <IconButton label="Show other suggestions" onClick={shuffle} className="size-12 rounded-full bg-raised/80">
