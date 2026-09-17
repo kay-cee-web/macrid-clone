@@ -36,9 +36,9 @@ export function ModelCard({ model, keyState, onIntegrate }: ModelCardProps) {
 
   return (
     <article className="group relative grid content-start gap-5 rounded-3xl border border-line bg-raised/40 p-6 backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-3 sm:flex-nowrap">
         <ProviderLogo provider={model.provider} />
-        <div className="grid min-w-0 flex-1 gap-1.5">
+        <div className="grid min-w-0 flex-1 basis-40 gap-1.5">
           <h3 className="truncate text-xl text-ink">{model.name}</h3>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded-md bg-raised px-2 py-0.5 text-muted">{TAG_LABELS[model.tag]}</span>
@@ -52,8 +52,9 @@ export function ModelCard({ model, keyState, onIntegrate }: ModelCardProps) {
           </div>
         </div>
 
-        {/* Revealed on hover or focus, like the agent cards; always shown on touch screens. */}
-        <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+        {/* Revealed on hover or focus on devices that can hover; always shown on touch screens.
+            On phones it drops to its own row so the name keeps its width. */}
+        <div className="flex w-full shrink-0 items-center justify-end gap-1 transition-opacity sm:w-auto can-hover:opacity-0 can-hover:group-hover:opacity-100 can-hover:focus-within:opacity-100">
           <Menu
             align="end"
             items={[{ label: "Copy model ID", icon: <Copy />, onSelect: () => void copyId(model.id) }]}

@@ -18,7 +18,7 @@ export function IdeaCover({ idea, category, readiness }: IdeaCoverProps) {
   const StatusIcon = readiness.ready ? CircleCheck : readiness.tone === "warn" ? PlugZap : CircleDashed;
 
   return (
-    <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-night shadow-float ring-1 ring-line">
+    <div className="@container relative aspect-16/10 overflow-hidden rounded-2xl bg-night shadow-float ring-1 ring-line">
       <div
         aria-hidden
         className={cn(
@@ -33,7 +33,7 @@ export function IdeaCover({ idea, category, readiness }: IdeaCoverProps) {
         className="absolute -bottom-8 -right-6 size-44 text-night-ink/10 transition-transform duration-500 group-hover:-rotate-6"
       />
 
-      <div className="relative flex h-full flex-col justify-between p-5">
+      <div className="relative flex h-full flex-col justify-between p-4 @sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="font-mono text-xs uppercase tracking-[0.08em] text-night-ink/75">{category}</span>
           <span
@@ -46,10 +46,10 @@ export function IdeaCover({ idea, category, readiness }: IdeaCoverProps) {
         </div>
 
         <div className="grid max-w-[88%] gap-2">
-          <p className="line-clamp-2 font-display text-2xl font-medium leading-tight tracking-tight text-night-ink">
+          <p className="line-clamp-2 font-display text-xl font-medium @sm:text-2xl leading-tight tracking-tight text-night-ink">
             {lead}
           </p>
-          <p className="line-clamp-2 text-sm leading-snug text-night-ink/70 first-letter:uppercase">{rest}</p>
+          <p className="line-clamp-2 text-xs leading-snug text-night-ink/70 first-letter:uppercase @sm:text-sm">{rest}</p>
         </div>
       </div>
     </div>

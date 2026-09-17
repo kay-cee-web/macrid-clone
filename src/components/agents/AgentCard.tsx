@@ -80,7 +80,7 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
         <AgentActionsMenu
           agent={agent}
           onDialog={onDialog}
-          className="relative z-10 -mr-2 -mt-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+          className="relative z-10 -mr-2 -mt-2 transition-opacity can-hover:opacity-0 can-hover:group-hover:opacity-100 can-hover:focus-within:opacity-100"
         />
       </div>
 
