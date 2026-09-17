@@ -22,7 +22,7 @@ export function ApprovalBar({ agent, messages, busy, onReply, onEdit }: Approval
 
   return (
     <div className="mx-auto mb-2 flex w-full max-w-3xl flex-wrap items-center gap-2 rounded-[12px] border border-line bg-surface px-3 py-2">
-      <p className="min-w-0 flex-1 basis-48 text-[13px] text-muted">
+      <p className="min-w-0 flex-1 basis-48 text-sm text-muted">
         {agent.name} is waiting for your go-ahead.
         {!agent.sendingEnabled && <span className="text-warn"> Sending is off for this agent, so nothing will go out.</span>}
       </p>

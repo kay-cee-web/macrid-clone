@@ -16,17 +16,17 @@ function SkillCard({ skill, onUse, featured }: { skill: Skill; onUse: (skill: Sk
   return (
     <article className="grid content-start gap-2.5 bg-surface p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[10.5px] uppercase tracking-[0.06em] text-faint">{skill.surface}</span>
-        {featured && <span className="font-mono text-[10.5px] uppercase tracking-[0.06em] text-accent">Featured</span>}
+        <span className="font-mono text-xs uppercase tracking-[0.06em] text-faint">{skill.surface}</span>
+        {featured && <span className="font-mono text-xs uppercase tracking-[0.06em] text-accent">Featured</span>}
       </div>
-      <h3 className="font-mono text-[14px] font-medium text-ink">
-        {skill.name ? <span className="font-display text-[16px] font-semibold">{skill.name}</span> : `/${skill.slug}`}
+      <h3 className="font-mono text-sm font-medium text-ink">
+        {skill.name ? <span className="font-display text-base font-semibold">{skill.name}</span> : `/${skill.slug}`}
       </h3>
-      <p className="text-[13px] leading-relaxed text-muted">{skill.description}</p>
+      <p className="text-sm leading-relaxed text-muted">{skill.description}</p>
       {skill.platforms?.length ? (
         <div className="flex flex-wrap gap-1.5">
           {skill.platforms.map((id) => (
-            <span key={id} className="rounded-md border border-line bg-raised px-1.5 py-0.5 text-[11.5px] text-muted">{PLATFORMS[id].name}</span>
+            <span key={id} className="rounded-md border border-line bg-raised px-1.5 py-0.5 text-xs text-muted">{PLATFORMS[id].name}</span>
           ))}
         </div>
       ) : null}
@@ -49,7 +49,7 @@ export function SkillsPanel() {
   return (
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center gap-3">
-        <p className="min-w-0 flex-1 basis-72 text-[14px] text-muted">
+        <p className="min-w-0 flex-1 basis-72 text-sm text-muted">
           Skills are proven ways of doing a job. Type <code className="font-mono text-ink">/skill-name</code> in the chat, or
           pick one here.
         </p>
@@ -59,7 +59,7 @@ export function SkillsPanel() {
       </div>
 
       <section className="grid gap-3">
-        <h3 className="text-[17px] font-semibold">Featured</h3>
+        <h3 className="text-lg font-semibold">Featured</h3>
         <HairlineGrid itemCount={FEATURED_SKILLS.length}>
           {FEATURED_SKILLS.map((skill) => (
             <SkillCard key={skill.slug} skill={skill} featured onUse={(s) => draft(skillPrompt(s.slug))} />
@@ -68,7 +68,7 @@ export function SkillsPanel() {
       </section>
 
       <section className="grid gap-3">
-        <h3 className="text-[17px] font-semibold">All skills</h3>
+        <h3 className="text-lg font-semibold">All skills</h3>
         <Tabs
           label="Skill categories"
           value={filter}

@@ -3,8 +3,8 @@
 import type { KeyboardEvent, ReactNode, Ref, SetStateAction } from "react";
 import { ArrowUp, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
+import { Spinner } from "@/components/ui/Spinner";
 import { useDictation } from "@/hooks/useDictation";
 import { cn } from "@/lib/cn";
 
@@ -51,8 +51,8 @@ export function TaskComposer({
         if (canSubmit) void onSubmit(value);
       }}
       className={cn(
-        "grid gap-2 rounded-[16px] border border-line bg-surface p-3 shadow-float",
-        "transition-colors focus-within:border-faint",
+        "grid gap-3 rounded-3xl border border-line bg-surface p-4 shadow-float",
+        "transition-[border-color,box-shadow] focus-within:border-accent/40 focus-within:shadow-glow",
         className,
       )}
     >
@@ -68,23 +68,33 @@ export function TaskComposer({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="field-sizing-content max-h-60 min-h-14 w-full resize-none bg-transparent px-1 text-[15px] leading-relaxed text-ink outline-none placeholder:text-faint"
+        className="field-sizing-content max-h-60 min-h-16 w-full resize-none bg-transparent px-1 text-base leading-relaxed text-ink outline-none placeholder:text-faint"
       />
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         {tools}
+        <span className="ml-auto" />
         {dictation.supported && (
           <IconButton
-            bordered
             label={dictation.listening ? "Stop dictation" : "Dictate"}
             onClick={dictation.toggle}
-            className={cn(dictation.listening && "border-accent bg-accent-soft text-accent")}
+            className={cn("size-10 rounded-full", dictation.listening && "bg-accent-soft text-accent")}
           >
             {dictation.listening ? <MicOff /> : <Mic />}
           </IconButton>
         )}
-        <Button type="submit" className="ml-auto" disabled={!canSubmit} loading={submitting} icon={<ArrowUp className="size-4" />}>
-          {submitLabel}
-        </Button>
+        <button
+          type="submit"
+          aria-label={submitLabel}
+          title={submitLabel}
+          disabled={!canSubmit}
+          className={cn(
+            "grid size-10 shrink-0 place-items-center rounded-full bg-accent text-accent-ink transition-colors hover:bg-accent-hover",
+            "disabled:pointer-events-none disabled:bg-raised disabled:text-faint",
+            submitting && "disabled:bg-accent disabled:text-accent-ink",
+          )}
+        >
+          {submitting ? <Spinner label={submitLabel} /> : <ArrowUp className="size-5" />}
+        </button>
       </div>
     </form>
   );

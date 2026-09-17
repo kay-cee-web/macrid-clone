@@ -23,12 +23,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [drawerOpen]);
 
   return (
-    <div className="flex h-dvh flex-col lg:grid lg:grid-cols-[252px_minmax(0,1fr)]">
-      <aside className="hidden h-dvh border-r border-line bg-surface lg:block">
+    <div className="flex h-dvh flex-col lg:grid lg:grid-cols-[272px_minmax(0,1fr)]">
+      {/* Translucent, so the page backdrop glows through. */}
+      <aside className="hidden h-dvh border-r border-line bg-surface/55 backdrop-blur-xl lg:block">
         <AppSidebar />
       </aside>
 
-      <header className="flex shrink-0 items-center gap-3 border-b border-line bg-surface px-4 py-2.5 lg:hidden">
+      <header className="flex shrink-0 items-center gap-3 border-b border-line bg-surface/70 px-4 py-2.5 backdrop-blur-xl lg:hidden">
         <IconButton label="Open navigation" onClick={() => setDrawerOpen(true)}>
           <MenuIcon />
         </IconButton>

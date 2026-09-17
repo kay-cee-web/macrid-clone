@@ -33,7 +33,7 @@ export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHe
       <div className="flex items-center gap-3 px-4 pt-3 sm:px-6">
         <AgentAvatar name={agent.name} size="sm" />
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <h1 className="truncate font-sans text-[15px] font-semibold tracking-normal">{agent.name}</h1>
+          <h1 className="truncate font-sans text-base font-semibold tracking-normal">{agent.name}</h1>
           <Link href={`${base}/settings?section=general`} title="Change in Settings" className="hidden rounded-full sm:inline-flex">
             <Pill tone={agent.sendingEnabled ? "good" : "warn"} dot>
               {agent.sendingEnabled ? "Sending on" : "Sending off"}

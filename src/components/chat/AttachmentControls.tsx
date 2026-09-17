@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import { CircleAlert, ImagePlus, X } from "lucide-react";
+import { CircleAlert, Plus, X } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import type { Attachment } from "@/hooks/useAttachments";
 import { cn } from "@/lib/cn";
 import { IMAGE_ACCEPT } from "@/lib/files";
 
-/** "+ image" button with a hidden file input. */
+/** Round "+" button with a hidden file input. */
 export function AttachButton({ onFiles, disabled }: { onFiles: (files: File[]) => void; disabled?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
@@ -23,8 +23,8 @@ export function AttachButton({ onFiles, disabled }: { onFiles: (files: File[]) =
           event.target.value = "";
         }}
       />
-      <IconButton bordered label="Attach images" disabled={disabled} onClick={() => inputRef.current?.click()}>
-        <ImagePlus />
+      <IconButton label="Attach images" disabled={disabled} onClick={() => inputRef.current?.click()} className="size-10 rounded-full [&_svg]:size-5">
+        <Plus />
       </IconButton>
     </>
   );

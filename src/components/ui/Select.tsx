@@ -11,7 +11,7 @@ export function Select({ invalid, className, children, ...rest }: SelectProps) {
       <select
         aria-invalid={invalid || undefined}
         className={cn(
-          "h-10 w-full appearance-none rounded-[10px] border bg-surface pl-3 pr-9 text-[14px] text-ink outline-none",
+          "h-10 w-full appearance-none rounded-[10px] border bg-surface pl-3 pr-9 text-sm text-ink outline-none",
           "transition-colors hover:border-faint focus:border-accent focus:ring-3 focus:ring-accent-soft",
           "disabled:cursor-not-allowed disabled:opacity-60",
           invalid ? "border-bad" : "border-line",

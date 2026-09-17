@@ -50,10 +50,10 @@ export function Modal({ open, onClose, title, description, footer, size = "md", 
         <div className="grid max-h-[85dvh] grid-rows-[auto_1fr_auto]">
           <header className="flex items-start gap-3 border-b border-line px-5 py-4">
             <div className="grid flex-1 gap-1">
-              <h2 id={titleId} className="text-[17px] font-semibold">
+              <h2 id={titleId} className="text-lg font-semibold">
                 {title}
               </h2>
-              {description && <p className="text-[13.5px] text-muted">{description}</p>}
+              {description && <p className="text-sm text-muted">{description}</p>}
             </div>
             <IconButton label="Close" onClick={onClose}>
               <X />

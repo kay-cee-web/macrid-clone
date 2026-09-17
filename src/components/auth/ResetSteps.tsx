@@ -83,7 +83,7 @@ export function ResetCodeStep({ email, onVerified }: { email: string; onVerified
         onChange={(value) => (setCode(value), setError(""))}
         onComplete={submit}
       />
-      {error && <p role="alert" className="text-[12.5px] text-bad">{error}</p>}
+      {error && <p role="alert" className="text-xs text-bad">{error}</p>}
       <Button type="submit" size="lg" block loading={busy}>
         Continue
       </Button>

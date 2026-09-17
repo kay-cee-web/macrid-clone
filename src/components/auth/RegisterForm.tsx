@@ -56,7 +56,7 @@ export function RegisterForm() {
 
   return (
     <>
-      <AuthHeading title="Create your account" description="Set up agents that run Macrid for you." />
+      <AuthHeading title="Create your account" description="Set up agents that run Dexisphere for you." />
       <form noValidate onSubmit={onSubmit} className="grid gap-4">
         <TextField id="name" label="Full name" autoComplete="name" {...form.bind("name")} />
         <TextField id="email" label="Work email" type="email" autoComplete="email" {...form.bind("email")} />
@@ -77,7 +77,7 @@ export function RegisterForm() {
           label={
             <>
               I agree to the{" "}
-              <a href="https://macrid.com/privacy-policy" target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
+              <a href="https://dexisphere.com/privacy-policy" target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
                 privacy policy
               </a>
               .

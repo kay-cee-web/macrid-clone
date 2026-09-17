@@ -15,7 +15,7 @@ const columns: Column<RecordList>[] = [
     cell: (list) => <StackCell primary={list.name} secondary={list.description} />,
   },
   { key: "contacts", header: "Contacts", numeric: true, cell: (list) => list.contactsCount },
-  { key: "id", header: "ID", wide: true, cell: (list) => <span className="font-mono text-[12.5px] text-muted">{list.id}</span> },
+  { key: "id", header: "ID", wide: true, cell: (list) => <span className="font-mono text-xs text-muted">{list.id}</span> },
   { key: "created", header: "Created", cell: (list) => <CreatedCell value={list.createdAt} /> },
 ];
 

@@ -51,7 +51,7 @@ export function LoginForm() {
           autoComplete="current-password"
           leading={<Lock />}
           aside={
-            <Link href="/forgot-password" className="text-[12.5px] font-medium text-accent hover:underline">
+            <Link href="/forgot-password" className="text-xs font-medium text-accent hover:underline">
               Forgot password?
             </Link>
           }
@@ -62,7 +62,7 @@ export function LoginForm() {
         </Button>
       </form>
       <AuthSwitch>
-        New to Macrid? <Link href="/register">Create an account</Link>
+        New to Dexisphere? <Link href="/register">Create an account</Link>
       </AuthSwitch>
     </>
   );

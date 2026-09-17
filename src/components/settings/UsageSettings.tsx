@@ -28,9 +28,9 @@ export function UsageSettings() {
     <div className="grid gap-8">
       <section className="grid gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[18px] font-semibold">Activity</h2>
+          <h2 className="text-lg font-semibold">Activity</h2>
           {stats.data && (
-            <span className="text-[13px] text-muted">
+            <span className="text-sm text-muted">
               Last action {stats.data.lastActionAt ? timeAgo(stats.data.lastActionAt) : "never"}
             </span>
           )}
@@ -47,10 +47,10 @@ export function UsageSettings() {
           <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-line bg-line lg:grid-cols-4">
             {(tiles.length ? tiles : Array.from({ length: 4 }, (_, i) => ({ label: `…${i}`, value: null }))).map((tile) => (
               <div key={tile.label} className="grid gap-2 bg-surface p-4">
-                <dt className="font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted">
+                <dt className="font-mono text-xs uppercase tracking-[0.06em] text-muted">
                   {tile.value === null ? <Skeleton className="h-3 w-16" /> : tile.label}
                 </dt>
-                <dd className="font-display text-[28px] font-semibold leading-none tabular-nums">
+                <dd className="font-display text-3xl font-semibold leading-none tabular-nums">
                   {tile.value === null ? <Skeleton className="h-7 w-12" /> : tile.value}
                 </dd>
               </div>
@@ -59,14 +59,14 @@ export function UsageSettings() {
         )}
       </section>
 
-      <SettingsSection title="Activity log" description="What this agent has done in Macrid: sends, updates and anything it was blocked from.">
+      <SettingsSection title="Activity log" description="What this agent has done in Dexisphere: sends, updates and anything it was blocked from.">
         {actions.status === "loading" ? (
           <div className="grid gap-2 p-4">
             <Skeleton className="h-4 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
           </div>
         ) : actions.status === "error" ? (
-          <p className="p-4 text-[13.5px] text-bad">{actions.error}</p>
+          <p className="p-4 text-sm text-bad">{actions.error}</p>
         ) : !actions.data?.length ? (
           <EmptyState
             className="m-4 border-none py-8"
@@ -76,7 +76,7 @@ export function UsageSettings() {
           />
         ) : (
           actions.data.map((row, index) => (
-            <pre key={index} className="overflow-x-auto p-4 font-mono text-[12px] text-muted">
+            <pre key={index} className="overflow-x-auto p-4 font-mono text-xs text-muted">
               {JSON.stringify(row, null, 2)}
             </pre>
           ))

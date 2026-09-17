@@ -15,7 +15,7 @@ export function Toaster() {
       toastOptions={{
         classNames: {
           toast:
-            "!rounded-[12px] !border !border-line !bg-surface !text-ink !shadow-float !font-sans !text-[13.5px]",
+            "!rounded-[12px] !border !border-line !bg-surface !text-ink !shadow-float !font-sans !text-sm",
           description: "!text-muted",
           closeButton: "!border-line !bg-surface !text-muted hover:!text-ink",
           actionButton: "!bg-accent !text-accent-ink",

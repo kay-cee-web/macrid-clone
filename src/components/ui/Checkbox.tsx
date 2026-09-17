@@ -11,7 +11,7 @@ type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id"> 
 export function Checkbox({ id, label, error, className, ...rest }: CheckboxProps) {
   return (
     <div className={cn("grid gap-1", className)}>
-      <label htmlFor={id} className="flex cursor-pointer items-start gap-2.5 text-[13.5px] text-muted">
+      <label htmlFor={id} className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
         <span className="relative mt-0.5 grid size-4 shrink-0 place-items-center">
           <input
             id={id}
@@ -34,7 +34,7 @@ export function Checkbox({ id, label, error, className, ...rest }: CheckboxProps
         <span>{label}</span>
       </label>
       {error && (
-        <p role="alert" className="pl-6.5 text-[12.5px] text-bad">
+        <p role="alert" className="pl-6.5 text-xs text-bad">
           {error}
         </p>
       )}

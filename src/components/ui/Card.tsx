@@ -25,7 +25,7 @@ export function Card({ floating, padded = true, className, ...rest }: CardProps)
 export function Eyebrow({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted", className)}
+      className={cn("font-mono text-xs font-medium uppercase tracking-[0.08em] text-muted", className)}
       {...rest}
     />
   );

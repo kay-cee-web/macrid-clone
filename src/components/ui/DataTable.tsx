@@ -31,7 +31,7 @@ export function DataTable<T>({ label, columns, rows, rowKey, rowHref, skeletonRo
 
   return (
     <div className="overflow-x-auto rounded-[14px] border border-line bg-surface">
-      <table aria-label={label} className="w-full border-collapse text-left text-[13.5px]">
+      <table aria-label={label} className="w-full border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-line">
             {columns.map((column) => (
@@ -40,7 +40,7 @@ export function DataTable<T>({ label, columns, rows, rowKey, rowHref, skeletonRo
                 scope="col"
                 className={cn(
                   cellBase,
-                  "py-2.5 font-mono text-[10.5px] font-normal uppercase tracking-[0.06em] text-muted",
+                  "py-2.5 font-mono text-xs font-normal uppercase tracking-[0.06em] text-muted",
                   column.numeric && "text-right",
                   hideNarrow(column.wide),
                 )}

@@ -1,17 +1,35 @@
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-/** Ink tile with a lagoon square: the agent inside the platform. */
+const MARK = "/image/dexisphere-icon100.png";
+const WORDMARK_ON_LIGHT = "/image/dexisphere-logo-dark.png";
+const WORDMARK_ON_DARK = "/image/dexisphere-logo-white.png";
+
+/** The brand mark, with the wordmark swapping artwork between light and dark. */
 export function Logo({ withWordmark = true, className }: { withWordmark?: boolean; className?: string }) {
+  if (!withWordmark) {
+    return <Image src={MARK} alt="Dexisphere" width={100} height={100} priority className={cn("h-9 w-auto", className)} />;
+  }
+
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span aria-hidden className="grid size-7 place-items-center rounded-[8px] bg-ink">
-        <span className="size-2.5 rounded-[3px] bg-accent" />
-      </span>
-      {withWordmark && (
-        <span className="font-display text-[16px] font-semibold tracking-[-0.01em] text-ink">
-          Macrid <span className="text-muted">Agents</span>
-        </span>
-      )}
+    <span className="inline-flex">
+      <Image
+        src={WORDMARK_ON_LIGHT}
+        alt="Dexisphere"
+        width={300}
+        height={100}
+        priority
+        className={cn("h-10 w-auto dark:hidden", className)}
+      />
+      <Image
+        src={WORDMARK_ON_DARK}
+        alt=""
+        aria-hidden
+        width={300}
+        height={100}
+        priority
+        className={cn("hidden h-10 w-auto dark:block", className)}
+      />
     </span>
   );
 }

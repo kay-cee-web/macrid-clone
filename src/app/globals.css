@@ -1,75 +1,17 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-/* ── Quiet Operator tokens ──────────────────────────────────────────────────
-   The light palette lives on bare :root. Dark redefines the same tokens twice:
-   once for the OS preference (unless the user picked light), once for an
-   explicit dark choice. Components only ever read tokens. */
-:root {
-  --ground: #f3f6f6;
-  --surface: #ffffff;
-  --raised: #f7fafa;
-  --ink: #0f1a1c;
-  --muted: #566769;
-  --faint: #86979a;
-  --line: #dae2e2;
-  --accent: #0b7a84;
-  --accent-hover: #09656d;
-  --accent-ink: #ffffff;
-  --accent-soft: #ddf0f1;
-  --good: #1f8455;
-  --good-soft: #e1f2e8;
-  --warn: #a86c06;
-  --warn-soft: #faefd8;
-  --bad: #c23c3c;
-  --bad-soft: #fae5e3;
-  --shadow-float: 0 1px 2px rgb(15 26 28 / 0.06), 0 8px 24px -8px rgb(15 26 28 / 0.14);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ground: #0a1012;
-    --surface: #10181b;
-    --raised: #152024;
-    --ink: #e3eced;
-    --muted: #93a6a9;
-    --faint: #62767a;
-    --line: #21302f;
-    --accent: #3bc0cb;
-    --accent-hover: #5fd0d9;
-    --accent-ink: #04282c;
-    --accent-soft: #0f3337;
-    --good: #4cc38a;
-    --good-soft: #0f2a1e;
-    --warn: #e6ae45;
-    --warn-soft: #2b2210;
-    --bad: #f07a72;
-    --bad-soft: #2e1614;
-    --shadow-float: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px -10px rgb(0 0 0 / 0.6);
-    color-scheme: dark;
+/* `dark:` follows the site's own theme switch (data-theme), falling back to the
+   OS preference — the same rule the colour tokens use. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
-}
-
-:root[data-theme="dark"] {
-  --ground: #0a1012;
-  --surface: #10181b;
-  --raised: #152024;
-  --ink: #e3eced;
-  --muted: #93a6a9;
-  --faint: #62767a;
-  --line: #21302f;
-  --accent: #3bc0cb;
-  --accent-hover: #5fd0d9;
-  --accent-ink: #04282c;
-  --accent-soft: #0f3337;
-  --good: #4cc38a;
-  --good-soft: #0f2a1e;
-  --warn: #e6ae45;
-  --warn-soft: #2b2210;
-  --bad: #f07a72;
-  --bad-soft: #2e1614;
-  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px -10px rgb(0 0 0 / 0.6);
-  color-scheme: dark;
+  &:where(:root[data-theme="dark"] *) {
+    @slot;
+  }
 }
 
 @theme inline {
@@ -84,6 +26,9 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-violet: var(--violet);
   --color-good: var(--good);
   --color-good-soft: var(--good-soft);
   --color-warn: var(--warn);
@@ -91,11 +36,51 @@
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
   --shadow-float: var(--shadow-float);
+  --shadow-lift: var(--shadow-lift);
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Consolas, monospace;
   --font-display: var(--font-bricolage), var(--font-geist), ui-sans-serif, sans-serif;
   --animate-trace: trace 1.6s cubic-bezier(0.6, 0, 0.4, 1) infinite;
   --animate-fade-in: fade-in 150ms ease-out;
+  --animate-aurora: aurora 14s ease-in-out infinite alternate;
+  --color-pink: var(--pink);
+  --color-night: var(--night);
+  --color-night-ink: var(--night-ink);
+  --color-logo-anthropic: var(--logo-anthropic);
+  --color-logo-gemini: var(--logo-gemini);
+}
+
+/* The logo gradient, as a fill and as clipped text. */
+@utility bg-brand {
+  background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+}
+
+@utility text-brand {
+  background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-glow {
+  box-shadow: 0 12px 40px -8px var(--glow);
+}
+
+/* Page backdrop, as on tapotik-ai: a drifting colour glow over a faded grid. */
+@utility bg-aurora {
+  background: var(--aurora);
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@keyframes aurora {
+  0% { transform: translate(-8%, -6%) scale(1) rotate(0); }
+  50% { transform: translate(6%, 8%) scale(1.15) rotate(12deg); }
+  to { transform: translate(-4%, 4%) scale(1.05) rotate(-8deg); }
 }
 
 @keyframes trace {

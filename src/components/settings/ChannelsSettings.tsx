@@ -19,8 +19,8 @@ function ChannelRow({ agentId, channel, onOpen }: { agentId: string; channel: Ch
         <Icon className="size-5" />
       </span>
       <span className="grid min-w-0 flex-1 gap-0.5">
-        <span className="text-[14.5px] font-medium">{channel.name}</span>
-        <span className="truncate text-[13px] text-muted">{channel.blurb}</span>
+        <span className="text-sm font-medium">{channel.name}</span>
+        <span className="truncate text-sm text-muted">{channel.blurb}</span>
       </span>
       {checking ? (
         <Skeleton className="h-5 w-24 rounded-full" />
@@ -46,7 +46,7 @@ export function ChannelsSettings({ channel, onChannel }: { channel: string | nul
   return (
     <SettingsSection
       title="Channels"
-      description={`Talk to ${agent.name} outside Macrid. Each channel links with a short pairing code.`}
+      description={`Talk to ${agent.name} outside Dexisphere. Each channel links with a short pairing code.`}
     >
       {CHANNELS.map((item) => (
         <ChannelRow key={item.id} agentId={agent.id} channel={item} onOpen={() => onChannel(item.id)} />

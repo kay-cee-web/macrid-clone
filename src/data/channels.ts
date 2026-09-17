@@ -40,14 +40,14 @@ export const CHANNELS: ChannelInfo[] = [
     id: "telegram",
     name: "Telegram",
     Icon: Send,
-    blurb: "Chat with your agent through the Macrid bot in Telegram.",
+    blurb: "Chat with your agent through the Dexisphere bot in Telegram.",
     shortcutLabel: "Open Telegram",
     qr: true,
     steps: [
       CODE_STEP,
       {
         title: "Send it to the bot",
-        body: "Open the Macrid bot and send LINK with your code. The button opens the bot with the code already attached.",
+        body: "Open the Dexisphere bot and send LINK with your code. The button opens the bot with the code already attached.",
       },
     ],
   },
@@ -59,7 +59,7 @@ export const CHANNELS: ChannelInfo[] = [
     shortcutLabel: "",
     qr: false,
     steps: [
-      { title: "Install the Macrid extension", body: "Add it to your browser, then open it from the toolbar on any page." },
+      { title: "Install the Dexisphere extension", body: "Add it to your browser, then open it from the toolbar on any page." },
       { title: "Enter your pairing code", body: "Type the code into the extension to link it to this agent." },
     ],
   },

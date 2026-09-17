@@ -30,7 +30,7 @@ export function VerifyEmailForm() {
     setError("");
     try {
       await verifyEmail({ email: account.email, code: value, userId: account.id });
-      toast.success("Email verified. Welcome to Macrid Agents.");
+      toast.success("Email verified. Welcome to Dexisphere Agents.");
       await refreshUser();
     } catch (err) {
       setError(extractApiError(err, "That code is invalid or has expired."));
@@ -69,7 +69,7 @@ export function VerifyEmailForm() {
           onComplete={(value) => void submit(value)}
         />
         {error && (
-          <p role="alert" className="text-[12.5px] text-bad">
+          <p role="alert" className="text-xs text-bad">
             {error}
           </p>
         )}

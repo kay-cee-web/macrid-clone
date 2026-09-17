@@ -30,7 +30,7 @@ export function PairingCard({ channel, pairing, onNewCode, requesting }: Pairing
       <div className="grid content-start gap-4">
         <div
           className={cn(
-            "rounded-[10px] border border-dashed border-line bg-raised px-4 py-3 text-center font-mono text-[32px] font-medium tracking-[0.18em]",
+            "rounded-[10px] border border-dashed border-line bg-raised px-4 py-3 text-center font-mono text-3xl font-medium tracking-[0.18em]",
             expired && "text-faint line-through",
           )}
         >
@@ -38,7 +38,7 @@ export function PairingCard({ channel, pairing, onNewCode, requesting }: Pairing
         </div>
 
         <div className="grid gap-1.5">
-          <div className="flex justify-between text-[12.5px] text-muted">
+          <div className="flex justify-between text-xs text-muted">
             <span>{expired ? "This code has expired." : "Code expires in"}</span>
             <span className="font-mono tabular-nums">{formatClock(remaining)}</span>
           </div>
@@ -48,7 +48,7 @@ export function PairingCard({ channel, pairing, onNewCode, requesting }: Pairing
         </div>
 
         {pairing.instructions && !expired && (
-          <p className="whitespace-pre-line text-[13.5px] text-muted">{pairing.instructions}</p>
+          <p className="whitespace-pre-line text-sm text-muted">{pairing.instructions}</p>
         )}
 
         {expired ? (
@@ -80,7 +80,7 @@ export function PairingCard({ channel, pairing, onNewCode, requesting }: Pairing
       {channel.qr && shortcut && !expired && (
         <figure className="grid justify-items-center gap-2 sm:w-40">
           <QrCode value={pairing.shortcutUrl} label={`QR code that opens ${channel.name}`} className="size-40" />
-          <figcaption className="text-center text-[12px] text-muted">Scan with the phone you want linked</figcaption>
+          <figcaption className="text-center text-xs text-muted">Scan with the phone you want linked</figcaption>
         </figure>
       )}
     </div>

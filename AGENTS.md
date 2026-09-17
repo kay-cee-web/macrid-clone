@@ -84,6 +84,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
   - **Usage:** stats and the `/actions` log.
   - Build sections from `SettingsSection` + `SettingRow`.
+- **Models** (`/agents/models`, tabbed with `/agents/all` via `HubTabs`): the catalogue in `src/data/models.ts` (provider, tag, context) as cards; "Integrate" saves the user's own Anthropic/OpenAI/Gemini key.
+  - `src/services/aiKeys.ts` (Macrid's `lib/aiKeyStore.js`): reads `GET /integrations` (rows with `service`) and `GET /platform-apis` (`<provider>_api_key`, `<provider>_api_key_model`).
+  - Save: `PUT /integrations/{recordId}` when a row exists, else `POST /integrations {service, api_key, status: "1", model}`. **POST never upserts** (it adds duplicate rows), and routes bind by record id, not service name. A PUT that 404s falls back to POST.
+  - Remove: `DELETE /integrations/{recordId}`, and blank the provider's `platform_apis` columns through `savePlatformKeys` (read-modify-write) when the key is also there.
+  - Provider logos are glyph paths in `src/data/aiProviders.ts`, drawn by `ProviderLogo` on a light tile in both themes.
 - **Plugins** (`/agents/[id]/plugins?tab=connectors|skills`):
   - **Connectors:** catalogue in `src/data/connectors`; API in `src/services/connections.ts` (read `/connectors`, fall back to `/integrations`, plus `/platform-apis`; writes go to the routes of whichever read answered); OAuth via `useOAuthPopup`; key forms built from each connector's field list in `ApiKeyModal`.
   - **Senders** (`src/services/senders.ts`) are set up in the clone:
@@ -138,7 +143,8 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 
 ## Backend basics
 
-- **Base URL:** `process.env.NEXT_PUBLIC_API_URL` (Laravel API). Default headers are JSON (`Content-Type` and `Accept: application/json`).
+- **Base URL:** built in `src/lib/api/config.ts` from `NEXT_PUBLIC_API_HOST` (`https://api.dexisphere.com`) and `NEXT_PUBLIC_API_USEREND` (default `macrid-userend`): `USEREND_URL = {host}/api/{userend}` for the `api` client (auth routes included), `API_ROOT = {host}/api` for public routes. The old `NEXT_PUBLIC_API_URL` (a full userend URL) still works when no host is set. Default headers are JSON (`Content-Type` and `Accept: application/json`).
+  - **Moving to Dexisphere (2026-09-17):** `dexisphere-api` is a copy of Macrid's Laravel app (internal names kept) on a **schema-only database**, so no Macrid account exists there and users register again. Switch areas one at a time, starting with register and login.
 - **Auth:**
   - `POST /login {email, password}` returns the token in `token`, `access_token` or `data.token`.
   - The token is stored in `localStorage` under `token` and sent as `Authorization: Bearer <token>`.

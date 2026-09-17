@@ -15,9 +15,9 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-[13px]",
-  md: "h-9 px-3.5 text-[13.5px]",
-  lg: "h-11 px-5 text-[14.5px]",
+  sm: "h-8 px-3 text-sm",
+  md: "h-9 px-3.5 text-sm",
+  lg: "h-11 px-5 text-sm",
 };
 
 /** Shared so links can look exactly like buttons. */

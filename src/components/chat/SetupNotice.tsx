@@ -21,7 +21,7 @@ export function SetupNotice({ agent, draft }: { agent: Agent; draft: string }) {
   if (!missing.length && !sendingOff) return null;
 
   return (
-    <div role="status" className="mx-auto mb-2 grid w-full max-w-3xl gap-1.5 rounded-[12px] border border-warn/30 bg-warn-soft px-3 py-2 text-[13px]">
+    <div role="status" className="mx-auto mb-2 grid w-full max-w-3xl gap-1.5 rounded-[12px] border border-warn/30 bg-warn-soft px-3 py-2 text-sm">
       {missing.length > 0 && (
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <CircleAlert className="size-3.5 shrink-0 text-warn" />

@@ -16,10 +16,10 @@ export function RecordsHeader() {
   return (
     <header className="border-b border-line bg-surface">
       <div className="mx-auto grid w-full max-w-6xl gap-1 px-4 pt-8 sm:px-8">
-        <h1 className="text-[28px] font-semibold leading-tight">Records</h1>
-        <p className="max-w-[64ch] text-[14px] text-muted">
-          Your Macrid workspace data. Leads, deals, campaigns and funnels your agents create show up here, alongside
-          anything added in Macrid.
+        <h1 className="text-3xl font-semibold leading-tight">Records</h1>
+        <p className="max-w-[64ch] text-sm text-muted">
+          Your workspace data. Leads, deals, campaigns and funnels your agents create show up here, alongside
+          anything added in Dexisphere.
         </p>
         <RouteTabs label="Record types" tabs={TABS} className="-mx-2.5 mt-3" />
       </div>

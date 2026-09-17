@@ -33,9 +33,9 @@ export function TurnReceipt({ changes, className }: { changes: WorkChange[]; cla
           <li key={`${change.href}-${index}`}>
             <Link
               href={change.href}
-              className="group/row flex items-center gap-2 px-3 py-2 text-[13px] text-ink transition-colors hover:bg-raised focus-visible:bg-raised"
+              className="group/row flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors hover:bg-raised focus-visible:bg-raised"
             >
-              <span className="hidden w-[4.75rem] shrink-0 font-mono sm:inline text-[10.5px] uppercase tracking-[0.06em] text-muted">{change.area}</span>
+              <span className="hidden w-[4.75rem] shrink-0 font-mono sm:inline text-xs uppercase tracking-[0.06em] text-muted">{change.area}</span>
               <span className="min-w-0 flex-1 truncate" title={change.text}>{change.text}</span>
               <ArrowUpRight className="size-3.5 shrink-0 text-faint transition-colors group-hover/row:text-accent" />
             </Link>
@@ -46,7 +46,7 @@ export function TurnReceipt({ changes, className }: { changes: WorkChange[]; cla
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="w-full border-t border-line px-3 py-2 text-left text-[12.5px] font-medium text-accent hover:bg-raised"
+          className="w-full border-t border-line px-3 py-2 text-left text-xs font-medium text-accent hover:bg-raised"
         >
           Show {hidden} more
         </button>

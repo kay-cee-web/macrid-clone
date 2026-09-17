@@ -42,17 +42,17 @@ export function FunnelDetailView({ slug }: { slug: string }) {
   return (
     <div className="grid gap-5">
       <div className="grid gap-2">
-        <Link href="/records/funnels" className="inline-flex w-fit items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <Link href="/records/funnels" className="inline-flex w-fit items-center gap-1.5 text-sm text-muted hover:text-ink">
           <ArrowLeft className="size-3.5" /> All funnels
         </Link>
         {funnel.status === "loading" ? (
           <Skeleton className="h-7 w-56" />
         ) : (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h2 className="text-[22px] font-semibold">{f?.name ?? slug}</h2>
+            <h2 className="text-2xl font-semibold">{f?.name ?? slug}</h2>
             {f && <Pill tone={f.published ? "good" : "neutral"} dot={f.published}>{f.published ? "Published" : "Draft"}</Pill>}
             {f?.url && (
-              <a href={f.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[13px] text-accent hover:underline">
+              <a href={f.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
                 Open page <ExternalLink className="size-3.5" />
               </a>
             )}
@@ -61,13 +61,13 @@ export function FunnelDetailView({ slug }: { slug: string }) {
       </div>
 
       {stats.status === "error" ? (
-        <p className="text-[13px] text-bad">{stats.error}</p>
+        <p className="text-sm text-bad">{stats.error}</p>
       ) : (
         <StatGrid stats={stats.data ? statsOf(stats.data) : null} />
       )}
 
       <div className="grid gap-2">
-        <h3 className="text-[16px] font-semibold">Latest activity</h3>
+        <h3 className="text-base font-semibold">Latest activity</h3>
         <RecordsView
           noun="events"
           rows={{ ...events, data: events.data?.events ?? null }}
@@ -78,7 +78,7 @@ export function FunnelDetailView({ slug }: { slug: string }) {
           empty={{ icon: <MousePointerClick />, title: "No visits yet", description: "Views and clicks show up here once people open the page." }}
         />
         {events.data && events.data.total > events.data.events.length && (
-          <p className="text-[12.5px] text-muted">Showing the latest {events.data.events.length} of {events.data.total} events.</p>
+          <p className="text-xs text-muted">Showing the latest {events.data.events.length} of {events.data.total} events.</p>
         )}
       </div>
     </div>

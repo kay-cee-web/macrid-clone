@@ -48,7 +48,7 @@ export function ConnectorsPanel() {
   return (
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center gap-3">
-        <p className="min-w-0 flex-1 basis-72 text-[14px] text-muted">
+        <p className="min-w-0 flex-1 basis-72 text-sm text-muted">
           Connections belong to your workspace, so every agent can use them.
         </p>
         <label htmlFor="connector-search" className="sr-only">Search connectors</label>
@@ -57,14 +57,14 @@ export function ConnectorsPanel() {
       </div>
 
       {connections.status === "error" && (
-        <div role="alert" className="flex items-center gap-3 rounded-[12px] bg-bad-soft px-4 py-3 text-[13.5px] text-bad">
+        <div role="alert" className="flex items-center gap-3 rounded-[12px] bg-bad-soft px-4 py-3 text-sm text-bad">
           <CircleAlert className="size-4 shrink-0" />
           <span className="flex-1">{connections.error}</span>
           <Button size="sm" variant="secondary" onClick={connections.reload}>Try again</Button>
         </div>
       )}
       {connections.data?.problems.map((problem) => (
-        <p key={problem} className="text-[13px] text-warn">{problem}</p>
+        <p key={problem} className="text-sm text-warn">{problem}</p>
       ))}
 
       {CONNECTOR_CATEGORIES.map((category) => {
@@ -73,8 +73,8 @@ export function ConnectorsPanel() {
         return (
           <section key={category.key} className="grid gap-3">
             <div className="grid gap-0.5">
-              <h3 className="text-[17px] font-semibold">{category.label}</h3>
-              <p className="text-[13px] text-muted">{category.blurb}</p>
+              <h3 className="text-lg font-semibold">{category.label}</h3>
+              <p className="text-sm text-muted">{category.blurb}</p>
             </div>
             <HairlineGrid itemCount={items.length}>
               {items.map((connector) => (
@@ -92,7 +92,7 @@ export function ConnectorsPanel() {
           </section>
         );
       })}
-      {!visible.length && <p className="text-[14px] text-muted">No connectors match “{query.trim()}”.</p>}
+      {!visible.length && <p className="text-sm text-muted">No connectors match “{query.trim()}”.</p>}
 
       {keyFor && (
         <ApiKeyModal connector={keyFor} source={source} onClose={() => setKeyFor(null)} onConnected={connections.reload} />

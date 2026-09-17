@@ -95,7 +95,7 @@ export function RecordsView<T>({
         <>
           <DataTable label={noun} columns={columns} rows={visible} rowKey={rowKey} rowHref={rowHref} />
           {all && (
-            <p className="text-[12.5px] text-muted">
+            <p className="text-xs text-muted">
               {q ? `${visible?.length} of ${all.length}` : all.length} {noun}
               {rows.status === "error" && <span className="text-bad"> · Refresh failed: {rows.error}</span>}
             </p>

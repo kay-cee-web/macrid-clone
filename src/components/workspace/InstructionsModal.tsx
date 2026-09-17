@@ -47,7 +47,7 @@ export function InstructionsModal({ agent, onClose }: { agent: Agent; onClose: (
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
             rows={12}
-            className="w-full resize-y rounded-[10px] border border-line bg-surface px-3 py-2.5 text-[14px] leading-relaxed text-ink outline-none transition-colors hover:border-faint focus:border-accent focus:ring-3 focus:ring-accent-soft"
+            className="w-full resize-y rounded-[10px] border border-line bg-surface px-3 py-2.5 text-sm leading-relaxed text-ink outline-none transition-colors hover:border-faint focus:border-accent focus:ring-3 focus:ring-accent-soft"
             placeholder="e.g. You find local businesses with no website in the cities I name, and draft a short WhatsApp opener for each."
           />
         </Field>

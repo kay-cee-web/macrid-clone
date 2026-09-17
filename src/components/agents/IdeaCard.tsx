@@ -1,50 +1,45 @@
 import { PLATFORMS } from "@/data/platforms";
-import { readinessOf } from "@/data/ideas";
-import { Pill } from "@/components/ui/Pill";
+import { readinessOf, type CategorizedIdea } from "@/data/ideas";
 import { useWorkspaceSetup } from "@/hooks/useWorkspaceSetup";
 import type { Idea } from "@/types/idea";
+import { IdeaCover } from "./IdeaCover";
 
 type IdeaCardProps = {
-  idea: Idea;
+  idea: CategorizedIdea;
   onPick: (idea: Idea) => void;
-  /** Small label naming what picking does, e.g. the category or "Send to chat". */
-  eyebrow?: string;
+  /** Spoken name of what picking does, e.g. "Draft" or "Send to chat". */
+  action?: string;
 };
 
-/** A standing task. What picking does is up to the caller. */
-export function IdeaCard({ idea, onPick, eyebrow }: IdeaCardProps) {
+/** A standing task as a template tile: cover art, then the title and the platforms it uses. */
+export function IdeaCard({ idea, onPick, action = "Use" }: IdeaCardProps) {
   const readiness = readinessOf(idea, useWorkspaceSetup());
 
   return (
     <button
       type="button"
       onClick={() => onPick(idea)}
-      className="group grid content-start gap-2 bg-surface p-4 text-left transition-colors hover:bg-raised focus-visible:z-10"
+      aria-label={`${action}: ${idea.title}. ${idea.description}`}
+      className="group grid content-start gap-3 rounded-2xl text-left focus-visible:outline-offset-4"
     >
-      {eyebrow && (
-        <span className="font-mono text-[10.5px] uppercase tracking-[0.06em] text-faint">{eyebrow}</span>
-      )}
-      <h3 className="text-[15px] font-semibold leading-snug text-ink">{idea.title}</h3>
-      <p className="line-clamp-3 text-[13px] leading-relaxed text-muted">{idea.description}</p>
-      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-        {idea.platforms.map((id) => {
-          const { name, Icon } = PLATFORMS[id];
-          return (
-            <span
-              key={id}
-              className="inline-flex items-center gap-1 rounded-md border border-line bg-raised px-1.5 py-1 text-[11.5px] text-muted"
-            >
-              <Icon aria-hidden className="size-3" />
-              {name}
-            </span>
-          );
-        })}
-        <span title={readiness.reason} className="ml-auto">
-          <Pill tone={readiness.tone} dot={readiness.tone !== "neutral"}>
-            {readiness.label}
-          </Pill>
+      <IdeaCover idea={idea} category={idea.category} readiness={readiness} />
+      <span className="flex min-w-0 items-center gap-3 px-1">
+        <span className="min-w-0 flex-1 truncate text-base font-medium text-ink group-hover:text-accent">
+          {idea.title}
         </span>
-      </div>
+        {idea.platforms.length > 0 && (
+          <span className="flex shrink-0 items-center gap-1.5 text-muted">
+            {idea.platforms.map((id) => {
+              const { name, Icon } = PLATFORMS[id];
+              return (
+                <span key={id} title={name}>
+                  <Icon aria-hidden className="size-4" />
+                </span>
+              );
+            })}
+          </span>
+        )}
+      </span>
     </button>
   );
 }

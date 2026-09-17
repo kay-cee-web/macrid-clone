@@ -20,7 +20,7 @@ function Change({ change, downIsGood }: { change: number; downIsGood?: boolean }
   const good = change === 0 ? null : up !== Boolean(downIsGood);
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className={cn("inline-flex items-center gap-0.5 font-mono text-[11.5px]", good === null ? "text-muted" : good ? "text-good" : "text-bad")}>
+    <span className={cn("inline-flex items-center gap-0.5 font-mono text-xs", good === null ? "text-muted" : good ? "text-good" : "text-bad")}>
       {change !== 0 && <Icon aria-hidden className="size-3" />}
       {percent.format(change)}%<span className="sr-only"> vs the previous period</span>
     </span>
@@ -36,12 +36,12 @@ export function StatGrid({ stats, skeletons = 4, className }: { stats: Stat[] | 
         <div key={stat?.label ?? index} className="grid content-start gap-1.5 bg-surface p-4">
           {stat ? (
             <>
-              <dt className="text-[12.5px] text-muted">{stat.label}</dt>
+              <dt className="text-xs text-muted">{stat.label}</dt>
               <dd className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="font-sans text-[26px] font-semibold leading-none tabular-nums text-ink">{stat.value || "—"}</span>
+                <span className="font-sans text-2xl font-semibold leading-none tabular-nums text-ink">{stat.value || "—"}</span>
                 {typeof stat.change === "number" && <Change change={stat.change} downIsGood={stat.downIsGood} />}
               </dd>
-              {stat.note && <dd className="text-[12px] text-faint">{stat.note}</dd>}
+              {stat.note && <dd className="text-xs text-faint">{stat.note}</dd>}
             </>
           ) : (
             <>
