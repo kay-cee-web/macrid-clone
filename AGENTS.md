@@ -84,7 +84,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
   - **Usage:** stats and the `/actions` log.
   - Build sections from `SettingsSection` + `SettingRow`.
-- **Models** (`/agents/models`, tabbed with `/agents/all` via `HubTabs`): the catalogue in `src/data/models.ts` (provider, tag, context) as cards; "Integrate" saves the user's own Anthropic/OpenAI/Gemini key.
+- **Models** (`/agents/models`, tabbed with `/agents/all` and `/agents/skills` via `HubTabs`): the catalogue in `src/data/models.ts` (provider, tag, context) as cards; "Integrate" saves the user's own Anthropic/OpenAI/Gemini key.
+- **Skills** (`/agents/skills`, the third `HubTabs` tab): the whole catalogue as rows, searchable and filtered by `SKILL_CATEGORIES`.
+  - Data is static: `src/data/skills` (`ALL_SKILLS` = featured first, `skillName`, `docFor`, `isFeatured`), with each skill's SKILL.md body in `src/data/skills/docs/<surface>.ts` (`useCases`, `steps`, `output`); the overview is the skill's own `description`.
+  - `skillMarkdown` (`src/lib/skills/markdown.ts`) renders that into a SKILL.md, so the preview and the download can't drift apart.
+  - Shared pieces: `SkillRow` (icon from `COVERS[surface]`, hover actions, "..." → View details / Download) and `SkillPreview` (the SKILL.md in `ui/Markdown`), wired by `useSkillActions` (preview state + download). Both are reused by the agent's Plugins → Skills tab, where "Use" drafts into that agent's chat instead of the home composer.
   - `src/services/aiKeys.ts` (Macrid's `lib/aiKeyStore.js`): reads `GET /integrations` (rows with `service`) and `GET /platform-apis` (`<provider>_api_key`, `<provider>_api_key_model`).
   - Save: `PUT /integrations/{recordId}` when a row exists, else `POST /integrations {service, api_key, status: "1", model}`. **POST never upserts** (it adds duplicate rows), and routes bind by record id, not service name. A PUT that 404s falls back to POST.
   - Remove: `DELETE /integrations/{recordId}`, and blank the provider's `platform_apis` columns through `savePlatformKeys` (read-modify-write) when the key is also there.
@@ -97,7 +101,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
     - These can hold several senders, so their cards offer "Add another" and "Manage" (in Macrid) instead of Disconnect. `/mail-accounts` and `/sms-senders` override whatever `/connectors` says about them.
   - **`POST /platform-apis` replaces the whole row** (the Places key and every AI key). `savePlatformKeys` reads the row first and sends it all back with only the changed fields.
   - **External connectors** (WhatsApp Business via Meta, Facebook) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
-  - **Skills:** static data in `src/data/skills`; "Use in chat" drafts `/slug`.
+  - **Skills:** the same catalogue as `/agents/skills` (`SkillRow` + `SkillPreview`), scoped to this agent: "Use in chat" drafts `/slug` into its composer.
   - `ConfirmModal` is the shared "are you sure?" dialog.
 - **Records** (`/records/lists|lists/[listId]|leads|companies|deals|tasks|appointments|campaigns?channel=email|sms|whatsapp|campaigns/sms/[id]|funnels|funnels/[slug]|analytics`):
   - A read-only view of workspace data, so users can see what agents created. `/agents/{id}/actions` stays empty even after tool use, so these endpoints are the only source.
@@ -143,7 +147,7 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 
 ## Backend basics
 
-- **Base URL:** built in `src/lib/api/config.ts` from `NEXT_PUBLIC_API_HOST` (`https://api.dexisphere.com`) and `NEXT_PUBLIC_API_USEREND` (default `macrid-userend`): `USEREND_URL = {host}/api/{userend}` for the `api` client (auth routes included), `API_ROOT = {host}/api` for public routes. The old `NEXT_PUBLIC_API_URL` (a full userend URL) still works when no host is set. Default headers are JSON (`Content-Type` and `Accept: application/json`).
+- **Base URL:** built in `src/lib/api/config.ts` from `NEXT_PUBLIC_API_HOST` (`https://api.dexisphere.com`) and `NEXT_PUBLIC_API_USEREND` (default `dexisphere-userend`): `USEREND_URL = {host}/api/{userend}` for the `api` client (auth routes included), `API_ROOT = {host}/api` for public routes. The old `NEXT_PUBLIC_API_URL` (a full userend URL) still works when no host is set. Default headers are JSON (`Content-Type` and `Accept: application/json`).
   - **Moving to Dexisphere (2026-09-17):** `dexisphere-api` is a copy of Macrid's Laravel app (internal names kept) on a **schema-only database**, so no Macrid account exists there and users register again. Switch areas one at a time, starting with register and login.
 - **Auth:**
   - `POST /login {email, password}` returns the token in `token`, `access_token` or `data.token`.

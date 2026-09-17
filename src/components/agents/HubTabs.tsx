@@ -1,6 +1,6 @@
 import { RouteTabs } from "@/components/ui/RouteTabs";
 
-/** Switches between the agent catalogue and the model catalogue. */
+/** Switches between the agent, skill and model catalogues. */
 export function HubTabs() {
   return (
     <RouteTabs
@@ -8,6 +8,7 @@ export function HubTabs() {
       variant="segmented"
       tabs={[
         { href: "/agents/all", label: "Agents" },
+        { href: "/agents/skills", label: "Skills" },
         { href: "/agents/models", label: "Models" },
       ]}
     />
