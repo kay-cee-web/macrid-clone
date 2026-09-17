@@ -32,7 +32,7 @@ export function ResendCode({
   }
 
   return (
-    <p className="text-center text-[13.5px] text-muted">
+    <p className="text-center text-sm text-muted">
       Didn&apos;t get it?{" "}
       {done ? (
         <button

@@ -13,7 +13,7 @@ import { StackCell, StatusCell, TextCell } from "./cells";
 import { RecordsView } from "./RecordsView";
 
 const columns: Column<SmsLog>[] = [
-  { key: "to", header: "To", cell: (log) => <StackCell primary={<span className="font-mono text-[13px]">{log.to || "—"}</span>} secondary={log.error} /> },
+  { key: "to", header: "To", cell: (log) => <StackCell primary={<span className="font-mono text-sm">{log.to || "—"}</span>} secondary={log.error} /> },
   { key: "status", header: "Status", cell: (log) => <StatusCell status={log.status} /> },
   { key: "cost", header: "Cost", numeric: true, wide: true, cell: (log) => <TextCell value={formatAmount(log.cost)} muted /> },
   { key: "at", header: "Time", cell: (log) => <TextCell value={formatDateTime(log.at)} muted /> },
@@ -40,10 +40,10 @@ export function SmsLogsView({ campaignId }: { campaignId: string }) {
   return (
     <div className="grid gap-5">
       <div className="grid gap-2">
-        <Link href="/records/campaigns?channel=sms" className="inline-flex w-fit items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <Link href="/records/campaigns?channel=sms" className="inline-flex w-fit items-center gap-1.5 text-sm text-muted hover:text-ink">
           <ArrowLeft className="size-3.5" /> SMS campaigns
         </Link>
-        <h2 className="line-clamp-2 text-[22px] font-semibold">{title}</h2>
+        <h2 className="line-clamp-2 text-2xl font-semibold">{title}</h2>
       </div>
       <StatGrid stats={logs.data ? summary(logs.data) : null} />
       <RecordsView

@@ -28,8 +28,8 @@ export function EmptyState({ icon, title, description, action, tone = "neutral",
           {icon}
         </span>
       )}
-      <h3 className="text-[17px] font-semibold">{title}</h3>
-      {description && <p className="max-w-[46ch] text-[14px] text-muted">{description}</p>}
+      <h3 className="text-lg font-semibold">{title}</h3>
+      {description && <p className="max-w-[46ch] text-sm text-muted">{description}</p>}
       {action && <div className="mt-1 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
   );

@@ -17,18 +17,18 @@ export function Field({ id, label, error, hint, aside, className, children }: Fi
   return (
     <div className={cn("grid gap-1.5", className)}>
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-[13px] font-medium text-ink">
+        <label htmlFor={id} className="text-sm font-medium text-ink">
           {label}
         </label>
         {aside}
       </div>
       {children}
       {error ? (
-        <p id={`${id}-error`} role="alert" className="text-[12.5px] text-bad">
+        <p id={`${id}-error`} role="alert" className="text-xs text-bad">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="text-[12.5px] text-muted">
+        <p id={`${id}-hint`} className="text-xs text-muted">
           {hint}
         </p>
       ) : null}

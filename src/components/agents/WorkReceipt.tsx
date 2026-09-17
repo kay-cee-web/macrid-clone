@@ -28,8 +28,8 @@ export function WorkReceipt({ area, stats, badge, children, className }: WorkRec
       >
         {stats.map((stat) => (
           <div key={stat.label} className="px-3 py-2.5">
-            <dt className="font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted">{stat.label}</dt>
-            <dd className="mt-1.5 font-display text-[20px] font-semibold leading-none tabular-nums">
+            <dt className="font-mono text-xs uppercase tracking-[0.06em] text-muted">{stat.label}</dt>
+            <dd className="mt-1.5 font-display text-xl font-semibold leading-none tabular-nums">
               {stat.value}
             </dd>
           </div>

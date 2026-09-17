@@ -29,8 +29,8 @@ export function ScheduledWork({ agentName, onSend, onDraft }: ScheduledWorkProps
         <CalendarClock className="size-5" />
       </span>
       <div className="grid min-w-0 flex-1 gap-0.5">
-        <h3 className="font-sans text-[15px] font-semibold tracking-normal">Scheduled work</h3>
-        <p className="text-[13px] text-muted">
+        <h3 className="font-sans text-base font-semibold tracking-normal">Scheduled work</h3>
+        <p className="text-sm text-muted">
           {agentName} can run tasks on a schedule, like a Monday report or daily reminders. Ask it what&apos;s running,
           add a new one, or stop one.
         </p>

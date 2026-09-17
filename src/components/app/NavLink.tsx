@@ -25,10 +25,8 @@ export function NavLink({ href, children, icon, matchPrefix, onNavigate, classNa
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-w-0 items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13.5px] transition-colors [&_svg]:size-4",
-        active
-          ? "bg-raised font-medium text-ink ring-1 ring-inset ring-line"
-          : "text-muted hover:bg-raised hover:text-ink",
+        "flex min-w-0 items-center gap-3 rounded-xl px-3 py-2 text-base text-ink transition-colors [&_svg]:size-4.5",
+        active ? "bg-raised font-medium" : "hover:bg-raised/70",
         className,
       )}
     >

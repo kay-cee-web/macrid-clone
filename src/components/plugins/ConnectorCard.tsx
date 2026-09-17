@@ -21,7 +21,7 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
   const { Icon } = connector;
   const connected = connection?.status === "connected";
 
-  // Mailboxes and SMS senders can be several; add more here, remove them in Macrid.
+  // Mailboxes and SMS senders can be several; add more here, remove them in Dexisphere.
   const multiple = connector.store === "mail_accounts" || connector.store === "sms_senders";
 
   const action = connected ? (
@@ -36,7 +36,7 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
       </div>
     ) : connector.auth === "external" ? (
       <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "secondary", size: "sm" })}>
-        Manage in Macrid <ExternalLink className="size-3.5" />
+        Manage in Dexisphere <ExternalLink className="size-3.5" />
       </a>
     ) : (
       <Button variant="secondary" size="sm" onClick={() => onDisconnect(connector)}>
@@ -45,7 +45,7 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
     )
   ) : connector.auth === "external" ? (
     <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ size: "sm" })}>
-      Set up in Macrid <ExternalLink className="size-3.5" />
+      Set up in Dexisphere <ExternalLink className="size-3.5" />
     </a>
   ) : (
     <Button size="sm" loading={busy} onClick={() => onConnect(connector)}>
@@ -60,22 +60,22 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
           <Icon className="size-4.5" />
         </span>
         <div className="grid min-w-0 flex-1 gap-0.5">
-          <h3 className="font-sans text-[14.5px] font-semibold tracking-normal">{connector.name}</h3>
+          <h3 className="font-sans text-sm font-semibold tracking-normal">{connector.name}</h3>
           {loading ? (
             <Skeleton className="mt-1 h-4 w-24 rounded-full" />
           ) : connected ? (
             <span className="flex min-w-0 items-center gap-2">
               <Pill tone="good" dot>Connected</Pill>
-              {connection?.detail && <span className="truncate text-[12px] text-faint">{connection.detail}</span>}
+              {connection?.detail && <span className="truncate text-xs text-faint">{connection.detail}</span>}
             </span>
           ) : (
-            <span className="text-[12px] text-faint">
-              {connector.auth === "external" && connection?.status === "unknown" ? "Set up in Macrid" : connector.optional ? "Optional" : "Not connected"}
+            <span className="text-xs text-faint">
+              {connector.auth === "external" && connection?.status === "unknown" ? "Set up in Dexisphere" : connector.optional ? "Optional" : "Not connected"}
             </span>
           )}
         </div>
       </div>
-      <p className="text-[13px] leading-relaxed text-muted">{connector.description}</p>
+      <p className="text-sm leading-relaxed text-muted">{connector.description}</p>
       <div className="mt-auto">{!loading && action}</div>
     </article>
   );

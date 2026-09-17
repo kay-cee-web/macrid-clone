@@ -23,7 +23,7 @@ export function TokenBalance({ className }: { className?: string }) {
       rel="noreferrer"
       title={`${balance.toLocaleString("en")} tokens left as of the last reply. Manage your plan.`}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-lg px-2 font-mono text-[12px] transition-colors hover:bg-raised",
+        "inline-flex h-8 items-center gap-1.5 rounded-lg px-2 font-mono text-xs transition-colors hover:bg-raised",
         empty ? "text-bad" : "text-muted hover:text-ink",
         className,
       )}

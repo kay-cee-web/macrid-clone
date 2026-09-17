@@ -80,7 +80,7 @@ export function GeneralSettings() {
 
       <SettingsSection title="Details">
         <SettingRow label="Agent ID" description="Use it when contacting support or connecting other tools.">
-          <code className="rounded-md bg-raised px-2 py-1 font-mono text-[13px] ring-1 ring-inset ring-line">{agent.id}</code>
+          <code className="rounded-md bg-raised px-2 py-1 font-mono text-sm ring-1 ring-inset ring-line">{agent.id}</code>
           <IconButton label={copied ? "Copied" : "Copy agent ID"} onClick={() => void copy(agent.id)}>
             {copied ? <Check className="text-good" /> : <Copy />}
           </IconButton>

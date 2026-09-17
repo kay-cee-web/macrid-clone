@@ -17,17 +17,17 @@ export function ChatEmpty({ agent, onPick }: { agent: Agent; onPick: (text: stri
       <div className="grid justify-items-start gap-4">
         <AgentAvatar name={agent.name} size="lg" />
         <div className="grid gap-2">
-          <h2 className="text-[28px] font-semibold leading-tight">
+          <h2 className="text-3xl font-semibold leading-tight">
             {name ? `Hey ${name}. ` : ""}What should {agent.name} work on?
           </h2>
-          <p className="max-w-[60ch] text-[14.5px] text-muted">
+          <p className="max-w-[60ch] text-sm text-muted">
             {brief
               ? "It already has a brief. Ask it to start, or refine what it should do."
               : "It doesn't have a brief yet. Describe the job and it will write its own instructions from the conversation."}
           </p>
         </div>
         {brief && (
-          <blockquote className="line-clamp-4 max-w-[65ch] border-l-2 border-accent pl-3 text-[14px] leading-relaxed text-ink">
+          <blockquote className="line-clamp-4 max-w-[65ch] border-l-2 border-accent pl-3 text-sm leading-relaxed text-ink">
             {brief}
           </blockquote>
         )}

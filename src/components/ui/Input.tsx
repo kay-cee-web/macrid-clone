@@ -22,7 +22,7 @@ export function Input({ invalid, leading, trailing, className, ...rest }: InputP
       {leading && <span className="flex text-faint [&_svg]:size-4">{leading}</span>}
       <input
         aria-invalid={invalid || undefined}
-        className="h-full min-w-0 flex-1 bg-transparent text-[14.5px] text-ink outline-none placeholder:text-faint"
+        className="h-full min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-faint"
         {...rest}
       />
       {trailing}

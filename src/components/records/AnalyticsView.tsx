@@ -36,7 +36,7 @@ export function AnalyticsView() {
   return (
     <div className="grid gap-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-[60ch] text-[14px] text-muted">
+        <p className="max-w-[60ch] text-sm text-muted">
           How your campaigns performed, whether an agent or a person sent them. Ask an agent to dig into any of these.
         </p>
         <SegmentedControl label="Time range" value={range} onChange={setRange} options={RANGES.map((r) => ({ ...r }))} />

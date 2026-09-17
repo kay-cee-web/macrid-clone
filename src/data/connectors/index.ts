@@ -7,7 +7,7 @@ import { FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS, api
 /** Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js). */
 export const CONNECTOR_CATEGORIES: { key: ConnectorCategory; label: string; blurb: string }[] = [
   { key: "channel", label: "Outreach channels", blurb: "Where your agents and campaigns send from." },
-  { key: "prospect", label: "Prospect sources", blurb: "Where Macrid looks for businesses worth contacting." },
+  { key: "prospect", label: "Prospect sources", blurb: "Where Dexisphere looks for businesses worth contacting." },
   { key: "email_platform", label: "Email platforms", blurb: "Keep a list you already own in step with your pipeline." },
 ];
 
@@ -22,12 +22,12 @@ export const CONNECTORS: Connector[] = [
   {
     key: "twilio", name: "SMS (Twilio)", category: "channel", auth: "api_key", Icon: MessageSquare, store: "sms_senders",
     manageHref: "/multi-channel-outreach/sms", fields: TWILIO_FIELDS, optional: true,
-    description: "Text from your own number. Optional: without it, SMS goes out on Macrid's shared sender.",
+    description: "Text from your own number. Optional: without it, SMS goes out on Dexisphere's shared sender.",
   },
   {
     key: "whatsapp_business", name: "WhatsApp Business", category: "channel", auth: "external", Icon: MessageCircle,
     manageHref: "/settings/whatsapp-settings",
-    description: "Send WhatsApp broadcasts from your business number. Connected through Meta inside Macrid.",
+    description: "Send WhatsApp broadcasts from your business number. Connected through Meta inside Dexisphere.",
   },
   {
     key: "gmail", name: "Gmail", category: "channel", auth: "oauth", Icon: Send, connect: google("gmail"),
@@ -48,7 +48,7 @@ export const CONNECTORS: Connector[] = [
   {
     key: "google_places", name: "Google Places", category: "prospect", auth: "api_key", Icon: MapPin,
     store: "platform_apis", optional: true, fields: [PLACES_KEY],
-    description: "Find local businesses by niche, city and radius. Optional: Macrid's shared key has a daily limit.",
+    description: "Find local businesses by niche, city and radius. Optional: Dexisphere's shared key has a daily limit.",
   },
   {
     key: "gbp", name: "Google Business Profile", category: "prospect", auth: "oauth", Icon: Store, connect: google("gbp"),

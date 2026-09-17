@@ -25,14 +25,14 @@ export function ChannelDetail({ agentId, channel, onBack }: { agentId: string; c
         </span>
         <div className="grid gap-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-[22px] font-semibold">{channel.name}</h2>
+            <h2 className="text-2xl font-semibold">{channel.name}</h2>
             {!connection.checking && (
               <Pill tone={connection.connected ? "good" : "neutral"} dot={connection.connected}>
                 {connection.connected ? "Connected" : "Not connected"}
               </Pill>
             )}
           </div>
-          <p className="text-[14px] text-muted">{channel.blurb}</p>
+          <p className="text-sm text-muted">{channel.blurb}</p>
         </div>
       </header>
 
@@ -59,16 +59,16 @@ export function ChannelDetail({ agentId, channel, onBack }: { agentId: string; c
       )}
 
       <section className="grid gap-4">
-        <h3 className="text-[16px] font-semibold">{connection.connected ? "Pair again" : "How to connect"}</h3>
+        <h3 className="text-base font-semibold">{connection.connected ? "Pair again" : "How to connect"}</h3>
         <ol className="grid gap-3">
           {channel.steps.map((step, index) => (
             <li key={step.title} className="flex gap-3">
-              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-raised font-mono text-[12px] text-muted ring-1 ring-inset ring-line">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-raised font-mono text-xs text-muted ring-1 ring-inset ring-line">
                 {index + 1}
               </span>
               <div className="grid gap-0.5">
-                <span className="text-[14px] font-medium">{step.title}</span>
-                <span className="text-[13.5px] text-muted">{step.body}</span>
+                <span className="text-sm font-medium">{step.title}</span>
+                <span className="text-sm text-muted">{step.body}</span>
               </div>
             </li>
           ))}
@@ -93,7 +93,7 @@ export function ChannelDetail({ agentId, channel, onBack }: { agentId: string; c
         )}
       </section>
 
-      <p className="flex items-center gap-2 text-[12.5px] text-faint">
+      <p className="flex items-center gap-2 text-xs text-faint">
         <ShieldCheck className="size-4" />
         {CHANNEL_PRIVACY_NOTE}
       </p>

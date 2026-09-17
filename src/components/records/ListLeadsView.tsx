@@ -20,14 +20,14 @@ export function ListLeadsView({ listId }: { listId: string }) {
   return (
     <div className="grid gap-5">
       <div className="grid gap-2">
-        <Link href="/records/lists" className="inline-flex w-fit items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <Link href="/records/lists" className="inline-flex w-fit items-center gap-1.5 text-sm text-muted hover:text-ink">
           <ArrowLeft className="size-3.5" /> All lists
         </Link>
         {state.data ? (
           <div className="grid gap-1">
-            <h2 className="text-[22px] font-semibold">{list?.name ?? `List ${listId}`}</h2>
-            {list?.description && <p className="max-w-[64ch] text-[14px] text-muted">{list.description}</p>}
-            {!list && <p className="text-[14px] text-warn">This list wasn&rsquo;t found. It may have been deleted.</p>}
+            <h2 className="text-2xl font-semibold">{list?.name ?? `List ${listId}`}</h2>
+            {list?.description && <p className="max-w-[64ch] text-sm text-muted">{list.description}</p>}
+            {!list && <p className="text-sm text-warn">This list wasn&rsquo;t found. It may have been deleted.</p>}
           </div>
         ) : (
           <Skeleton className="h-7 w-56" />
@@ -48,7 +48,7 @@ export function ListLeadsView({ listId }: { listId: string }) {
         }}
       />
       {state.data?.truncated && (
-        <p className="text-[12.5px] text-warn">This list is very large; only the first 10,000 leads are shown.</p>
+        <p className="text-xs text-warn">This list is very large; only the first 10,000 leads are shown.</p>
       )}
     </div>
   );

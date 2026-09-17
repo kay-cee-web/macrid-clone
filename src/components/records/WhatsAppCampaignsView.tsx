@@ -36,7 +36,7 @@ export function WhatsAppCampaignsView({ switcher }: { switcher: ReactNode }) {
       empty={{
         icon: <MessageCircle />,
         title: "No WhatsApp broadcasts yet",
-        description: "Ask an agent to message a list on WhatsApp. It needs WhatsApp Business connected in Macrid.",
+        description: "Ask an agent to message a list on WhatsApp. It needs WhatsApp Business connected in Dexisphere.",
       }}
     />
   );

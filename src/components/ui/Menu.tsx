@@ -65,7 +65,7 @@ export function Menu({ trigger, items, align = "end", side = "bottom", className
                 item.onSelect();
               }}
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13.5px]",
+                "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm",
                 "transition-colors disabled:opacity-50 [&_svg]:size-4",
                 item.tone === "danger" ? "text-bad hover:bg-bad-soft" : "text-ink hover:bg-raised",
               )}

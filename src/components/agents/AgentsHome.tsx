@@ -2,59 +2,74 @@
 
 import { useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eyebrow } from "@/components/ui/Card";
-import { useAuth } from "@/hooks/useAuth";
+import { ExternalLink } from "lucide-react";
+import { AnnouncementPill } from "@/components/ui/AnnouncementPill";
+import { buttonStyles } from "@/components/ui/button-styles";
+import { TokenBalance } from "@/components/workspace/TokenBalance";
+import { ComposerWithAttachments } from "@/components/chat/ComposerWithAttachments";
+import { SuggestionChips } from "@/components/chat/SuggestionChips";
 import { useCreateAgent } from "@/hooks/useCreateAgent";
-import { firstName, greetingFor } from "@/lib/format";
+import { dexisphereAppLink } from "@/lib/config";
 import type { Idea } from "@/types/idea";
 import { IdeaBrowser } from "./IdeaBrowser";
-import { ComposerWithAttachments } from "@/components/chat/ComposerWithAttachments";
+
+const PILL = "h-10 rounded-full border border-line bg-surface/80 px-4 shadow-float backdrop-blur";
 
 export function AgentsHome() {
-  const { user } = useAuth();
   const searchParams = useSearchParams();
   const [task, setTask] = useState(() => searchParams.get("task") ?? "");
-  const [greeting] = useState(() => greetingFor());
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const { create, creating } = useCreateAgent();
-  const name = firstName(user?.name);
 
-  const pickIdea = (idea: Idea) => {
-    setTask(idea.description);
+  const draft = (text: string) => {
+    setTask(text);
     composerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     composerRef.current?.focus({ preventScroll: true });
   };
+  const pickIdea = (idea: Idea) => draft(idea.description);
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-14 px-4 pb-20 pt-10 sm:px-8 lg:pt-16">
-      <section className="mx-auto grid w-full max-w-3xl gap-5">
-        <div className="grid gap-3">
-          <Eyebrow>
-            {greeting}
-            {name && `, ${name}`}
-          </Eyebrow>
-          <h1 className="max-w-[20ch] text-[34px] font-semibold leading-[1.05] sm:text-[44px]">
-            What should an agent take off your plate?
-          </h1>
-          <p className="max-w-[60ch] text-[15px] text-muted">
-            Describe the work you&apos;d otherwise do by hand in Macrid. A new agent takes it as its brief,
-            and you can refine it in chat.
-          </p>
-        </div>
-        <ComposerWithAttachments
-          id="new-agent-task"
-          label="Describe the task for a new agent"
-          textareaRef={composerRef}
-          value={task}
-          onChange={setTask}
-          onSubmit={async (value, images) => Boolean(await create(value, images))}
-          submitting={creating}
-          submitLabel="Create agent"
-          placeholder="e.g. Every Monday, find 40 dental clinics in Austin with no website and draft a WhatsApp opener for each."
-        />
-      </section>
+    <div className="min-h-full">
+      <div className="flex items-center justify-end gap-2 px-4 pt-4 sm:px-6">
+        <TokenBalance className={PILL} />
+        <a
+          href={dexisphereAppLink("/")}
+          target="_blank"
+          rel="noreferrer"
+          className={buttonStyles({ variant: "secondary", className: PILL })}
+        >
+          <ExternalLink className="size-4" />
+          Dexisphere app
+        </a>
+      </div>
 
-      <IdeaBrowser onPick={pickIdea} />
+      <div className="mx-auto grid w-full max-w-5xl gap-24 px-4 pb-20 pt-12 sm:px-8 lg:pt-[10vh]">
+        <section className="mx-auto grid w-full max-w-3xl justify-items-center gap-10">
+          <div className="grid justify-items-center gap-8 text-center">
+            <AnnouncementPill href="/records">Every reply now shows what your agent changed</AnnouncementPill>
+            <h1 className="text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl">
+              What should your agent do today?
+            </h1>
+          </div>
+
+          <ComposerWithAttachments
+            id="new-agent-task"
+            label="Describe the task for a new agent"
+            textareaRef={composerRef}
+            value={task}
+            onChange={setTask}
+            onSubmit={async (value, images) => Boolean(await create(value, images))}
+            submitting={creating}
+            submitLabel="Create agent"
+            placeholder="Describe the work you'd otherwise do by hand, e.g. find 40 dental clinics in Austin with no website…"
+            className="w-full"
+          />
+
+          <SuggestionChips variant="pills" onPick={draft} />
+        </section>
+
+        <IdeaBrowser onPick={pickIdea} />
+      </div>
     </div>
   );
 }

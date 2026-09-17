@@ -2,10 +2,10 @@ import { cn } from "@/lib/cn";
 import { initialsOf } from "@/lib/format";
 
 const sizes = {
-  xs: "size-5 rounded-[6px] text-[9px]",
-  sm: "size-7 rounded-[8px] text-[10.5px]",
-  md: "size-9 rounded-[10px] text-[12px]",
-  lg: "size-12 rounded-[14px] text-[15px]",
+  xs: "size-5 rounded-[6px] text-xs",
+  sm: "size-7 rounded-[8px] text-xs",
+  md: "size-9 rounded-[10px] text-xs",
+  lg: "size-12 rounded-[14px] text-base",
 };
 
 /** Mono initials on the accent tint: an agent is always the teal thing on screen. */

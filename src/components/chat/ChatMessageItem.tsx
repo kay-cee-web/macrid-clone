@@ -40,7 +40,7 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
     return (
       <div className="group flex flex-col items-end gap-1.5">
         {message.images?.length ? <ImageGrid images={message.images} /> : null}
-        <div className="max-w-[min(85%,36rem)] whitespace-pre-wrap rounded-[16px] rounded-br-[6px] border border-line bg-raised px-3.5 py-2.5 text-[14.5px] leading-relaxed [overflow-wrap:anywhere]">
+        <div className="max-w-[min(85%,36rem)] whitespace-pre-wrap rounded-[16px] rounded-br-[6px] border border-line bg-raised px-3.5 py-2.5 text-sm leading-relaxed [overflow-wrap:anywhere]">
           {message.text}
         </div>
         <MessageActions text={message.text} />
@@ -55,7 +55,7 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
       <div className="grid gap-2">
         <div role="alert" className="flex flex-wrap items-start gap-3 rounded-[12px] border border-bad/30 bg-bad-soft px-3.5 py-3 text-bad">
           <CircleAlert className="mt-0.5 size-4 shrink-0" />
-          <p className="min-w-0 flex-1 text-[13.5px]">{message.text}</p>
+          <p className="min-w-0 flex-1 text-sm">{message.text}</p>
           <div className="flex gap-2">
             {message.outOfTokens && (
               <a href={macridAppLink("/settings/plans")} target="_blank" rel="noreferrer" className={buttonStyles({ size: "sm" })}>
@@ -76,7 +76,7 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
 
   return (
     <div className="group grid gap-2">
-      <div className="flex items-center gap-2 text-[12.5px] text-muted">
+      <div className="flex items-center gap-2 text-xs text-muted">
         <AgentAvatar name={agentName} size="xs" />
         <span className="font-medium text-ink">{agentName}</span>
         {new Date(message.at).getTime() > 0 && <span className="text-faint">{timeAgo(message.at)}</span>}

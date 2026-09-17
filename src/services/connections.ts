@@ -77,7 +77,7 @@ export async function fetchOAuthUrl(connector: Connector): Promise<string> {
  * POST /platform-apis replaces the whole row (Google Places and the AI keys),
  * so read it first and send every column back with only `patch` changed.
  */
-async function savePlatformKeys(patch: Record<string, string>, fallback: string) {
+export async function savePlatformKeys(patch: Record<string, string>, fallback: string) {
   const { data: current } = await api.get("/platform-apis");
   const row = readRows(current)[0] ?? {};
   const merged = Object.fromEntries(

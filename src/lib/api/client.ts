@@ -2,11 +2,12 @@ import axios, { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { getToken } from "@/lib/auth/session";
 import { emitAuthEvent } from "@/lib/auth/events";
+import { USEREND_URL } from "./config";
 import { isTokenExhausted } from "./errors";
 
-/** The one HTTP client. Same Laravel API and auth scheme as Macrid. */
+/** The one HTTP client, on the userend route group. Same Laravel API and auth scheme as Macrid. */
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: USEREND_URL,
   headers: { "Content-Type": "application/json", Accept: "application/json" },
 });
 

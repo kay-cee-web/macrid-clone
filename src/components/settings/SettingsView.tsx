@@ -43,7 +43,7 @@ export function SettingsView() {
                     aria-current={active ? "page" : undefined}
                     onClick={() => go(id)}
                     className={cn(
-                      "flex w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[13.5px] transition-colors",
+                      "flex w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm transition-colors",
                       active ? "bg-surface font-medium text-ink ring-1 ring-inset ring-line" : "text-muted hover:bg-raised hover:text-ink",
                     )}
                   >

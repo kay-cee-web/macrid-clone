@@ -33,7 +33,7 @@ export function StackCell({ primary, secondary }: { primary: ReactNode; secondar
   return (
     <span className="grid min-w-0 max-w-104 gap-0.5">
       <span className="truncate">{primary}</span>
-      {secondary && <span className="truncate text-[12.5px] font-normal text-muted">{secondary}</span>}
+      {secondary && <span className="truncate text-xs font-normal text-muted">{secondary}</span>}
     </span>
   );
 }

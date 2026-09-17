@@ -38,11 +38,11 @@ export function AuthShowcase() {
       <div className="mx-auto grid w-full max-w-md gap-8 px-10 py-12">
         <div className="grid gap-3">
           <Eyebrow>While you were away · example</Eyebrow>
-          <h2 className="text-[34px] font-semibold leading-[1.05]">
+          <h2 className="text-4xl font-semibold leading-[1.05]">
             Your agents did the clicking.
           </h2>
-          <p className="max-w-[40ch] text-[15px] text-muted">
-            Tell an agent what you need done in Macrid. It finds the leads, drafts the messages
+          <p className="max-w-[40ch] text-base text-muted">
+            Tell an agent what you need done in Dexisphere. It finds the leads, drafts the messages
             and updates your pipeline, and leaves you a receipt.
           </p>
         </div>

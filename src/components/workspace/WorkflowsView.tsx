@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IdeaCard } from "@/components/agents/IdeaCard";
-import { HairlineGrid } from "@/components/ui/HairlineGrid";
-import { Tabs } from "@/components/ui/Tabs";
+import { TileGrid } from "@/components/ui/TileGrid";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { CATEGORIES, ideasFor } from "@/data/ideas";
 import type { IdeaCategory } from "@/types/idea";
 import { ScheduledWork } from "./ScheduledWork";
@@ -27,8 +27,8 @@ export function WorkflowsView() {
     <div className="h-full overflow-y-auto">
       <div className="mx-auto grid w-full max-w-5xl gap-5 px-4 pb-16 pt-8 sm:px-6">
         <div className="grid gap-1.5">
-          <h2 className="text-[24px] font-semibold">Workflows</h2>
-          <p className="max-w-[62ch] text-[14.5px] text-muted">
+          <h2 className="text-2xl font-semibold">Workflows</h2>
+          <p className="max-w-[62ch] text-sm text-muted">
             Standing tasks {agent.name} can take on. Pick one and it goes to the chat as a message, where the agent
             starts on it.
           </p>
@@ -36,23 +36,23 @@ export function WorkflowsView() {
 
         <ScheduledWork agentName={agent.name} onSend={sendToChat} onDraft={draftInChat} />
 
-        <Tabs
+        <FilterChips
           label="Workflow categories"
           value={filter}
           onChange={setFilter}
           items={[{ value: "suggested", label: "Suggested" }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]}
         />
 
-        <HairlineGrid itemCount={ideas.length}>
+        <TileGrid>
           {ideas.map((idea) => (
             <IdeaCard
               key={`${idea.category}-${idea.title}`}
               idea={idea}
-              eyebrow={filter === "suggested" ? idea.category : undefined}
+              action="Send to chat"
               onPick={() => sendToChat(idea.description)}
             />
           ))}
-        </HairlineGrid>
+        </TileGrid>
       </div>
     </div>
   );

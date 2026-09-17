@@ -15,12 +15,12 @@ export function DealStages({ deals }: { deals: Deal[] | null }) {
     <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-line bg-line sm:grid-cols-3 lg:grid-cols-6">
       {stages.map(({ stage, count, value }) => (
         <div key={stage} className="grid gap-1.5 bg-surface p-3.5">
-          <dt className="truncate font-mono text-[10.5px] uppercase tracking-[0.06em] text-muted">{stage}</dt>
+          <dt className="truncate font-mono text-xs uppercase tracking-[0.06em] text-muted">{stage}</dt>
           <dd className="grid gap-0.5">
             {deals ? (
               <>
-                <span className="font-display text-[22px] font-semibold leading-none tabular-nums">{count}</span>
-                <span className="font-mono text-[12px] text-muted tabular-nums">{formatAmount(value)}</span>
+                <span className="font-display text-2xl font-semibold leading-none tabular-nums">{count}</span>
+                <span className="font-mono text-xs text-muted tabular-nums">{formatAmount(value)}</span>
               </>
             ) : (
               <Skeleton className="h-6 w-10" />

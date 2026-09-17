@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Eyebrow } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { useAgents } from "@/hooks/useAgents";
@@ -16,10 +15,10 @@ export function RecentAgents({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="grid gap-1">
-      <div className="flex items-center justify-between px-2 pb-1">
-        <Eyebrow>Recents</Eyebrow>
+      <div className="flex items-center justify-between px-3 pb-1">
+        <span className="text-sm text-muted">Recents</span>
         {agents.length > RECENTS_LIMIT && (
-          <Link href="/agents/all" onClick={onNavigate} className="text-[12px] text-muted hover:text-ink">
+          <Link href="/agents/all" onClick={onNavigate} className="text-sm text-muted hover:text-ink">
             View all
           </Link>
         )}
@@ -28,16 +27,16 @@ export function RecentAgents({ onNavigate }: { onNavigate?: () => void }) {
       {(status === "idle" || status === "loading") && agents.length === 0 &&
         Array.from({ length: RECENTS_LIMIT }, (_, i) => (
           <div key={i} className="flex items-center gap-2.5 px-2 py-1.5">
-            <Skeleton className="size-5 rounded-[6px]" />
+            <Skeleton className="size-5 rounded-md" />
             <Skeleton className="h-3 flex-1" />
           </div>
         ))}
 
       {status === "ready" && agents.length === 0 && (
-        <p className="px-2 py-1 text-[12.5px] text-faint">Agents you create show up here.</p>
+        <p className="px-2 py-1 text-xs text-faint">Agents you create show up here.</p>
       )}
       {status === "error" && agents.length === 0 && (
-        <p className="px-2 py-1 text-[12.5px] text-faint">Couldn&apos;t load your agents.</p>
+        <p className="px-2 py-1 text-xs text-faint">Couldn&apos;t load your agents.</p>
       )}
 
       {recents.map((agent) => (
@@ -46,6 +45,7 @@ export function RecentAgents({ onNavigate }: { onNavigate?: () => void }) {
           href={`/agents/${agent.id}`}
           matchPrefix
           onNavigate={onNavigate}
+          className="py-1.5 text-sm"
           icon={<AgentAvatar name={agent.name} size="xs" />}
         >
           <span className="flex items-center gap-2">

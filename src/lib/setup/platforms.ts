@@ -23,11 +23,11 @@ export function setupFrom(connections: Connections): WorkspaceSetup {
       : { state: "missing", note: "No mailbox is connected. Add SMTP, Gmail or Outlook so the agent can send email." },
     sms: has("twilio")
       ? { state: "ready", note: "Texts go out from your own Twilio sender." }
-      : { state: "shared", note: "Texts go out on Macrid's shared sender. Add Twilio to use your own number." },
-    whatsapp: { state: "unknown", note: "WhatsApp Business is connected through Meta in Macrid; its status can't be checked here." },
+      : { state: "shared", note: "Texts go out on Dexisphere's shared sender. Add Twilio to use your own number." },
+    whatsapp: { state: "unknown", note: "WhatsApp Business is connected through Meta in Dexisphere; its status can't be checked here." },
     google_maps: has("google_places")
       ? { state: "ready", note: "Uses your own Google Places key." }
-      : { state: "shared", note: "Uses Macrid's shared Google Places key, which has a daily limit." },
+      : { state: "shared", note: "Uses Dexisphere's shared Google Places key, which has a daily limit." },
     google_business: has("gbp")
       ? { state: "ready", note: "Google Business Profile is connected." }
       : { state: "missing", note: "Connect Google Business Profile so the agent can read your listings." },

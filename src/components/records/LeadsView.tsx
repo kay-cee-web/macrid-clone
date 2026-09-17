@@ -79,7 +79,7 @@ export function LeadsView() {
         }}
       />
       {state.data?.truncated && (
-        <p className="text-[12.5px] text-warn">Your workspace is very large; only the first 10,000 leads are shown.</p>
+        <p className="text-xs text-warn">Your workspace is very large; only the first 10,000 leads are shown.</p>
       )}
     </div>
   );

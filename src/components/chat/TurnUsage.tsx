@@ -12,13 +12,13 @@ export function TurnUsage({ usage }: { usage: TokenUsage }) {
   if (!label) return null;
 
   const title = usage.usingOwnKey
-    ? "Paid by your own AI key; no Macrid tokens were used"
+    ? "Paid by your own AI key; no Dexisphere tokens were used"
     : usage.remaining !== null
       ? `${count.format(usage.remaining)} tokens left after this reply`
       : undefined;
 
   return (
-    <span className="font-mono text-[11px] text-faint" title={title}>
+    <span className="font-mono text-xs text-faint" title={title}>
       · {label}
     </span>
   );

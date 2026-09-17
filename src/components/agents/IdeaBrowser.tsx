@@ -1,43 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import { CATEGORIES, IDEAS, readyCountIn } from "@/data/ideas";
-import { Eyebrow } from "@/components/ui/Card";
-import { HairlineGrid } from "@/components/ui/HairlineGrid";
-import { Tabs } from "@/components/ui/Tabs";
+import { CATEGORIES, ideasFor } from "@/data/ideas";
+import { FilterChips } from "@/components/ui/FilterChips";
+import { TileGrid } from "@/components/ui/TileGrid";
 import type { Idea, IdeaCategory } from "@/types/idea";
 import { IdeaCard } from "./IdeaCard";
 
-/** Category tabs over a hairline grid of standing tasks. */
+type Filter = "all" | IdeaCategory;
+
+/** Standing tasks as template tiles, filtered by category. */
 export function IdeaBrowser({ onPick }: { onPick: (idea: Idea) => void }) {
-  const [category, setCategory] = useState<IdeaCategory>("Prospecting");
-  const ideas = IDEAS[category];
-  const ready = readyCountIn(category);
+  const [filter, setFilter] = useState<Filter>("all");
+  const ideas = ideasFor(filter === "all" ? null : filter);
+  const ready = ideas.filter((idea) => idea.ready).length;
 
   return (
-    <section aria-labelledby="ideas-heading" className="grid gap-4">
+    <section aria-labelledby="ideas-heading" className="grid gap-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="ideas-heading" className="text-[20px] font-semibold">
-          Or start from a standing task
+        <h2 id="ideas-heading" className="text-xl font-medium">
+          Start from a standing task
         </h2>
-        <Eyebrow>
+        <span className="text-sm text-muted">
           {ready} of {ideas.length} ready today
-        </Eyebrow>
+        </span>
       </div>
 
-      <Tabs
+      <FilterChips
         label="Task categories"
-        value={category}
-        onChange={setCategory}
-        items={CATEGORIES.map((c) => ({ value: c, label: c }))}
+        value={filter}
+        onChange={setFilter}
+        items={[{ value: "all", label: "All" }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]}
       />
 
-      <div role="tabpanel" aria-label={category}>
-        <HairlineGrid itemCount={ideas.length}>
+      <div role="tabpanel" aria-label={filter === "all" ? "All tasks" : filter}>
+        <TileGrid>
           {ideas.map((idea) => (
-            <IdeaCard key={idea.title} idea={idea} onPick={onPick} />
+            <IdeaCard key={`${idea.category}-${idea.title}`} idea={idea} onPick={onPick} action="Draft" />
           ))}
-        </HairlineGrid>
+        </TileGrid>
       </div>
     </section>
   );

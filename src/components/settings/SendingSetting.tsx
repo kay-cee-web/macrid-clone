@@ -43,9 +43,9 @@ export function SendingSetting({ agent }: { agent: Agent }) {
           <span>
             {agent.sendingEnabled
               ? "On. The agent can send messages and campaigns for you."
-              : "Off. The agent still researches and drafts, but nothing leaves Macrid."}
+              : "Off. The agent still researches and drafts, but nothing leaves Dexisphere."}
           </span>
-          <span className="font-mono text-[12px] text-faint tabular-nums">{counts}</span>
+          <span className="font-mono text-xs text-faint tabular-nums">{counts}</span>
         </div>
       }
     >

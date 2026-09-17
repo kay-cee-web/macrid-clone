@@ -45,7 +45,7 @@ export function SegmentedControl<T extends string>({
             title={option.iconOnly ? option.label : undefined}
             onClick={() => onChange(option.value)}
             className={cn(
-              "inline-flex h-7 items-center justify-center gap-1.5 rounded-[8px] text-[12.5px] font-medium",
+              "inline-flex h-7 items-center justify-center gap-1.5 rounded-[8px] text-xs font-medium",
               "transition-colors [&_svg]:size-3.5",
               option.iconOnly ? "w-7" : "px-2.5",
               active ? "bg-raised text-ink ring-1 ring-inset ring-line" : "text-faint hover:text-ink",
