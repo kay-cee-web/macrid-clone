@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { IconButton } from "@/components/ui/IconButton";
 import { Menu } from "@/components/ui/Menu";
 import { AI_PROVIDER_BY_ID } from "@/data/aiProviders";
-import { TAG_LABELS, type ModelOption } from "@/data/models";
+import { KIND_LABELS, TAG_LABELS, type ModelOption } from "@/data/models";
 import type { AiKeyState } from "@/types/aiKey";
 import { ProviderLogo } from "./ProviderLogo";
 
@@ -31,8 +31,10 @@ export function ModelCard({ model, keyState, onIntegrate }: ModelCardProps) {
   const isDefault = connected && keyState?.model === model.id;
   const description =
     model.tag === "legacy"
-      ? `${model.note}. Retired, but kept so agents already on it keep working.`
-      : `${model.note}. ${provider.name} model with a ${model.context}-token context window.`;
+      ? `${model.note}. Retired, but kept so anything already on it keeps working.`
+      : model.kind === "text"
+        ? `${model.note}. ${provider.name} model with a ${model.spec}-token context window.`
+        : `${model.note}. ${provider.name} ${model.kind} model, up to ${model.spec}. Agents still think with a text model.`;
 
   return (
     <article className="group relative grid content-start gap-5 rounded-3xl border border-line bg-raised/40 p-6 backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float">
@@ -42,7 +44,8 @@ export function ModelCard({ model, keyState, onIntegrate }: ModelCardProps) {
           <h3 className="truncate text-xl text-ink">{model.name}</h3>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded-md bg-raised px-2 py-0.5 text-muted">{TAG_LABELS[model.tag]}</span>
-            <span className="font-mono text-faint">{model.context}</span>
+            {model.kind !== "text" && <span className="rounded-md bg-raised px-2 py-0.5 text-muted">{KIND_LABELS[model.kind]}</span>}
+            <span className="font-mono text-faint">{model.spec}</span>
             {connected && (
               <span className="inline-flex items-center gap-1 text-good">
                 <Check className="size-3.5" />

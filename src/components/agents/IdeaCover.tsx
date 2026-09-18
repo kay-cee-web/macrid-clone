@@ -1,6 +1,6 @@
-import { CircleCheck, CircleDashed, PlugZap } from "lucide-react";
+﻿import { CircleCheck, CircleDashed, PlugZap } from "lucide-react";
 import type { Readiness } from "@/data/ideas";
-import { COVERS, leadOf } from "@/data/ideas/covers";
+import { coverOf, leadOf } from "@/data/ideas/covers";
 import { cn } from "@/lib/cn";
 import type { Idea, IdeaCategory } from "@/types/idea";
 
@@ -12,7 +12,7 @@ type IdeaCoverProps = {
 
 /** Generated cover art for a standing task: category glow, headline, and readiness. */
 export function IdeaCover({ idea, category, readiness }: IdeaCoverProps) {
-  const { Icon, glow } = COVERS[category];
+  const { Icon, glow } = coverOf(category);
   const lead = leadOf(idea);
   const rest = lead === idea.title ? idea.description : idea.description.slice(lead.length + 2);
   const StatusIcon = readiness.ready ? CircleCheck : readiness.tone === "warn" ? PlugZap : CircleDashed;

@@ -35,7 +35,7 @@ export function SkillsPanel() {
         <Button variant="secondary" icon={<Plus className="size-4" />} onClick={() => draft(CREATE_SKILL_PROMPT)}>
           Create a skill
         </Button>
-        <Button variant="ghost" icon={<ExternalLink className="size-4" />} onClick={() => router.push("/agents/skills")}>
+        <Button variant="ghost" icon={<ExternalLink className="size-4" />} onClick={() => router.push("/agents/workbench/skills")}>
           Browse all
         </Button>
       </div>

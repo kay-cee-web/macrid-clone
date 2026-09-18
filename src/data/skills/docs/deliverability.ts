@@ -1,6 +1,62 @@
 import type { SkillDoc } from "@/types/skill";
 
 export const DELIVERABILITY_DOCS: Record<string, SkillDoc> = {
+  "warmup-plan": {
+    useCases: [
+      "A brand new domain or mailbox",
+      "Coming back after a long quiet spell",
+      "Before a big send from an untested sender",
+    ],
+    steps: [
+      "The agent plans the daily volume, starting small.",
+      "Early sends go to your most engaged contacts first.",
+      "Volume only rises while bounces and complaints stay low.",
+      "It says when the sender is ready for the full list.",
+    ],
+    output: "A day-by-day ramp, and the point at which it is safe to open up.",
+  },
+  "bounce-cleanup": {
+    useCases: [
+      "A list that bounces more every send",
+      "Protecting a sender before it gets flagged",
+      "Knowing what a list is really worth",
+    ],
+    steps: [
+      "The agent reads the bounces from recent sends.",
+      "Hard bounces come off the list permanently.",
+      "Soft bounces are held aside for one retry.",
+      "It reports the list's real size afterwards.",
+    ],
+    output: "A cleaned list, with hard and soft bounces counted separately.",
+  },
+  "unsubscribe-audit": {
+    useCases: [
+      "Making sure opt-outs actually stuck",
+      "A campaign that may have gone out without a link",
+      "Before sending to a list you inherited",
+    ],
+    steps: [
+      "The agent checks every campaign carries a working unsubscribe.",
+      "It looks for people who opted out and are still on a list.",
+      "Anyone found is removed everywhere, not just where they left.",
+      "It reports what it fixed and what needs a human decision.",
+    ],
+    output: "Opt-outs honoured across every list, and the gaps that were found.",
+  },
+  "sender-check": {
+    useCases: [
+      "Several mailboxes and no rule for which to use",
+      "A from-name that says nothing to the recipient",
+      "Replies going to an address nobody reads",
+    ],
+    steps: [
+      "The agent goes through each connected sending account.",
+      "It checks from-name, reply-to, signature and connection.",
+      "Anything misconfigured is named with what it costs.",
+      "It recommends which sender suits which kind of message.",
+    ],
+    output: "A per-sender check, and which one to use for what.",
+  },
   "verify-list": {
     useCases: [
       "Before the first send to a list you didn't build yourself",

@@ -17,36 +17,57 @@ type ConnectorCardProps = {
   onDisconnect: (connector: Connector) => void;
 };
 
+/** The label under the name when nothing is connected yet. */
+function idleLabel(connector: Connector, connection: ConnectionState | undefined) {
+  if (connector.auth === "external" && connection?.status === "unknown") return "Not set up";
+  return connector.optional ? "Optional" : "Not connected";
+}
+
+function ManageLink({ connector, children, variant = "ghost" }: {
+  connector: Connector;
+  children: string;
+  variant?: "ghost" | "secondary" | "primary";
+}) {
+  return (
+    <a
+      href={macridAppLink(connector.manageHref ?? "/")}
+      target="_blank"
+      rel="noreferrer"
+      className={buttonStyles({ variant: variant === "primary" ? undefined : variant, size: "sm" })}
+    >
+      {children}
+      <ExternalLink className="size-3.5" />
+    </a>
+  );
+}
+
 export function ConnectorCard({ connector, connection, loading, busy, onConnect, onDisconnect }: ConnectorCardProps) {
   const { Icon } = connector;
   const connected = connection?.status === "connected";
-
   // Mailboxes and SMS senders can be several; add more here, remove them in Dexisphere.
   const multiple = connector.store === "mail_accounts" || connector.store === "sms_senders";
 
   const action = connected ? (
     multiple ? (
-      <div className="flex flex-wrap gap-2">
+      <>
         <Button variant="secondary" size="sm" onClick={() => onConnect(connector)}>
           Add another
         </Button>
-        <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "ghost", size: "sm" })}>
-          Manage <ExternalLink className="size-3.5" />
-        </a>
-      </div>
+        <ManageLink connector={connector}>Manage</ManageLink>
+      </>
     ) : connector.auth === "external" ? (
-      <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ variant: "secondary", size: "sm" })}>
-        Manage in Dexisphere <ExternalLink className="size-3.5" />
-      </a>
+      <ManageLink connector={connector} variant="secondary">
+        Manage in Dexisphere
+      </ManageLink>
     ) : (
       <Button variant="secondary" size="sm" onClick={() => onDisconnect(connector)}>
         Disconnect
       </Button>
     )
   ) : connector.auth === "external" ? (
-    <a href={macridAppLink(connector.manageHref ?? "/")} target="_blank" rel="noreferrer" className={buttonStyles({ size: "sm" })}>
-      Set up in Dexisphere <ExternalLink className="size-3.5" />
-    </a>
+    <ManageLink connector={connector} variant="primary">
+      Set up in Dexisphere
+    </ManageLink>
   ) : (
     <Button size="sm" loading={busy} onClick={() => onConnect(connector)}>
       {multiple ? "Add sender" : connector.auth === "api_key" ? "Add key" : "Connect"}
@@ -54,29 +75,32 @@ export function ConnectorCard({ connector, connection, loading, busy, onConnect,
   );
 
   return (
-    <article className="grid content-start gap-3 bg-surface p-4">
+    <article className="group flex h-full flex-col gap-4 rounded-3xl border border-line bg-raised/40 p-6 backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float">
       <div className="flex items-start gap-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-raised text-ink ring-1 ring-inset ring-line">
-          <Icon className="size-4.5" />
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-surface text-ink ring-1 ring-inset ring-line">
+          <Icon className="size-5" />
         </span>
-        <div className="grid min-w-0 flex-1 gap-0.5">
-          <h3 className="font-sans text-sm font-semibold tracking-normal">{connector.name}</h3>
+        <div className="grid min-w-0 flex-1 gap-1.5">
+          <h3 className="truncate font-sans text-lg font-medium tracking-normal text-ink">{connector.name}</h3>
           {loading ? (
-            <Skeleton className="mt-1 h-4 w-24 rounded-full" />
-          ) : connected ? (
-            <span className="flex min-w-0 items-center gap-2">
-              <Pill tone="good" dot>Connected</Pill>
-              {connection?.detail && <span className="truncate text-xs text-faint">{connection.detail}</span>}
-            </span>
+            <Skeleton className="h-5 w-24 rounded-full" />
           ) : (
-            <span className="text-xs text-faint">
-              {connector.auth === "external" && connection?.status === "unknown" ? "Set up in Dexisphere" : connector.optional ? "Optional" : "Not connected"}
+            <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              {connected ? <Pill tone="good" dot>Connected</Pill> : <Pill>{idleLabel(connector, connection)}</Pill>}
+              {connected && connection?.detail && (
+                <span className="truncate font-mono text-xs text-faint">{connection.detail}</span>
+              )}
             </span>
           )}
         </div>
       </div>
+
       <p className="text-sm leading-relaxed text-muted">{connector.description}</p>
-      <div className="mt-auto">{!loading && action}</div>
+
+      {/* mt-auto lines the buttons up across a row, however tall each card runs. */}
+      <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+        {loading ? <Skeleton className="h-8 w-24 rounded-lg" /> : action}
+      </div>
     </article>
   );
 }

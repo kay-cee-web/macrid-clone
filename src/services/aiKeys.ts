@@ -11,7 +11,8 @@ import { savePlatformKeys } from "./connections";
  * Keys are written to /integrations, one row per service. Older keys may still
  * sit in the single platform_apis row, so both are read and both are cleared.
  */
-const PLATFORM_COLUMNS: Record<AiProviderId, [key: string, model: string]> = {
+/** Only the three agent providers have columns; media keys live in /integrations alone. */
+const PLATFORM_COLUMNS: Partial<Record<AiProviderId, [key: string, model: string]>> = {
   anthropic: ["anthropic_api_key", "anthropic_api_key_model"],
   openai: ["openai_api_key", "openai_api_key_model"],
   gemini: ["gemini_api_key", "gemini_api_key_model"],
@@ -23,14 +24,16 @@ const blank = (): AiKeyState => ({ connected: false, recordId: null, model: "", 
 const is404 = (err: unknown) => isAxiosError(err) && err.response?.status === 404;
 
 export async function fetchAiKeys(): Promise<AiKeys> {
-  const keys = { anthropic: blank(), openai: blank(), gemini: blank() };
+  const keys = Object.fromEntries(AI_PROVIDER_IDS.map((provider) => [provider, blank()])) as AiKeys;
   const [integrations, platform] = await Promise.allSettled([api.get("/integrations"), api.get("/platform-apis")]);
   if (integrations.status === "rejected" && platform.status === "rejected") throw integrations.reason;
 
   if (platform.status === "fulfilled") {
     const row = readRows(platform.value.data)[0] ?? {};
     for (const provider of AI_PROVIDER_IDS) {
-      const [keyColumn, modelColumn] = PLATFORM_COLUMNS[provider];
+      const columns = PLATFORM_COLUMNS[provider];
+      if (!columns) continue;
+      const [keyColumn, modelColumn] = columns;
       if (!row[keyColumn]) continue;
       keys[provider] = { ...keys[provider], connected: true, model: toText(row[modelColumn]), hint: hintOf(row[keyColumn]), inPlatformRow: true };
     }
@@ -81,8 +84,9 @@ export async function removeAiKey(provider: AiProviderId, state: AiKeyState) {
       if (!is404(err)) throw err;
     }
   }
-  if (state.inPlatformRow || !state.recordId) {
-    const [keyColumn, modelColumn] = PLATFORM_COLUMNS[provider];
+  const columns = PLATFORM_COLUMNS[provider];
+  if (columns && (state.inPlatformRow || !state.recordId)) {
+    const [keyColumn, modelColumn] = columns;
     await savePlatformKeys({ [keyColumn]: "", [modelColumn]: "" }, "Could not remove your key");
   }
 }

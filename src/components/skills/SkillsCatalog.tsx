@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, SearchX } from "lucide-react";
-import { HubTabs } from "@/components/agents/HubTabs";
+import { WorkbenchTabs } from "@/components/workbench/WorkbenchTabs";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -43,7 +43,7 @@ export function SkillsCatalog() {
 
   return (
     <div className="mx-auto grid w-full max-w-400 gap-8 px-4 pb-20 pt-10 sm:px-8 xl:px-14">
-      <HubTabs />
+      <WorkbenchTabs />
 
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div className="grid gap-2">

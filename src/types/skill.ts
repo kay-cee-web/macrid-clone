@@ -2,12 +2,19 @@ import type { PlatformId } from "@/data/platforms";
 import type { IdeaCategory } from "@/types/idea";
 
 export type SkillCategory =
+  /* The sales work the clone was built around. */
   | "Find prospects"
   | "Build funnels"
   | "Run outreach"
   | "Work the pipeline"
   | "Protect deliverability"
-  | "Study performance";
+  | "Study performance"
+  /* The wider day: the same agent, work that isn't a campaign. */
+  | "Get work done"
+  | "Write and research"
+  | "Grow the business"
+  | "Handle money"
+  | "Keep on schedule";
 
 /** A named, reusable way of doing a job. Used by typing `/slug` in the chat. */
 export type Skill = {

@@ -9,6 +9,7 @@ import { TokenBalance } from "@/components/workspace/TokenBalance";
 import { ComposerWithAttachments } from "@/components/chat/ComposerWithAttachments";
 import { SuggestionChips } from "@/components/chat/SuggestionChips";
 import { useCreateAgent } from "@/hooks/useCreateAgent";
+import { useGreeting } from "@/hooks/useGreeting";
 import { dexisphereAppLink } from "@/lib/config";
 import type { Idea } from "@/types/idea";
 import { IdeaBrowser } from "./IdeaBrowser";
@@ -20,6 +21,7 @@ export function AgentsHome() {
   const [task, setTask] = useState(() => searchParams.get("task") ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const { create, creating } = useCreateAgent();
+  const greeting = useGreeting();
 
   const draft = (text: string) => {
     setTask(text);
@@ -43,12 +45,14 @@ export function AgentsHome() {
         </a>
       </div>
 
-      <div className="mx-auto grid w-full max-w-5xl gap-24 px-4 pb-20 pt-12 sm:px-8 lg:pt-[10vh]">
+      {/* As wide as the agent hub, so the task cards fill the space; the hero stays narrow inside it. */}
+      <div className="mx-auto grid w-full max-w-400 gap-24 px-4 pb-20 pt-12 sm:px-8 lg:pt-[10vh] xl:px-14">
         <section className="mx-auto grid w-full max-w-3xl justify-items-center gap-10">
           <div className="grid justify-items-center gap-8 text-center">
             <AnnouncementPill href="/records">Every reply now shows what your agent changed</AnnouncementPill>
-            <h1 className="text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl">
-              What should your agent do today?
+            {/* The line changes with the hour, so it lands on the client (see useGreeting). */}
+            <h1 className="text-balance text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl">
+              {greeting}
             </h1>
           </div>
 

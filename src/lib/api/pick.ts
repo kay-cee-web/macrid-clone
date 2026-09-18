@@ -14,6 +14,19 @@ export const toText = (value: unknown) =>
 export const toMaybeNumber = (value: unknown) =>
   value === null || value === undefined || value === "" || !Number.isFinite(Number(value)) ? null : Number(value);
 
+/**
+ * The first non-empty value among candidate keys, for rows whose field names
+ * aren't settled yet (the runtime routes in SETUP.md ship no sample payloads).
+ */
+export function pickField(row: unknown, keys: string[]): unknown {
+  const record = (row ?? {}) as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return undefined;
+}
+
 /** The first array found among the usual envelope keys. */
 export function pickList<T>(data: unknown, key: string): T[] {
   const d = data as Record<string, unknown> | undefined;

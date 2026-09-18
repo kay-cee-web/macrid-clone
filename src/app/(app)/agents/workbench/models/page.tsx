@@ -3,6 +3,6 @@ import { ModelsCatalog } from "@/components/models/ModelsCatalog";
 
 export const metadata: Metadata = { title: "Models" };
 
-export default function ModelsPage() {
+export default function WorkbenchPage() {
   return <ModelsCatalog />;
 }

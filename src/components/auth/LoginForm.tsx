@@ -10,7 +10,7 @@ import { useForm } from "@/hooks/useForm";
 import { reportFormError } from "@/lib/api/form-errors";
 import { email, required } from "@/lib/validation";
 import { login } from "@/services/auth";
-import { AuthHeading, AuthSwitch } from "./AuthHeading";
+import { AuthCard, AuthSwitch } from "./AuthCard";
 
 export function LoginForm() {
   const { signIn } = useAuth();
@@ -34,35 +34,36 @@ export function LoginForm() {
 
   return (
     <>
-      <AuthHeading title="Welcome back" description="Sign in to see what your agents have been doing." />
-      <form noValidate onSubmit={onSubmit} className="grid gap-4">
-        <TextField
-          id="email"
-          label="Email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          leading={<Mail />}
-          {...form.bind("email")}
-        />
-        <PasswordField
-          id="password"
-          label="Password"
-          autoComplete="current-password"
-          leading={<Lock />}
-          aside={
-            <Link href="/forgot-password" className="text-xs font-medium text-accent hover:underline">
-              Forgot password?
-            </Link>
-          }
-          {...form.bind("password")}
-        />
-        <Button type="submit" size="lg" block loading={submitting} className="mt-2">
-          Sign in
-        </Button>
-      </form>
+      <AuthCard icon={Lock} title="Welcome back" description="Sign in to see what your agents have been doing.">
+        <form noValidate onSubmit={onSubmit} className="grid gap-4">
+          <TextField
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            leading={<Mail />}
+            {...form.bind("email")}
+          />
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="current-password"
+            leading={<Lock />}
+            aside={
+              <Link href="/forgot-password" className="text-xs font-medium text-accent hover:underline">
+                Forgot password?
+              </Link>
+            }
+            {...form.bind("password")}
+          />
+          <Button type="submit" size="lg" block loading={submitting} className="mt-2">
+            Sign in
+          </Button>
+        </form>
+      </AuthCard>
       <AuthSwitch>
-        New to Dexisphere? <Link href="/register">Create an account</Link>
+        Don&apos;t have an account? <Link href="/register">Create one for free</Link>
       </AuthSwitch>
     </>
   );

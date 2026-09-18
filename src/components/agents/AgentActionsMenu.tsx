@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Copy, Ellipsis, Hash, MessageSquare, Pencil, Trash } from "lucide-react";
+import { Copy, Ellipsis, Hash, MessageSquare, Pencil, Star, StarOff, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { IconButton } from "@/components/ui/IconButton";
 import { Menu } from "@/components/ui/Menu";
+import { useFavorites } from "@/hooks/useFavorites";
 import { cloneAgent } from "@/lib/agents/actions";
 import { extractApiError } from "@/lib/api/errors";
 import type { Agent } from "@/types/agent";
@@ -20,6 +21,8 @@ type AgentActionsMenuProps = {
 
 export function AgentActionsMenu({ agent, onDialog, className }: AgentActionsMenuProps) {
   const router = useRouter();
+  const { isFavorite, toggle } = useFavorites();
+  const favorited = isFavorite(agent.id);
 
   const clone = async () => {
     const id = toast.loading(`Cloning ${agent.name}…`);
@@ -45,6 +48,11 @@ export function AgentActionsMenu({ agent, onDialog, className }: AgentActionsMen
       className={className}
       items={[
         { label: "Open chat", icon: <MessageSquare />, onSelect: () => router.push(`/agents/${agent.id}`) },
+        {
+          label: favorited ? "Remove favourite" : "Favourite",
+          icon: favorited ? <StarOff /> : <Star />,
+          onSelect: () => toggle(agent.id),
+        },
         { label: "Rename", icon: <Pencil />, onSelect: () => onDialog({ type: "rename", agent }) },
         { label: "Clone", icon: <Copy />, onSelect: () => void clone() },
         { label: "Copy ID", icon: <Hash />, onSelect: () => void copyId() },

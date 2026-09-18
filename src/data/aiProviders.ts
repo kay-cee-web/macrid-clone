@@ -11,7 +11,11 @@ export type AiProvider = {
   tint: string;
 };
 
-/** Providers a user can bring their own key for (same as Macrid's AI Keys settings). */
+/**
+ * Providers a user can bring their own key for. The first three are Macrid's AI
+ * Keys settings; the media ones are stored the same way, through /integrations.
+ * Marks are our own geometric glyphs, not the vendors' logos.
+ */
 export const AI_PROVIDERS: AiProvider[] = [
   {
     id: "anthropic",
@@ -40,6 +44,33 @@ export const AI_PROVIDERS: AiProvider[] = [
     keyPlaceholder: "AIza…",
     tint: "text-logo-gemini",
     glyph: "M12 24A14.304 14.304 0 0 0 0 12 14.304 14.304 0 0 0 12 0a14.305 14.305 0 0 0 12 12 14.305 14.305 0 0 0-12 12z",
+  },
+  {
+    id: "blackforest",
+    name: "Black Forest Labs",
+    keyUrl: "https://dashboard.bfl.ai",
+    keyUrlLabel: "dashboard.bfl.ai",
+    keyPlaceholder: "Paste your key",
+    tint: "text-night",
+    glyph: "M12 2l5.5 9h-11L12 2zm-6 9.5L11.5 21h-11l5.5-9.5zm12 0L23.5 21h-11l5.5-9.5z",
+  },
+  {
+    id: "runway",
+    name: "Runway",
+    keyUrl: "https://dev.runwayml.com",
+    keyUrlLabel: "dev.runwayml.com",
+    keyPlaceholder: "key_…",
+    tint: "text-night",
+    glyph: "M4 2l16 10L4 22V2zm2 3.6v12.8L16.3 12 6 5.6z",
+  },
+  {
+    id: "luma",
+    name: "Luma AI",
+    keyUrl: "https://lumalabs.ai/api/keys",
+    keyUrlLabel: "lumalabs.ai",
+    keyPlaceholder: "luma-…",
+    tint: "text-night",
+    glyph: "M12 1.5l2.6 6.9 6.9 2.6-6.9 2.6-2.6 6.9-2.6-6.9L2.5 11l6.9-2.6L12 1.5z",
   },
 ];
 

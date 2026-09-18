@@ -36,4 +36,28 @@ export const ANALYTICS: Idea[] = [
     platforms: [],
     description: "Watch my open, reply and conversion rates daily and tell me as soon as one falls out of its usual range.",
   },
+  {
+    title: "Month in review",
+    ready: true,
+    platforms: [],
+    description: "On the first of each month, write the review: what was sent, what it returned, and what changed since last month.",
+  },
+  {
+    title: "List quality scoreboard",
+    ready: true,
+    platforms: [],
+    description: "Rank my lists by how they actually perform — opens, replies and deals — not by how big they are.",
+  },
+  {
+    title: "Send-time report",
+    ready: true,
+    platforms: ["email"],
+    description: "Tell me which day and hour my sends do best, per list, and use it for the next schedule.",
+  },
+  {
+    title: "Funnel to deal",
+    ready: true,
+    platforms: [],
+    description: "Follow the path from page visit to booked deal and tell me where the most people fall out.",
+  },
 ];

@@ -12,6 +12,7 @@ import type { ModelOption } from "@/data/models";
 import { extractApiError, fieldErrors } from "@/lib/api/errors";
 import { removeAiKey, saveAiKey } from "@/services/aiKeys";
 import type { AiKeyState } from "@/types/aiKey";
+import { integrateCopy } from "./integrateCopy";
 import { ProviderLogo } from "./ProviderLogo";
 
 type IntegrateModalProps = {
@@ -26,6 +27,7 @@ type IntegrateModalProps = {
 export function IntegrateModal({ model, keyState, onClose, onChanged }: IntegrateModalProps) {
   const provider = AI_PROVIDER_BY_ID[model.provider];
   const connected = Boolean(keyState?.connected);
+  const copy = integrateCopy(model, connected, keyState?.hint ?? "");
   const [apiKey, setApiKey] = useState("");
   const [makeDefault, setMakeDefault] = useState(true);
   const [error, setError] = useState("");
@@ -57,7 +59,7 @@ export function IntegrateModal({ model, keyState, onClose, onChanged }: Integrat
     if (!keyState) return false;
     try {
       await removeAiKey(model.provider, keyState);
-      toast.success(`${provider.name} key removed. Agents go back to Dexisphere's models.`);
+      toast.success(copy.removedToast);
       onChanged();
       onClose();
       return true;
@@ -70,8 +72,8 @@ export function IntegrateModal({ model, keyState, onClose, onChanged }: Integrat
   if (confirmRemove) {
     return (
       <ConfirmModal
-        title={`Remove your ${provider.name} key?`}
-        description={`Agents on ${provider.name} models stop using your key and run on your plan's tokens again.`}
+        title={copy.removeTitle}
+        description={copy.removeDescription}
         confirmLabel="Remove key"
         onConfirm={remove}
         onClose={() => setConfirmRemove(false)}
@@ -83,12 +85,8 @@ export function IntegrateModal({ model, keyState, onClose, onChanged }: Integrat
     <Modal
       open
       onClose={onClose}
-      title={connected ? `Manage ${provider.name} key` : `Integrate ${model.name}`}
-      description={
-        connected
-          ? `Your ${provider.name} key${keyState?.hint ? ` (${keyState.hint})` : ""} is connected. Paste a new one to replace it.`
-          : `Add your own ${provider.name} API key. Agents on ${provider.name} models then run on your key instead of your plan's tokens.`
-      }
+      title={copy.title}
+      description={copy.description}
     >
       <form onSubmit={onSubmit} className="grid gap-5" noValidate>
         <div className="flex items-center gap-3 rounded-2xl border border-line bg-raised/60 p-3">

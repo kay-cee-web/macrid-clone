@@ -2,6 +2,11 @@ import type { Idea } from "@/types/idea";
 
 export const OUTREACH: Idea[] = [
   {
+    title: "Case-study follow-up",
+    platforms: ["email"],
+    description: "Forty-eight hours after a lead doesn't reply, follow up with the case study closest to their business.",
+  },
+  {
     title: "Cold email drafting",
     ready: true,
     platforms: ["email"],
@@ -55,10 +60,5 @@ export const OUTREACH: Idea[] = [
     title: "Inbound reply triage",
     platforms: ["email"],
     description: "As replies land, sort them (interested, not now, wrong person, unsubscribe) and put a draft response under each.",
-  },
-  {
-    title: "Unanswered reply nudge",
-    platforms: ["email"],
-    description: "When a reply has sat unanswered for a day, remind me with a one-line summary of what it was about.",
   },
 ];

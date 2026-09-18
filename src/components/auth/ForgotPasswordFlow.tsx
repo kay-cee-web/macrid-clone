@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
-import { AuthHeading, AuthSwitch } from "./AuthHeading";
+import { AuthCard, AuthSwitch } from "./AuthCard";
 import { ResetEmailStep, ResetCodeStep, ResetPasswordStep } from "./ResetSteps";
 
 type Step = "email" | "code" | "password";
@@ -36,34 +37,35 @@ export function ForgotPasswordFlow() {
 
   return (
     <>
-      <AuthHeading title={COPY[step].title} description={COPY[step].description(email)} />
-      {step === "email" && (
-        <ResetEmailStep
-          onSent={(address) => {
-            setEmail(address);
-            setStep("code");
-          }}
-        />
-      )}
-      {step === "code" && (
-        <ResetCodeStep
-          email={email}
-          onVerified={(value) => {
-            setCode(value);
-            setStep("password");
-          }}
-        />
-      )}
-      {step === "password" && (
-        <ResetPasswordStep
-          email={email}
-          code={code}
-          onDone={() => {
-            toast.success("Password updated. Sign in with your new password.");
-            router.replace("/login");
-          }}
-        />
-      )}
+      <AuthCard icon={KeyRound} title={COPY[step].title} description={COPY[step].description(email)}>
+        {step === "email" && (
+          <ResetEmailStep
+            onSent={(address) => {
+              setEmail(address);
+              setStep("code");
+            }}
+          />
+        )}
+        {step === "code" && (
+          <ResetCodeStep
+            email={email}
+            onVerified={(value) => {
+              setCode(value);
+              setStep("password");
+            }}
+          />
+        )}
+        {step === "password" && (
+          <ResetPasswordStep
+            email={email}
+            code={code}
+            onDone={() => {
+              toast.success("Password updated. Sign in with your new password.");
+              router.replace("/login");
+            }}
+          />
+        )}
+      </AuthCard>
       <AuthSwitch>
         Remembered it? <Link href="/login">Back to sign in</Link>
       </AuthSwitch>

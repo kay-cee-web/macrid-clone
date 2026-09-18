@@ -12,13 +12,15 @@ type ModalProps = {
   description?: ReactNode;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
+  /** Drops the header, footer and padding: the dialog owns its own chrome. */
+  bare?: boolean;
   children?: ReactNode;
 };
 
 const widths = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-5xl" };
 
 /** Native <dialog>: focus trapping, Escape and top-layer stacking come free. */
-export function Modal({ open, onClose, title, description, footer, size = "md", children }: ModalProps) {
+export function Modal({ open, onClose, title, description, footer, size = "md", bare, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -32,7 +34,8 @@ export function Modal({ open, onClose, title, description, footer, size = "md", 
   return (
     <dialog
       ref={ref}
-      aria-labelledby={titleId}
+      aria-labelledby={bare ? undefined : titleId}
+      aria-label={bare ? title : undefined}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
@@ -41,12 +44,13 @@ export function Modal({ open, onClose, title, description, footer, size = "md", 
         if (e.target === e.currentTarget) onClose();
       }}
       className={cn(
-        "m-auto w-[calc(100%-32px)] rounded-[16px] border border-line bg-surface p-0 text-ink shadow-float",
+        "m-auto w-[calc(100%-32px)] overflow-hidden rounded-2xl border border-line bg-surface p-0 text-ink shadow-float",
         "backdrop:bg-black/40 backdrop:backdrop-blur-[2px] open:animate-fade-in",
         widths[size],
       )}
     >
-      {open && (
+      {open && bare && <div className="max-h-[85dvh]">{children}</div>}
+      {open && !bare && (
         <div className="grid max-h-[85dvh] grid-rows-[auto_1fr_auto]">
           <header className="flex items-start gap-3 border-b border-line px-5 py-4">
             <div className="grid flex-1 gap-1">

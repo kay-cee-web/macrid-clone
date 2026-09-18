@@ -16,7 +16,8 @@ export function PluginsView() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 pb-16 pt-8 sm:px-6">
+      {/* Same container as the Workflows tab, so the workspace reads as one page. */}
+      <div className="mx-auto grid w-full max-w-400 gap-6 px-4 pb-16 pt-8 sm:px-6 xl:px-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="grid gap-1.5">
             <h2 className="text-2xl font-semibold">Plugins</h2>

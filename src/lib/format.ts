@@ -43,6 +43,21 @@ export const formatPercent = (value: number | null) => (value === null ? "" : `$
 /** First name for greetings, from a full name. */
 export const firstName = (name?: string | null) => name?.trim().split(/\s+/)[0] ?? "";
 
+/**
+ * A display name and a handle out of an email address, for the routes that want
+ * both and are only given one. Deliberately dumb so it's predictable:
+ * "sarah.ellis@x.com" → Sarah Ellis / sarah.ellis.
+ */
+export function nameFromEmail(email: string) {
+  const handle = email.split("@")[0]?.trim() ?? "";
+  const name = handle
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  return { handle, name: name || handle };
+}
+
 /** Up to two initials, for avatar tiles. */
 export const initialsOf = (name = "") =>
   name
@@ -51,12 +66,3 @@ export const initialsOf = (name = "") =>
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("") || "?";
-
-/** Time-of-day greeting in the viewer's local time. */
-export function greetingFor(date = new Date()) {
-  const hour = date.getHours();
-  if (hour < 5) return "Working late";
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-}
