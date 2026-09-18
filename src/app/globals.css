@@ -47,6 +47,7 @@
   --animate-fade-in: fade-in 150ms ease-out;
   --animate-aurora: aurora 14s ease-in-out infinite alternate;
   --color-pink: var(--pink);
+  --color-sky: var(--sky);
   --color-night: var(--night);
   --color-night-ink: var(--night-ink);
   --color-logo-anthropic: var(--logo-anthropic);

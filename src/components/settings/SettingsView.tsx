@@ -31,7 +31,8 @@ export function SettingsView() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 pb-16 pt-8 sm:px-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10">
+      {/* Same container as the Workflows tab, so the workspace reads as one page. */}
+      <div className="mx-auto grid w-full max-w-400 gap-6 px-4 pb-16 pt-8 sm:px-6 md:grid-cols-[220px_minmax(0,1fr)] md:gap-10 xl:px-10">
         <nav aria-label="Settings sections" className="md:sticky md:top-8 md:self-start">
           <ul className="flex gap-1 overflow-x-auto md:grid">
             {SECTIONS.map(({ id, label, Icon }) => {

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { CodeInput } from "@/components/ui/CodeInput";
 import { useAuth } from "@/hooks/useAuth";
 import { extractApiError } from "@/lib/api/errors";
 import { resendVerification, verifyEmail } from "@/services/auth";
-import { AuthHeading, AuthSwitch } from "./AuthHeading";
+import { AuthCard, AuthSwitch } from "./AuthCard";
 import { ResendCode } from "./ResendCode";
 
 const CODE_LENGTH = 6;
@@ -46,38 +47,40 @@ export function VerifyEmailForm() {
 
   return (
     <>
-      <AuthHeading
+      <AuthCard
+        icon={MailCheck}
         title="Check your inbox"
         description={
           <>
             Enter the 6-digit code we sent to <span className="font-medium text-ink">{account.email}</span>.
           </>
         }
-      />
-      <form noValidate onSubmit={onSubmit} className="grid gap-4">
-        <CodeInput
-          id="code"
-          label="Verification code"
-          value={code}
-          length={CODE_LENGTH}
-          invalid={Boolean(error)}
-          disabled={submitting}
-          onChange={(value) => {
-            setCode(value);
-            if (error) setError("");
-          }}
-          onComplete={(value) => void submit(value)}
-        />
-        {error && (
-          <p role="alert" className="text-xs text-bad">
-            {error}
-          </p>
-        )}
-        <Button type="submit" size="lg" block loading={submitting}>
-          Verify email
-        </Button>
-        <ResendCode send={() => resendVerification(account.email)} />
-      </form>
+      >
+        <form noValidate onSubmit={onSubmit} className="grid gap-4">
+          <CodeInput
+            id="code"
+            label="Verification code"
+            value={code}
+            length={CODE_LENGTH}
+            invalid={Boolean(error)}
+            disabled={submitting}
+            onChange={(value) => {
+              setCode(value);
+              if (error) setError("");
+            }}
+            onComplete={(value) => void submit(value)}
+          />
+          {error && (
+            <p role="alert" className="text-xs text-bad">
+              {error}
+            </p>
+          )}
+          <Button type="submit" size="lg" block loading={submitting}>
+            Verify email
+          </Button>
+          <ResendCode send={() => resendVerification(account.email)} />
+        </form>
+      </AuthCard>
       <AuthSwitch>
         Wrong account?{" "}
         <button type="button" onClick={() => void signOut()} className="font-medium text-accent hover:underline">

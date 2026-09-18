@@ -3,6 +3,14 @@ export type User = {
   name: string;
   email: string;
   email_verified_at: string | null;
+  /** Profile fields `POST /profile-update/{id}` writes; absent on older rows. */
+  username?: string;
+  phone?: string;
+  city?: string;
+  country?: string;
+  /** The avatar's gallery URL — the endpoint takes a link, never a file. */
+  profile_pic?: string;
+  created_at?: string;
   [key: string]: unknown;
 };
 

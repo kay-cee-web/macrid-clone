@@ -2,23 +2,39 @@
 
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useDayPart } from "@/hooks/useGreeting";
 import { firstName } from "@/lib/format";
+import { salutationOf } from "@/lib/greeting";
 import type { Agent } from "@/types/agent";
 import { SuggestionChips } from "./SuggestionChips";
 
-/** A new thread: who the agent is, what it's been told, and where to start. */
-export function ChatEmpty({ agent, onPick }: { agent: Agent; onPick: (text: string) => void }) {
+type ChatGreetingProps = {
+  agent: Agent;
+  /** Sends the suggestion straight away, so it is held back mid-turn. */
+  onPick: (text: string) => void;
+  busy?: boolean;
+};
+
+/**
+ * Who the agent is, what it's been told, and where to start. It heads the
+ * thread and stays there once messages begin, so the brief is always at hand.
+ * Built on the client: the backend has no place to store a greeting turn.
+ */
+export function ChatGreeting({ agent, onPick, busy }: ChatGreetingProps) {
   const { user } = useAuth();
+  const part = useDayPart();
   const name = firstName(user?.name);
   const brief = agent.instructions.trim();
+  // "Good evening, Evan." once the client's clock is known; "Hey Evan." before that.
+  const hello = name ? `${part ? `${salutationOf(part)}, ` : "Hey "}${name}. ` : "";
 
   return (
-    <div className="mx-auto grid w-full max-w-2xl gap-8 py-10">
+    <div className="grid w-full gap-8 py-10">
       <div className="grid justify-items-start gap-4">
         <AgentAvatar name={agent.name} size="lg" />
         <div className="grid gap-2">
           <h2 className="text-3xl font-semibold leading-tight">
-            {name ? `Hey ${name}. ` : ""}What should {agent.name} work on?
+            {hello}What should {agent.name} work on?
           </h2>
           <p className="max-w-[60ch] text-sm text-muted">
             {brief
@@ -32,7 +48,7 @@ export function ChatEmpty({ agent, onPick }: { agent: Agent; onPick: (text: stri
           </blockquote>
         )}
       </div>
-      <SuggestionChips category={agent.category} onPick={onPick} />
+      <SuggestionChips category={agent.category} onPick={onPick} disabled={busy} />
     </div>
   );
 }

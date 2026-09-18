@@ -13,11 +13,16 @@ type SuggestionChipsProps = {
   onPick: (text: string) => void;
   /** "cards" under a heading (chat), or a quiet row of pills (home, under the composer). */
   variant?: "cards" | "pills";
+  /** In the chat a pick sends straight away, so it's held back while a turn runs. */
+  disabled?: boolean;
   className?: string;
 };
 
-/** A few standing tasks to start from; picking one drafts it. Cycles through the catalog. */
-export function SuggestionChips({ category, onPick, variant = "cards", className }: SuggestionChipsProps) {
+const CARD = "grid content-start gap-1 rounded-xl border border-line bg-surface p-3 text-left transition-colors hover:border-faint hover:bg-raised disabled:pointer-events-none disabled:opacity-50";
+const PILL = "inline-flex max-w-full items-center gap-2.5 rounded-full bg-raised/80 px-5 py-3 text-base text-muted transition-colors hover:bg-raised hover:text-ink disabled:pointer-events-none disabled:opacity-50";
+
+/** A few standing tasks to start from. Cycles through the catalog. */
+export function SuggestionChips({ category, onPick, variant = "cards", disabled, className }: SuggestionChipsProps) {
   const ideas = ideasFor(category);
   const [offset, setOffset] = useState(0);
   const visible = Array.from({ length: Math.min(PAGE, ideas.length) }, (_, i) => ideas[(offset + i) % ideas.length]);
@@ -31,8 +36,9 @@ export function SuggestionChips({ category, onPick, variant = "cards", className
             key={`${idea.category}-${idea.title}`}
             type="button"
             title={idea.description}
+            disabled={disabled}
             onClick={() => onPick(idea.description)}
-            className="inline-flex max-w-full items-center gap-2.5 rounded-full bg-raised/80 px-5 py-3 text-base text-muted transition-colors hover:bg-raised hover:text-ink"
+            className={PILL}
           >
             <PenLine className="size-4 shrink-0" />
             <span className="min-w-0 truncate">{idea.title}</span>
@@ -58,8 +64,9 @@ export function SuggestionChips({ category, onPick, variant = "cards", className
           <button
             key={`${idea.category}-${idea.title}`}
             type="button"
+            disabled={disabled}
             onClick={() => onPick(idea.description)}
-            className="grid content-start gap-1 rounded-xl border border-line bg-surface p-3 text-left transition-colors hover:border-faint hover:bg-raised"
+            className={CARD}
           >
             <span className="font-mono text-xs uppercase tracking-[0.06em] text-faint">{idea.category}</span>
             <span className="text-sm font-medium leading-snug text-ink">{idea.title}</span>

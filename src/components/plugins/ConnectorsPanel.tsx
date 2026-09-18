@@ -5,8 +5,8 @@ import { CircleAlert, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { HairlineGrid } from "@/components/ui/HairlineGrid";
 import { Input } from "@/components/ui/Input";
+import { TileGrid } from "@/components/ui/TileGrid";
 import { CONNECTORS, CONNECTOR_CATEGORIES } from "@/data/connectors";
 import { useAsync } from "@/hooks/useAsync";
 import { useOAuthPopup } from "@/hooks/useOAuthPopup";
@@ -71,12 +71,12 @@ export function ConnectorsPanel() {
         const items = visible.filter((c) => c.category === category.key);
         if (!items.length) return null;
         return (
-          <section key={category.key} className="grid gap-3">
+          <section key={category.key} className="grid gap-4">
             <div className="grid gap-0.5">
               <h3 className="text-lg font-semibold">{category.label}</h3>
               <p className="text-sm text-muted">{category.blurb}</p>
             </div>
-            <HairlineGrid itemCount={items.length}>
+            <TileGrid className="gap-y-6">
               {items.map((connector) => (
                 <ConnectorCard
                   key={connector.key}
@@ -88,7 +88,7 @@ export function ConnectorsPanel() {
                   onDisconnect={setDisconnecting}
                 />
               ))}
-            </HairlineGrid>
+            </TileGrid>
           </section>
         );
       })}

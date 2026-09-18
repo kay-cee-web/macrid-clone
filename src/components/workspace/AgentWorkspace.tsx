@@ -53,7 +53,7 @@ export function AgentWorkspace({ id, children }: { id: string; children: ReactNo
             failed ? (
               <Button variant="secondary" onClick={() => void reload()}>Try again</Button>
             ) : (
-              <Link href="/agents/all" className={buttonStyles({ variant: "secondary" })}>See all agents</Link>
+              <Link href="/agents/all" className={buttonStyles({ variant: "secondary" })}>Agent hub</Link>
             )
           }
         />

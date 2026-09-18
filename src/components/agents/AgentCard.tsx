@@ -1,11 +1,26 @@
+"use client";
+
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { Pill } from "@/components/ui/Pill";
+import { useFavorites } from "@/hooks/useFavorites";
 import { categoryOf } from "@/lib/agents/category";
 import { cn } from "@/lib/cn";
 import { timeAgo } from "@/lib/format";
 import type { Agent } from "@/types/agent";
 import { AgentActionsMenu, type AgentDialog } from "./AgentActionsMenu";
 import { AgentIcon } from "./AgentIcon";
+
+/** Favourites live in this browser only, so the star is a quiet marker. */
+function FavoriteStar({ shown }: { shown: boolean }) {
+  if (!shown) return null;
+  return (
+    <span title="Favourite" className="shrink-0 text-warn">
+      <Star aria-hidden className="size-4 fill-current" />
+      <span className="sr-only">Favourite</span>
+    </span>
+  );
+}
 
 type AgentCardProps = {
   agent: Agent;
@@ -47,14 +62,18 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
   const brief = agent.instructions.trim();
   const category = categoryOf(agent);
   const briefText = brief || "No instructions yet. Open the agent and tell it what to do.";
+  const favorited = useFavorites().isFavorite(agent.id);
 
   if (layout === "list") {
     return (
       <article className="group relative flex items-center gap-4 bg-surface px-4 py-3 transition-colors hover:bg-raised">
         <AgentIcon category={category} className="size-9 [&_svg]:size-4" />
         <div className="grid min-w-0 flex-1">
-          <h3 className="truncate text-base font-medium">
-            <NameLink agent={agent} rounded="focus-visible:after:ring-inset" />
+          <h3 className="flex min-w-0 items-center gap-2 text-base font-medium">
+            <span className="truncate">
+              <NameLink agent={agent} rounded="focus-visible:after:ring-inset" />
+            </span>
+            <FavoriteStar shown={favorited} />
           </h3>
           <span className="truncate text-xs text-faint">{edited ? `Edited ${edited}` : "Never edited"}</span>
         </div>
@@ -89,6 +108,7 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
           <span className="truncate">
             <NameLink agent={agent} rounded="after:rounded-3xl" />
           </span>
+          <FavoriteStar shown={favorited} />
           {flag && (
             <span title={flag} className={cn("size-2 shrink-0 rounded-full", agent.isActive ? "bg-warn" : "bg-faint")}>
               <span className="sr-only">{flag}</span>

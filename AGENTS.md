@@ -44,17 +44,33 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - The shared store is `src/lib/agents/store.ts`, read with `useAgents()` / `useAgent(id)`. It resets on logout.
   - Change agents only through `src/lib/agents/actions.ts`: create, update, setSending, delete, clone, startConversation, leaveAgent, mergeAgentLocally. Updates show immediately and roll back if the request fails.
   - `src/lib/agents/attachments.ts` appends image URLs for chat and splits them back out of history.
-- **Static data:** idea catalogue in `src/data/ideas` (`ideasFor`, `readinessOf`); platform chips in `src/data/platforms.ts`.
+- **Static data:** idea catalogue in `src/data/ideas` (`ideasFor`, `readinessOf`), one file per category. Platform chips in `src/data/platforms.ts`; each category's icon and tint in `src/data/ideas/covers.ts` (`COVERS`).
+  - **Categories are headings, not Macrid area names** (`src/types/idea.ts`): Lead sourcing, Page building, Message sending and Pipeline handling are Prospect Finder, Funnels, Outreach and CRM — the files keep the area names (`prospecting.ts`, `funnels.ts`, `outreach.ts`, `crm.ts`). Then Deliverability, Analytics, Creative, Research, Work productivity (`work.ts`), Business growth (`growth.ts`), Money handling (`money.ts`), Corporate, Education and Reminders — 14 in all.
+  - **Every category carries at least eight workflows**, so no filter ever looks half-empty. Adding a category means writing eight, not three.
+  - The ones with no Macrid area behind them: Creative and Research (writing and finding out), Work productivity (the day's own admin), Business growth (keeping customers), Money handling (money through the inbox), Corporate (updates, meetings, process) and Education (learning). `blocked` carries anything with no connector (Jira, GitHub, a bank, an image tool), so it reads "Not available" instead of being hidden.
+  - `Reminders` is home and health routines only — study moved to `education.ts`. `categoryOf` never infers Reminders; every other category has signals, and an agent that matches none is "Work productivity".
+  - `Skill.surface` is an `IdeaCategory`, so renaming or removing one means updating `src/data/skills/catalog.ts` and `general.ts` too.
 - **Shared agent UI:** `TaskComposer` (also meant for the chat composer), `AgentAvatar`, `AgentCard`, `AgentActionsMenu` + `AgentDialogs` (mount the dialogs once per page), `WorkReceipt`, `IdeaCard`/`IdeaBrowser`.
+  - `IdeaCard` has two looks. `variant="cover"` (the default) is the artwork tile — `IdeaCover`, `COVERS[category].glow`, `leadOf` — and is what home and Workflows show. `variant="card"` takes `AgentCard`'s shape instead, for a grid that has to sit beside agents. Home runs at `max-w-400` like the Agent hub, so the tiles fill the same width.
 - **Layout:** `AppShell` (sidebar and mobile drawer) wraps every signed-in route (`/agents/*`, `/records/*`). `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
+  - Sidebar nav: Home, Agent hub (`/agents/all`), Workbench, Records — then **Favorites** and **Recents**, in that order. `SidebarFooter` holds the account menu, the `ThemeToggle` box and Settings — no help or inbox links.
+    - Both lists are one component, `SidebarAgentList` (title, up to `SIDEBAR_LIST_LIMIT` agents, skeletons, an empty line and "View all" once there are more). `FavoriteAgents` filters the store by `useFavorites` — favourites are local to the browser, so it only draws skeletons when this browser already knows of some.
+  - **Settings is a modal, not a page:** `SettingsModal` (`bare` `Modal` + `SettingsRail`) with Workspace, Members, Plan and billing, API keys, Personal settings and Appearance.
+    - **Personal settings writes** (`PersonalPanel`, `src/services/profile.ts`): avatar, name, username, phone, city, country, each row saved with `settings/EditableRow` and followed by `refreshUser()`. Email stays read-only (the account is keyed to it) and `PasswordModal` covers `password-update`. The workspace name still isn't editable — it's the account's name, and no route sets one.
+    - **Members** (`MembersPanel` + `MembersTable`, `src/services/team.ts`) is Macrid's CRM → Team on the settings modal: `GET /teams` rows under a row for the signed-in owner, add by email, remove per row (`ConfirmModal`). `POST /teams` also wants a name and a username, so `nameFromEmail` derives both from the address. **No invite email is sent and `role` isn't stored**, so the panel says both rather than implying an invite went out.
+    - **Plan and billing is a "Coming soon" `EmptyState`** that links to the Dexisphere app. There is no billing route here; the live token balance still shows in the workspace header (`TokenBalance`).
+    - **The modal is one fixed height for every section** (`h-[85dvh] max-h-160`), so it doesn't resize as you move between them. The panel scrolls inside it (`minmax(0,1fr)` + `min-h-0`, because the dialog is `overflow-hidden` and a grid item won't shrink below its content without it), and the close button sits outside the scroller so a long list can't carry it away.
 - **Agent workspace:**
   - `/agents/[id]/layout.tsx` renders `AgentWorkspace`: it loads the agent and shows the header (tabs Chat and Workflows, New conversation, Instructions, actions menu).
   - Views read the open agent with `useWorkspace()` and open the editor with `openInstructions()`.
   - Add new tabs (Plugins, Settings) to `WorkspaceHeader`.
+  - **Every workspace tab uses the same container**, `mx-auto grid w-full max-w-400 px-4 pb-16 pt-8 sm:px-6 xl:px-10`, so switching tabs doesn't move the page. Chat is the exception: it runs full height, and it (like the home hero) keeps a `max-w-3xl` reading column inside.
 - **Chat:**
   - `useChat(agentId)` handles history, sending, retry, and instruction rewrites (merged locally). There is one thread per agent.
   - `ChatView` reads the URL options: `?task=` draft, `?img=` staged images, `?send=1` sends automatically once history has loaded. There is no `?c=`.
-  - **New conversation = copy the agent.** The backend has no endpoint for separate conversations, so `useNewConversation` → `startConversation` creates a copy named `<name> clone <n>` (`src/lib/agents/copyName.ts`: the next free number, counted from the original name, so a clone of "X clone 1" becomes "X clone 2") with the same instructions, model, `is_active` and `sending_enabled`, then opens `/agents/{copyId}`. Earlier conversations stay on the earlier agents (in Recents and All agents).
+  - **The greeting always shows.** `ChatGreeting` (name, brief, suggestions) is `ChatThread`'s header, not an empty state, so it stays above the messages and scrolls away as they grow. It is built on the client; nothing stores a greeting turn.
+  - **A suggestion sends itself.** Picking one in the chat calls `chat.send` rather than filling the composer, and the chips are disabled while a turn runs. On the home composer a pick still drafts, because sending there would create an agent.
+  - **New conversation = copy the agent.** The backend has no endpoint for separate conversations, so `useNewConversation` → `startConversation` creates a copy named `<name> clone <n>` (`src/lib/agents/copyName.ts`: the next free number, counted from the original name, so a clone of "X clone 1" becomes "X clone 2") with the same instructions, model, `is_active` and `sending_enabled`, then opens `/agents/{copyId}`. Earlier conversations stay on the earlier agents (in Recents and the Agent hub).
     - Channels (WhatsApp, Telegram, extension), history and stats stay on the original agent; they are not copied.
     - `src/lib/agents/fresh.ts` tracks copies that haven't been used yet. Clicking New conversation on one opens it again instead of copying again. Leaving it (`AgentWorkspace` unmount → `leaveAgent`) deletes it quietly.
     - A copy counts as used after it sends a message, is edited (`updateAgent`, `setSending`) or starts a channel pairing. Only this tab's memory tracks this, so a reload keeps the copy as a normal agent.
@@ -84,9 +100,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
   - **Usage:** stats and the `/actions` log.
   - Build sections from `SettingsSection` + `SettingRow`.
-- **Models** (`/agents/models`, tabbed with `/agents/all` and `/agents/skills` via `HubTabs`): the catalogue in `src/data/models.ts` (provider, tag, context) as cards; "Integrate" saves the user's own Anthropic/OpenAI/Gemini key.
-- **Skills** (`/agents/skills`, the third `HubTabs` tab): the whole catalogue as rows, searchable and filtered by `SKILL_CATEGORIES`.
+- **Workbench** is the catalogue section: three sibling routes under `/agents/workbench`, switched by `WorkbenchTabs` (`components/workbench`) and nothing else.
+  - **Workflows** (`/agents/workbench`, the default tab): every standing task, built from `IdeaBrowser` with `heading={null}` and `action="Use"`. No agent is open here, so picking one pushes `/agents?task=…` and the home composer turns it into an agent — the same route `SkillsCatalog` takes.
+  - **Skills** (`/agents/workbench/skills`) and **Models** (`/agents/workbench/models`) are the other two tabs.
+  - **The Agent hub (`/agents/all`) has no tabs.** It lists agents and nothing else.
+- **Models** (`/agents/workbench/models`): the catalogue in `src/data/models.ts` (provider, tag, kind, spec) as cards, filtered by provider, type and search; "Integrate" saves the user's own key. Built by `components/models/ModelsCatalog` + `ModelFilters`.
+  - **Agents run on text models only.** `PUT /agents/{id} {model}` is the thinking model and no tool generates media, so Settings offers `TEXT_MODEL_GROUPS`, never the whole catalogue. `ModelOption.kind` is `text | image | video` and `spec` is the context window for text, the output ceiling ("4K", "1080p · 10s") for media.
+  - **Image and video models** (OpenAI, Gemini, Black Forest Labs, Runway, Luma) are listed so a workspace can hold the key for them. `integrateCopy` says so in the dialog rather than promising the agent will use it.
+  - **Only anthropic, openai and gemini have `platform_apis` columns** (`PLATFORM_COLUMNS` in `src/services/aiKeys.ts` is partial); a media provider's key lives in `/integrations` alone, bound by record id. Provider marks in `src/data/aiProviders.ts` are our own glyphs, not the vendors' logos.
+- **Skills** (`/agents/workbench/skills`): the whole catalogue as rows, searchable and filtered by `SKILL_CATEGORIES`.
   - Data is static: `src/data/skills` (`ALL_SKILLS` = featured first, `skillName`, `docFor`, `isFeatured`), with each skill's SKILL.md body in `src/data/skills/docs/<surface>.ts` (`useCases`, `steps`, `output`); the overview is the skill's own `description`.
+  - **Two catalogue files.** `catalog.ts` (`SKILLS`) is the sales work — the first six `SKILL_CATEGORIES`. `general.ts` (`GENERAL_SKILLS`) is the wider day: Get work done, Write and research, Grow the business, Handle money, Keep on schedule, whose surfaces are the broader `IdeaCategory` values. Every skill has a doc; the pair is checked by slug.
   - `skillMarkdown` (`src/lib/skills/markdown.ts`) renders that into a SKILL.md, so the preview and the download can't drift apart.
   - Shared pieces: `SkillRow` (icon from `COVERS[surface]`, hover actions, "..." → View details / Download) and `SkillPreview` (the SKILL.md in `ui/Markdown`), wired by `useSkillActions` (preview state + download). Both are reused by the agent's Plugins → Skills tab, where "Use" drafts into that agent's chat instead of the home composer.
   - `src/services/aiKeys.ts` (Macrid's `lib/aiKeyStore.js`): reads `GET /integrations` (rows with `service`) and `GET /platform-apis` (`<provider>_api_key`, `<provider>_api_key_model`).
@@ -111,33 +135,42 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Analytics** (`src/lib/records/analytics.ts`) is computed in the browser from campaign rows and `/sms-logs`, over a 7/30/90-day or all-time range. `ui/StatGrid` draws the KPI tiles.
   - Rows are sorted newest first (`newestFirst`). Paginated endpoints go through `fetchAllPages` (`src/lib/api/paginate.ts`).
   - Build each view from `RecordsView` (search, refresh, loading/error/empty states) + `ui/DataTable` (columns, `rowHref` makes the whole row a link) + the cell helpers in `records/cells.tsx`.
+  - **Paging is in the browser, not the API.** Every list is already read whole, so `RecordsView` slices it with `usePagination` (15 a page, `pageSize` to change it) and draws `ui/Pagination` under the table with the "1–15 of 312" count. Searching resets to page one, and turning the page scrolls the table back into view.
 - **Layout:** `(app)/layout.tsx` = `AuthGate` + `AppShell` for every signed-in section. `ui/RouteTabs` renders link tabs (the agent header and Records).
-- **Generic hooks:** `useAsync(load, deps)` for read-only requests (`refreshing` is true during `reload()`), `useClipboard`, `useCountdown`. The UI kit also has `Switch`, `Select` (native) and `QrCode`. Response helpers (`pickList`, `pickOne`, `toBool`, `toText`, `toNumber`) are in `src/lib/api/pick.ts`.
+- **Generic hooks:** `useAsync(load, deps)` for read-only requests (`refreshing` is true during `reload()`), `useClipboard`, `useCountdown`, `usePagination(rows, pageSize, resetKey)` for in-memory paging. The UI kit also has `Switch`, `Select` (native), `QrCode` and `Pagination`. Response helpers (`pickList`, `pickOne`, `toBool`, `toText`, `toNumber`) are in `src/lib/api/pick.ts`.
 
 # Project purpose
 
-This is a rebuild of the **Agents** section of Macrid, a marketing and sales platform.
+This is a rebuild of the **Agents** section of Macrid, a marketing and sales platform — and, increasingly, a general agent app that happens to be strongest at Macrid's work.
 
 - **Backend:** it calls the **same endpoints** as Macrid, so behaviour stays the same. Do not invent new endpoints; the contract is below.
 - **Design:** the UI does not copy Macrid. It should be finer, more modern and more polished.
 - **Light and dark mode are required.** Every component must work in both. Use theme tokens (CSS variables) instead of hard-coded colours, and never ship a component that has only been checked in one theme.
 - **Auth:** the clone has its **own Login page** (and registration) that uses Macrid's auth endpoints (`POST /login`, `POST /register`, `GET /user`, `POST /logout`). It does not share a session with the main Macrid app.
 
-**The goal is for agents to do the tasks people currently do by hand in the Macrid app.** Instead of clicking through Prospect Finder, Outreach, CRM and the rest, the user tells an agent what to do and the agent does it. Keep this in mind when designing any feature: each Macrid app area is something an agent should be able to operate.
+**The goal is for agents to do the work people currently do by hand — starting with the Macrid app, but not ending there.** Instead of clicking through Prospect Finder, Outreach, CRM and the rest, the user tells an agent what to do and the agent does it.
+
+**The scope is everything an AI can usefully do; the focus is what Macrid does.** Those are two different statements and both matter:
+
+- **Focus:** the Macrid areas below are the spine of the product. They are what the backend's tools actually reach, what the Records section shows, and what a feature is measured against first. Anything that makes an agent better at prospecting, funnels, outreach, the CRM, deliverability or analytics wins over anything that doesn't.
+- **Scope:** an agent is not limited to those areas, and neither is the catalogue. The day's own admin, money that passes through the inbox, study, home and wellness routines are all fair game — see the workflow categories in `src/data/ideas`. A user who hands one agent their pipeline and another their morning briefing is using this exactly as intended.
+- **The test for anything outside the focus** is whether an agent can really do it with the tools and connections it has. Build it when it works end to end, mark it `blocked` when it needs a connector nobody has built, and don't ship a category that only pretends. Honesty about what works beats breadth.
 
 ## Macrid app areas agents should cover
 
-These are folders under `Macrid/app/(dashboard)/`, and they match the agent categories:
+These are folders under `Macrid/app/(dashboard)/`. The idea categories in `src/types/idea.ts` are named for users, not for these folders; the mapping is in the static-data notes above.
 
 | Category | Macrid area | Examples of manual work today |
 |---|---|---|
-| Prospecting | `prospect_finder` | Search for leads (Google Places, LinkedIn sources) |
-| Funnels | `funnel-campaign` (ai-funnel-builder, templates, domain-setup, statistics) | Build funnels and landing pages |
-| Outreach | `multi-channel-outreach` (email, sms, whatsapp) | Send campaigns and follow-ups |
-| CRM | `crm` (leads, deals, companies, lists, tasks, appointment, mail, team) | Manage the pipeline, tasks and appointments |
+| Lead sourcing | `prospect_finder` | Search for leads (Google Places, LinkedIn sources) |
+| Page building | `funnel-campaign` (ai-funnel-builder, templates, domain-setup, statistics) | Build funnels and landing pages |
+| Message sending | `multi-channel-outreach` (email, sms, whatsapp) | Send campaigns and follow-ups |
+| Pipeline handling | `crm` (leads, deals, companies, lists, tasks, appointment, mail, team) | Manage the pipeline, tasks and appointments |
 | Deliverability | `email-deliverability-check` | Check email health |
 | Analytics | `analytics` | Read and report on performance |
-| Business | `ai-content-generator`, `white-label`, `settings` | Content, branding, account |
+| Content & research | `ai-content-generator`, `white-label`, `settings` | Content, branding, account |
+
+Beyond them, with no Macrid area behind them: Work productivity, Business growth, Money handling and Reminders.
 
 # Macrid reference (so you don't have to scan it again)
 
@@ -153,6 +186,8 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
   - `POST /login {email, password}` returns the token in `token`, `access_token` or `data.token`.
   - The token is stored in `localStorage` under `token` and sent as `Authorization: Bearer <token>`.
   - `GET /user` returns the current user. `POST /logout` logs out. `POST /register` creates an account.
+- **Profile** (Macrid's `settings/account`): `POST /profile-update/{userId}` as multipart with `{name, username, email, phone, city, country, _method: "PUT"}` — a **full update**, so every field goes with every request or the missing ones are blanked. `picture` is optional and takes a **hosted gallery URL string, not a file**: upload to `/gallery` first. `username` is required, so an account without one sends the address's handle.
+- **Password:** `PUT /password-update/{userId}` with `{current_password, new_password, password}` (the new one twice).
 - **401 handling (axios interceptor):**
   - `/login`, `/register` and `/logout` are skipped.
   - If `error` contains "run out of token", show an "upgrade your plan" warning and do **not** log the user out.
@@ -184,7 +219,7 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 
 **Agent quirks:**
 - **The brief is `instructions`.** Macrid's UI calls it "description". Sending `description` is silently dropped.
-- **There is no `category` or `favorite` column.** `PUT {favorite: true}` returns 200 but discards the value. Hide favourites until the backend adds the column.
+- **There is no `category` or `favorite` column.** `PUT {favorite: true}` returns 200 but discards the value, so favourites live in this browser only (`src/lib/agents/favorites.ts` + `useFavorites`): the actions menu toggles one and `AgentCard` shows a star. Move it to the API the day the column exists.
 - **Create from a task:** Macrid posts only `{instructions: task}` and the backend names the agent.
 - **`POST /chat` can rewrite the agent's own instructions.** When `instructions_updated` is true, update the local agent with the new `instructions` and do **not** send a PUT, because the backend has already saved it.
 - **No real reply field besides `reply`.** `message` in a response is the status line, never the reply.
@@ -355,7 +390,10 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 - When Google needs re-authorising, get the link from `GET /google/auth-url`.
 
 **Team**
-- `GET /teams`; `POST /teams {name, username, email, role}`.
+- `GET /teams` → `{message: "Team fetched successfully", data: [row]}` (confirmed 2026-09-18). Row: `{id, user_id, name, username, email, role, status, created_at, updated_at}`, newest first. **No `status: true` field**, so `assertEnvelope` passes it through on the message/data shape alone.
+  - `role` comes back `""` on every row and `status` is `0` on every row; neither is set by anything yet, so the clone shows "Member" rather than an empty cell.
+- `POST /teams {name, username, email, role}`.
+- Remove: `DELETE /teams/{id}`, bulk `POST /teams/bulk-delete {ids: [...]}`.
 - `role` is accepted but not stored yet. There is no invite email.
 
 ### Funnels

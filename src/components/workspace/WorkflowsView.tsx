@@ -25,7 +25,7 @@ export function WorkflowsView() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto grid w-full max-w-5xl gap-5 px-4 pb-16 pt-8 sm:px-6">
+      <div className="mx-auto grid w-full max-w-400 gap-5 px-4 pb-16 pt-8 sm:px-6 xl:px-10">
         <div className="grid gap-1.5">
           <h2 className="text-2xl font-semibold">Workflows</h2>
           <p className="max-w-[62ch] text-sm text-muted">
@@ -48,6 +48,7 @@ export function WorkflowsView() {
             <IdeaCard
               key={`${idea.category}-${idea.title}`}
               idea={idea}
+              variant="cover"
               action="Send to chat"
               onPick={() => sendToChat(idea.description)}
             />

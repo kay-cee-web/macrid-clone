@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Select } from "@/components/ui/Select";
 import { useWorkspace } from "@/components/workspace/WorkspaceContext";
-import { MODEL_GROUPS, isKnownModel, modelName } from "@/data/models";
+import { TEXT_MODEL_GROUPS, isKnownModel, modelName } from "@/data/models";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cloneAgent, updateAgent } from "@/lib/agents/actions";
 import { extractApiError } from "@/lib/api/errors";
@@ -60,7 +60,7 @@ export function GeneralSettings() {
           >
             <option value="">Workspace default</option>
             {agent.model && !isKnownModel(agent.model) && <option value={agent.model}>{agent.model}</option>}
-            {MODEL_GROUPS.map((group) => (
+            {TEXT_MODEL_GROUPS.map((group) => (
               <optgroup key={group.label} label={group.label}>
                 {group.models.map((model) => (
                   <option key={model.id} value={model.id}>

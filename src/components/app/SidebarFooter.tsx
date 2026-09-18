@@ -1,35 +1,28 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { CircleHelp, Inbox, LogOut, Settings } from "lucide-react";
+import { useState } from "react";
+import { LogOut, Settings } from "lucide-react";
 import { Menu } from "@/components/ui/Menu";
-import { ThemeCycleButton } from "@/components/ui/ThemeCycleButton";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
-import { dexisphereAppLink } from "@/lib/config";
 import { initialsOf } from "@/lib/format";
+import { SettingsModal } from "./SettingsModal";
 
-const ROUND = "inline-grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-ink";
-
-/** A round icon link into the main Dexisphere app (opens in a new tab). */
-function AppLink({ path, label, children }: { path: string; label: string; children: ReactNode }) {
-  return (
-    <a href={dexisphereAppLink(path)} target="_blank" rel="noreferrer" aria-label={label} title={label} className={ROUND}>
-      {children}
-    </a>
-  );
-}
-
-/** Avatar (account menu) on the left; theme and shortcuts into the main app on the right. */
+/** Avatar (account menu) on the left; theme and settings on the right. */
 export function SidebarFooter() {
   const { user, signOut } = useAuth();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-1 px-1 [&_svg]:size-4.5">
+    <div className="flex items-center gap-1 px-1">
       {user && (
         <Menu
           align="start"
           side="top"
-          items={[{ label: "Sign out", icon: <LogOut />, onSelect: () => void signOut() }]}
+          items={[
+            { label: "Settings", icon: <Settings />, onSelect: () => setSettingsOpen(true) },
+            { label: "Sign out", icon: <LogOut />, onSelect: () => void signOut() },
+          ]}
           trigger={(props) => (
             <button
               type="button"
@@ -44,18 +37,20 @@ export function SidebarFooter() {
         />
       )}
 
-      <div className="ml-auto flex items-center gap-0.5">
-        <ThemeCycleButton />
-        <AppLink path="/help-center" label="Help center">
-          <CircleHelp />
-        </AppLink>
-        <AppLink path="/settings" label="Account settings">
-          <Settings />
-        </AppLink>
-        <AppLink path="/crm/mail" label="Inbox">
-          <Inbox />
-        </AppLink>
+      <div className="ml-auto flex items-center gap-1">
+        <ThemeToggle />
+        <button
+          type="button"
+          aria-label="Settings"
+          title="Settings"
+          onClick={() => setSettingsOpen(true)}
+          className="inline-grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-ink"
+        >
+          <Settings className="size-4.5" />
+        </button>
       </div>
+
+      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

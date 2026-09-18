@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Menu } from "@/components/ui/Menu";
 import { Pill } from "@/components/ui/Pill";
-import { COVERS } from "@/data/ideas/covers";
+import { coverOf } from "@/data/ideas/covers";
 import { isFeatured, skillName } from "@/data/skills";
 import { cn } from "@/lib/cn";
 import type { Skill } from "@/types/skill";
@@ -24,7 +24,7 @@ export type SkillRowProps = {
  * the right, revealed on hover and always shown to keyboards and touch.
  */
 export function SkillRow({ skill, useLabel = "Use", onUse, onPreview, onDownload }: SkillRowProps) {
-  const { Icon, tint } = COVERS[skill.surface];
+  const { Icon, tint } = coverOf(skill.surface);
 
   return (
     <article className="group flex items-center gap-3 rounded-[14px] border border-line bg-surface p-3 transition-colors hover:border-faint focus-within:border-faint">

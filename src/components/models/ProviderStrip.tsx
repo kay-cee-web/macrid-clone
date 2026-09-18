@@ -12,7 +12,7 @@ type ProviderStripProps = {
 /** Provider logos that filter the catalogue; a dot marks the ones running on the user's key. */
 export function ProviderStrip({ keys, active, onPick }: ProviderStripProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {AI_PROVIDERS.map((provider) => {
         const selected = active === provider.id;
         const connected = Boolean(keys?.[provider.id].connected);

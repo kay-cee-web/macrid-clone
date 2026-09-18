@@ -1,32 +1,57 @@
 import { missingIn, platformNames, type WorkspaceSetup } from "@/lib/setup/platforms";
 import type { Idea, IdeaCategory } from "@/types/idea";
 import { ANALYTICS } from "./analytics";
-import { BUSINESS } from "./business";
+import { CORPORATE } from "./corporate";
+import { CREATIVE } from "./creative";
 import { CRM } from "./crm";
 import { DELIVERABILITY } from "./deliverability";
+import { EDUCATION } from "./education";
 import { FUNNELS } from "./funnels";
+import { GROWTH } from "./growth";
+import { MONEY } from "./money";
 import { OUTREACH } from "./outreach";
 import { PROSPECTING } from "./prospecting";
+import { REMINDERS } from "./reminders";
+import { RESEARCH } from "./research";
+import { WORK } from "./work";
 
-/** One category per Macrid product area, in sidebar order; Business is general work. */
+/**
+ * The first six cover a Macrid product area each, in sidebar order; the rest is
+ * the work around them, and Reminders is standing personal routines.
+ * **Every category carries at least eight workflows**, so no filter looks bare.
+ */
 export const CATEGORIES: IdeaCategory[] = [
-  "Prospecting",
-  "Funnels",
-  "Outreach",
-  "CRM",
+  "Lead sourcing",
+  "Page building",
+  "Message sending",
+  "Pipeline handling",
   "Deliverability",
   "Analytics",
-  "Business",
+  "Creative",
+  "Research",
+  "Work productivity",
+  "Business growth",
+  "Money handling",
+  "Corporate",
+  "Education",
+  "Reminders",
 ];
 
 export const IDEAS: Record<IdeaCategory, Idea[]> = {
-  Prospecting: PROSPECTING,
-  Funnels: FUNNELS,
-  Outreach: OUTREACH,
-  CRM,
+  "Lead sourcing": PROSPECTING,
+  "Page building": FUNNELS,
+  "Message sending": OUTREACH,
+  "Pipeline handling": CRM,
   Deliverability: DELIVERABILITY,
   Analytics: ANALYTICS,
-  Business: BUSINESS,
+  Creative: CREATIVE,
+  Research: RESEARCH,
+  "Work productivity": WORK,
+  "Business growth": GROWTH,
+  "Money handling": MONEY,
+  Corporate: CORPORATE,
+  Education: EDUCATION,
+  Reminders: REMINDERS,
 };
 
 export type CategorizedIdea = Idea & { category: IdeaCategory };

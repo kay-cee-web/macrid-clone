@@ -10,7 +10,7 @@ import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import { useChat } from "@/hooks/useChat";
 import { nameFromUrl } from "@/lib/files";
 import { ApprovalBar } from "./ApprovalBar";
-import { ChatEmpty } from "./ChatEmpty";
+import { ChatGreeting } from "./ChatGreeting";
 import { SetupNotice } from "./SetupNotice";
 import { ChatThread } from "./ChatThread";
 import { ComposerWithAttachments } from "./ComposerWithAttachments";
@@ -46,6 +46,12 @@ export function ChatView() {
     composerRef.current?.focus();
   };
 
+  /** A suggestion is a whole task, so it goes straight out rather than into the draft. */
+  const sendNow = (text: string) => {
+    if (!historyReady || chat.sending) return;
+    void chat.send(text);
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-6">
@@ -72,7 +78,7 @@ export function ChatView() {
             sending={chat.sending}
             onRetry={chat.retry}
             onViewInstructions={openInstructions}
-            empty={<ChatEmpty agent={agent} onPick={pick} />}
+            header={<ChatGreeting agent={agent} onPick={sendNow} busy={!historyReady || chat.sending} />}
           />
         )}
       </div>

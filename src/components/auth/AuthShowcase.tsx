@@ -1,58 +1,36 @@
-import { WorkReceipt } from "@/components/agents/WorkReceipt";
-import { Eyebrow } from "@/components/ui/Card";
-import { Pill } from "@/components/ui/Pill";
-import { WorkingTrace } from "@/components/ui/WorkingTrace";
+import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
+import { ShowcaseQuotes } from "./ShowcaseQuotes";
 
-/** Illustrative receipts: what a morning of agent work looks like. */
-const RECEIPTS = [
-  {
-    area: "Prospect Finder",
-    badge: <Pill>Drafts only</Pill>,
-    stats: [
-      { label: "Found", value: 42 },
-      { label: "With phone", value: 31 },
-      { label: "Sent", value: 0 },
-    ],
-  },
-  {
-    area: "Outreach · WhatsApp",
-    badge: <Pill tone="good" dot>Sending on</Pill>,
-    stats: [
-      { label: "Sent", value: 38 },
-      { label: "Replies", value: 6 },
-      { label: "Blocked", value: 2 },
-    ],
-  },
-  {
-    area: "CRM",
-    stats: [
-      { label: "Leads added", value: 31 },
-      { label: "Deals moved", value: 4 },
-    ],
-  },
-];
-
+/**
+ * The branded half of every auth screen: the logo, one line about the product,
+ * and a rotating example of what an agent reports back. Hidden below lg, where
+ * the form takes the whole screen.
+ */
 export function AuthShowcase() {
   return (
-    <div className="relative hidden overflow-hidden border-l border-line bg-raised lg:flex lg:flex-col lg:justify-center">
-      <div className="mx-auto grid w-full max-w-md gap-8 px-10 py-12">
-        <div className="grid gap-3">
-          <Eyebrow>While you were away · example</Eyebrow>
-          <h2 className="text-4xl font-semibold leading-[1.05]">
-            Your agents did the clicking.
-          </h2>
-          <p className="max-w-[40ch] text-base text-muted">
-            Tell an agent what you need done in Dexisphere. It finds the leads, drafts the messages
-            and updates your pipeline, and leaves you a receipt.
-          </p>
-        </div>
-        <div className="grid gap-3">
-          {RECEIPTS.map((receipt) => (
-            <WorkReceipt key={receipt.area} {...receipt} className="shadow-float" />
-          ))}
-        </div>
-        <WorkingTrace label="Verifying 120 emails in Deliverability" />
+    <aside className="relative isolate hidden overflow-hidden border-r border-line lg:grid lg:grid-rows-[auto_minmax(0,1fr)]">
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-ground" />
+        <div className="absolute inset-[-15%] bg-aurora opacity-95 blur-3xl animate-aurora dark:opacity-70" />
+        <div className="absolute inset-0 bg-grid" />
       </div>
-    </div>
+
+      <div className="px-10 pt-8 xl:px-14">
+        <Link href="/login" aria-label="Dexisphere Agents">
+          <Logo />
+        </Link>
+      </div>
+
+      {/* The headline and the card are centred as one block between the logo and the foot. */}
+      <div className="grid content-center gap-12 px-10 pb-14 xl:px-14">
+        <h2 className="max-w-[15ch] font-display text-5xl font-semibold leading-[1.05] xl:text-6xl">
+          Your agent works.
+          <br />
+          <span className="text-brand">You don&apos;t have to.</span>
+        </h2>
+        <ShowcaseQuotes />
+      </div>
+    </aside>
   );
 }

@@ -16,7 +16,6 @@ import type { AgentDialog } from "./AgentActionsMenu";
 import { AgentCard } from "./AgentCard";
 import { AgentDialogs } from "./AgentDialogs";
 import { AgentsToolbar, type CatalogView, type CategoryFilter } from "./AgentsToolbar";
-import { HubTabs } from "./HubTabs";
 
 function Layout({ view, count, children }: { view: CatalogView; count: number; children: ReactNode }) {
   return view === "grid" ? (
@@ -52,8 +51,6 @@ export function AgentsCatalog() {
 
   return (
     <div className="mx-auto grid w-full max-w-400 gap-8 px-4 pb-20 pt-10 sm:px-8 xl:px-14">
-      <HubTabs />
-
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-2">
           <h1 className="font-sans text-2xl font-normal tracking-normal text-ink">Agents</h1>

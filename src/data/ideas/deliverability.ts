@@ -33,4 +33,27 @@ export const DELIVERABILITY: Idea[] = [
     platforms: ["email"],
     description: "Before I send, flag the subject lines and phrases likely to trip spam filters and show me a rewrite beside them.",
   },
+  {
+    title: "Bounce clean-up",
+    ready: true,
+    platforms: ["email"],
+    description: "After every campaign, pull the addresses that bounced out of the list so the next send isn't dragged down.",
+  },
+  {
+    title: "Monthly list health report",
+    ready: true,
+    platforms: ["email"],
+    description: "Every month, verify each list and tell me what share is valid, risky or dead, worst list first.",
+  },
+  {
+    title: "Sender rotation",
+    platforms: ["email"],
+    description: "Spread a big send across my connected mailboxes so no single sender carries a volume spike.",
+  },
+  {
+    title: "Pre-flight check",
+    ready: true,
+    platforms: ["email"],
+    description: "Before anything goes out, check the list, the domain records and the copy, and hold the send if any of the three fails.",
+  },
 ];

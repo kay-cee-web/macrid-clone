@@ -11,31 +11,34 @@ type ChatThreadProps = {
   sending: boolean;
   onRetry: (message: ThreadMessage) => void;
   onViewInstructions: () => void;
-  /** Shown instead of messages when the thread is empty. */
-  empty: ReactNode;
+  /** The greeting. It heads the thread and stays there once messages start. */
+  header: ReactNode;
 };
 
 /** Scrollable message list that follows new messages to the bottom. */
-export function ChatThread({ messages, agentName, sending, onRetry, onViewInstructions, empty }: ChatThreadProps) {
+export function ChatThread({ messages, agentName, sending, onRetry, onViewInstructions, header }: ChatThreadProps) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end", behavior: messages.length > 1 ? "smooth" : "auto" });
   }, [messages.length, sending]);
 
-  if (messages.length === 0 && !sending) return <>{empty}</>;
-
   return (
-    <div role="log" aria-live="polite" aria-label={`Conversation with ${agentName}`} className="mx-auto grid w-full max-w-3xl gap-6 py-8">
-      {messages.map((message) => (
-        <ChatMessageItem
-          key={message.id}
-          message={message}
-          agentName={agentName}
-          onRetry={onRetry}
-          onViewInstructions={onViewInstructions}
-        />
-      ))}
+    <div className="mx-auto grid w-full max-w-3xl gap-6 pb-8">
+      {header}
+      {messages.length > 0 && (
+        <div role="log" aria-live="polite" aria-label={`Conversation with ${agentName}`} className="grid gap-6">
+          {messages.map((message) => (
+            <ChatMessageItem
+              key={message.id}
+              message={message}
+              agentName={agentName}
+              onRetry={onRetry}
+              onViewInstructions={onViewInstructions}
+            />
+          ))}
+        </div>
+      )}
       {sending && <WorkingTrace label={`${agentName} is working…`} className="pl-1" />}
       <div ref={endRef} />
     </div>
