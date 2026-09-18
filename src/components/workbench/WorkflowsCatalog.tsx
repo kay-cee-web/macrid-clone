@@ -11,7 +11,7 @@ import { WorkbenchTabs } from "./WorkbenchTabs";
  */
 export function WorkflowsCatalog() {
   const router = useRouter();
-  const use = (idea: Idea) => router.push(`/agents?task=${encodeURIComponent(idea.description)}`);
+  const use = (idea: Idea) => router.push(`/?task=${encodeURIComponent(idea.description)}`);
 
   return (
     <div className="mx-auto grid w-full max-w-400 gap-8 px-4 pb-20 pt-10 sm:px-8 xl:px-14">

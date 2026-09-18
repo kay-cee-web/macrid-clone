@@ -29,6 +29,8 @@ export function AgentsHome() {
     composerRef.current?.focus({ preventScroll: true });
   };
   const pickIdea = (idea: Idea) => draft(idea.description);
+  /** A suggestion is a whole task: it makes the agent and goes out, rather than sitting in the composer. */
+  const startNow = (text: string) => void create(text, [], { send: true });
 
   return (
     <div className="min-h-full">
@@ -69,7 +71,7 @@ export function AgentsHome() {
             className="w-full"
           />
 
-          <SuggestionChips variant="pills" onPick={draft} />
+          <SuggestionChips variant="pills" onPick={startNow} disabled={creating} />
         </section>
 
         <IdeaBrowser onPick={pickIdea} />

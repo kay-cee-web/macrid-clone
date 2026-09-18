@@ -28,6 +28,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Toasts:** always use **sonner**. Call `toast.success/error/warning/message` imported from `sonner`. The themed `<Toaster>` (`src/components/ui/Toaster.tsx`) is mounted once in the root providers. Don't build other alert or notification systems.
 - **Colours:** use token utilities only (`bg-surface`, `text-muted`, `border-line`, `bg-accent`, `text-good`, …), defined in `src/app/globals.css`. Never use raw hex values or Tailwind palette colours (`zinc-500`) in components.
 - **Fonts:** `font-display` (Bricolage Grotesque) for headings only, `font-sans` (Geist) for the interface, `font-mono` (Geist Mono) for machine values (codes, IDs, counts, model names).
+- **Element defaults live in `src/app/base.css`** (imported by `globals.css`), not on every component. It puts back the hand cursor Tailwind v4's preflight takes off buttons, and covers `summary`, `select`, checkboxes, radios and `[role="button"|"tab"|"option"]` — so don't sprinkle `cursor-pointer` on controls. Anything clickable must be a real `<button>` or `<a href>`; no `onClick` on a `div`.
 - **Folders (under `src/`):**
   - `components/ui` for the generic kit, `components/<feature>` for feature pieces, and `components/providers` for context providers.
   - `services` for API calls (one file per resource), `lib` for helpers, `hooks` for hooks, `types` for shared types.
@@ -39,6 +40,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `AuthProvider` + `useAuth()` for the session.
   - `<AuthGate mode="guest|user|unverified">` handles every auth redirect.
   - Signing out emits the `logout` event (`src/lib/auth/events.ts`).
+  - **`SocialAuth` (Google and GitHub) is UI only.** It sits above the email form on both `LoginForm` and `RegisterForm`, but there is no social sign-in on the backend — only `POST /login` and `POST /register` — so a click raises a "coming soon" toast instead of starting a flow that can't finish. `SocialMarks` holds the two vendors' real logos (unlike the geometric glyphs in `data/aiProviders`); Google's four brand colours are `--logo-google-*` tokens. Wire it up the day the endpoint exists — Macrid has a Google flow at `app/auth/google/callback` to copy.
 - **Agents data:**
   - `src/services/agents.ts` and `src/services/chat.ts` hold the API calls.
   - The shared store is `src/lib/agents/store.ts`, read with `useAgents()` / `useAgent(id)`. It resets on logout.
@@ -52,14 +54,23 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `Skill.surface` is an `IdeaCategory`, so renaming or removing one means updating `src/data/skills/catalog.ts` and `general.ts` too.
 - **Shared agent UI:** `TaskComposer` (also meant for the chat composer), `AgentAvatar`, `AgentCard`, `AgentActionsMenu` + `AgentDialogs` (mount the dialogs once per page), `WorkReceipt`, `IdeaCard`/`IdeaBrowser`.
   - `IdeaCard` has two looks. `variant="cover"` (the default) is the artwork tile — `IdeaCover`, `COVERS[category].glow`, `leadOf` — and is what home and Workflows show. `variant="card"` takes `AgentCard`'s shape instead, for a grid that has to sit beside agents. Home runs at `max-w-400` like the Agent hub, so the tiles fill the same width.
-- **Layout:** `AppShell` (sidebar and mobile drawer) wraps every signed-in route (`/agents/*`, `/records/*`). `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
-  - Sidebar nav: Home, Agent hub (`/agents/all`), Workbench, Records — then **Favorites** and **Recents**, in that order. `SidebarFooter` holds the account menu, the `ThemeToggle` box and Settings — no help or inbox links.
-    - Both lists are one component, `SidebarAgentList` (title, up to `SIDEBAR_LIST_LIMIT` agents, skeletons, an empty line and "View all" once there are more). `FavoriteAgents` filters the store by `useFavorites` — favourites are local to the browser, so it only draws skeletons when this browser already knows of some.
-  - **Settings is a modal, not a page:** `SettingsModal` (`bare` `Modal` + `SettingsRail`) with Workspace, Members, Plan and billing, API keys, Personal settings and Appearance.
+- **Layout:** `AppShell` (sidebar and mobile drawer) wraps every signed-in route (`/`, `/agents/*`, `/records/*`, `/settings`). `<main>` is the scroll container, so full-height views use `h-full`. `HairlineGrid` lays out card grids separated by 1px lines.
+  - **Home is `/`, not `/agents`.** The composer and idea cards live at the root, so the app opens on the bare domain. `DEFAULT_AFTER_LOGIN` is `/`, and `/agents` is a server redirect that forwards its query (`/agents?task=…` still lands on home).
+  - Sidebar nav: Home (`/`), Agent hub (`/agents/all`), Workbench, Records — then **Favorites** and **Recents**, in that order. `SidebarFooter` holds the account menu, the `ThemeToggle` box and Settings — no help or inbox links.
+    - Both lists are one component, `SidebarAgentList` (title, up to `SIDEBAR_LIST_LIMIT` agents, skeletons, an empty line and "View all" once there are more). `FavoriteAgents` filters the store by `agent.favorite`.
+    - **`FavoriteButton` is how an agent gets starred**: on `AgentCard`, left of the actions menu, in both layouts. Starred keeps the filled star on show; unstarred only offers it on hover or focus, like the menu. It toasts failures only — the star itself is the confirmation — while the menu item, which closes on click, toasts either way.
+    - **Favorites is a disclosure:** pass `storageKey` and the title becomes a chevron button that opens the list. Open sections live in `src/lib/ui/sections.ts` — an external store read with `useSyncExternalStore`, because this project's lint forbids `setState` in an effect and the server has to render it closed. Recents has no `storageKey`, so it's always open.
+  - **Settings is a page:** `/settings?section=workspace|members|plan|keys|personal|appearance`, built by `AccountSettings` + `SettingsRail` (link-based, one `Link` per section). It uses the same container as the agent's settings (`max-w-400`, a `232px` sticky rail beside the panel, a scrolling row of sections on phones), so the two read as one product.
+    - **It also borrows the agent settings' look:** `Rows` is one bordered `bg-surface` card of hairline-divided rows, the same shape `SettingsSection` draws, so nothing floats on the page gradient. Action buttons put their icon **after** the label (`Button`'s `iconRight`, and `AppLink`'s mark last), so every row ends on the same edge.
     - **Personal settings writes** (`PersonalPanel`, `src/services/profile.ts`): avatar, name, username, phone, city, country, each row saved with `settings/EditableRow` and followed by `refreshUser()`. Email stays read-only (the account is keyed to it) and `PasswordModal` covers `password-update`. The workspace name still isn't editable — it's the account's name, and no route sets one.
-    - **Members** (`MembersPanel` + `MembersTable`, `src/services/team.ts`) is Macrid's CRM → Team on the settings modal: `GET /teams` rows under a row for the signed-in owner, add by email, remove per row (`ConfirmModal`). `POST /teams` also wants a name and a username, so `nameFromEmail` derives both from the address. **No invite email is sent and `role` isn't stored**, so the panel says both rather than implying an invite went out.
-    - **Plan and billing is a "Coming soon" `EmptyState`** that links to the Dexisphere app. There is no billing route here; the live token balance still shows in the workspace header (`TokenBalance`).
-    - **The modal is one fixed height for every section** (`h-[85dvh] max-h-160`), so it doesn't resize as you move between them. The panel scrolls inside it (`minmax(0,1fr)` + `min-h-0`, because the dialog is `overflow-hidden` and a grid item won't shrink below its content without it), and the close button sits outside the scroller so a long list can't carry it away.
+    - **Members** (`MembersPanel` + `MembersTable`, `src/services/team.ts`) is Macrid's CRM → Team on the settings page: `GET /teams` rows under a row for the signed-in owner, add by email, remove per row (`ConfirmModal`). `POST /teams` also wants a name and a username, so `nameFromEmail` derives both from the address. **No invite email is sent and `role` isn't stored**, so the panel says both rather than implying an invite went out.
+    - **Plan and billing** (`components/billing`, `src/services/billing.ts`): `CurrentPlan` (the account's own allowances from `GET /package`, as `StatGrid` tiles) over the four tiers as `PlanCard`s, `PlanComparison` (every allowance, closed by default) and `TokenNotes`.
+      - **Every plan is a one-time lifetime licence.** No monthly/yearly toggle, nothing renews. Buying happens at checkout on dexisphere.com (`plan.checkout`, Lemon Squeezy); the code comes back here and `POST /upgrade-account` applies it (`RedeemModal`), then `/package` is re-read — the server owns the new allowances.
+      - **The tiers are static** (`src/data/plans.ts`, in step with the landing site's copy): `/package` returns only the plan you're ON and `/packages` 404s (probed 2026-09-18), so nothing lists them. `matchPlan` matches by name and is **allowed to fail** — an account on "Dev package" still sees its real allowances, with no card marked "Your plan". A failed `/package` read costs the marking and nothing else.
+      - **Allowances, never a spend.** No route reports consumption. The one real figure is `tokens_remaining` from the last reply, so the `Meter` draws only while the balance fits inside the plan's token allowance.
+      - `normalizePackage` adapts two columns the payload spells its own way: `remove_branding` arrives `"Yes"/"No"`, and `reseller` isn't returned at all (`num_resells`, a count, stands in). A column we can't read stays `undefined` (a dash), never 0.
+      - `PLAN_HREF` (`/settings?section=plan`) is where `TokenBalance`, `UpgradeCard` and the out-of-tokens chat error all point. Nothing links out to the Dexisphere app for plans any more.
+    - **Sections are URL state, not component state**, so a section can be linked to and the back button works. `SidebarFooter` (account menu and the gear) links to `/settings`; nothing opens settings in a dialog.
 - **Agent workspace:**
   - `/agents/[id]/layout.tsx` renders `AgentWorkspace`: it loads the agent and shows the header (tabs Chat and Workflows, New conversation, Instructions, actions menu).
   - Views read the open agent with `useWorkspace()` and open the editor with `openInstructions()`.
@@ -69,7 +80,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `useChat(agentId)` handles history, sending, retry, and instruction rewrites (merged locally). There is one thread per agent.
   - `ChatView` reads the URL options: `?task=` draft, `?img=` staged images, `?send=1` sends automatically once history has loaded. There is no `?c=`.
   - **The greeting always shows.** `ChatGreeting` (name, brief, suggestions) is `ChatThread`'s header, not an empty state, so it stays above the messages and scrolls away as they grow. It is built on the client; nothing stores a greeting turn.
-  - **A suggestion sends itself.** Picking one in the chat calls `chat.send` rather than filling the composer, and the chips are disabled while a turn runs. On the home composer a pick still drafts, because sending there would create an agent.
+  - **A suggestion sends itself.** Picking one in the chat calls `chat.send` rather than filling the composer, and the chips are disabled while a turn runs. On home a pick does the same in one step: `create(text, [], { send: true })` makes the agent and opens it with `?send=1`, so the task goes out instead of waiting in the composer. The idea cards below still draft, because `/?task=…` (Workflows → Use) lands there.
   - **New conversation = copy the agent.** The backend has no endpoint for separate conversations, so `useNewConversation` → `startConversation` creates a copy named `<name> clone <n>` (`src/lib/agents/copyName.ts`: the next free number, counted from the original name, so a clone of "X clone 1" becomes "X clone 2") with the same instructions, model, `is_active` and `sending_enabled`, then opens `/agents/{copyId}`. Earlier conversations stay on the earlier agents (in Recents and the Agent hub).
     - Channels (WhatsApp, Telegram, extension), history and stats stay on the original agent; they are not copied.
     - `src/lib/agents/fresh.ts` tracks copies that haven't been used yet. Clicking New conversation on one opens it again instead of copying again. Leaving it (`AgentWorkspace` unmount → `leaveAgent`) deletes it quietly.
@@ -78,7 +89,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
     - A snapshot covers lists (lead counts come from `contacts_count`, not from reading every lead), deals, tasks, appointments, email, SMS and WhatsApp campaigns, and funnels. A read that fails is skipped, so it never shows up as "deleted".
     - A snapshot under 60s old is reused as the next turn's "before". If the "before" reads take longer than 4s, the turn gets no receipt rather than holding the message back.
     - Changes made elsewhere during the turn show up too, and the receipt says so. Receipts exist only for turns sent in this session; they are gone after a reload.
-  - **Tokens:** `sendChatMessage` returns `usage` (`tokens_charged`, `tokens_remaining`, `using_own_key`). `TurnUsage` shows the cost beside the reply's time. `src/lib/tokens/balance.ts` (`useTokenBalance`) keeps the last known balance for `TokenBalance` in the workspace header; there is no balance endpoint, so nothing shows before the first reply. A failed turn that ran out of tokens (`isTokenExhausted`) gets an "Upgrade plan" link to Macrid's `/settings/plans`.
+  - **Tokens:** `sendChatMessage` returns `usage` (`tokens_charged`, `tokens_remaining`, `using_own_key`). `TurnUsage` shows the cost beside the reply's time. `src/lib/tokens/balance.ts` (`useTokenBalance`) keeps the last known balance for `TokenBalance` in the workspace header; there is no balance endpoint, so nothing shows before the first reply. A failed turn that ran out of tokens (`isTokenExhausted`) gets an "Upgrade plan" link to `PLAN_HREF`.
   - `linkRecordMentions` (`src/lib/records/mentions.ts`) turns "list ID 168" in replies into a link to `/records/lists/168`. `ui/Markdown` opens in-app (`/…`) links in the same tab.
   - `ComposerWithAttachments` = `TaskComposer` + gallery image uploads (`useAttachments`, max 4 images, 5 MB each).
   - Agent replies render with `ui/Markdown`.
@@ -101,7 +112,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Usage:** stats and the `/actions` log.
   - Build sections from `SettingsSection` + `SettingRow`.
 - **Workbench** is the catalogue section: three sibling routes under `/agents/workbench`, switched by `WorkbenchTabs` (`components/workbench`) and nothing else.
-  - **Workflows** (`/agents/workbench`, the default tab): every standing task, built from `IdeaBrowser` with `heading={null}` and `action="Use"`. No agent is open here, so picking one pushes `/agents?task=…` and the home composer turns it into an agent — the same route `SkillsCatalog` takes.
+  - **Workflows** (`/agents/workbench`, the default tab): every standing task, built from `IdeaBrowser` with `heading={null}` and `action="Use"`. No agent is open here, so picking one pushes `/?task=…` and the home composer turns it into an agent — the same route `SkillsCatalog` takes.
   - **Skills** (`/agents/workbench/skills`) and **Models** (`/agents/workbench/models`) are the other two tabs.
   - **The Agent hub (`/agents/all`) has no tabs.** It lists agents and nothing else.
 - **Models** (`/agents/workbench/models`): the catalogue in `src/data/models.ts` (provider, tag, kind, spec) as cards, filtered by provider, type and search; "Integrate" saves the user's own key. Built by `components/models/ModelsCatalog` + `ModelFilters`.
@@ -128,13 +139,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Skills:** the same catalogue as `/agents/skills` (`SkillRow` + `SkillPreview`), scoped to this agent: "Use in chat" drafts `/slug` into its composer.
   - `ConfirmModal` is the shared "are you sure?" dialog.
 - **Records** (`/records/lists|lists/[listId]|leads|companies|deals|tasks|appointments|campaigns?channel=email|sms|whatsapp|campaigns/sms/[id]|funnels|funnels/[slug]|analytics`):
-  - A read-only view of workspace data, so users can see what agents created. `/agents/{id}/actions` stays empty even after tool use, so these endpoints are the only source.
+  - A view of workspace data, so users can see what agents created. `/agents/{id}/actions` stays empty even after tool use, so these endpoints are the only source.
+  - **Reading is the point; deleting is the one write.** Lists have a per-row delete (`deleteList`, `DELETE /lists/{id}`) behind a `ConfirmModal`, then `rows.reload()`. Nothing here creates or edits a record — that's the agent's job. Give another resource the same action only where the endpoint exists (leads, companies and funnels have one; see the CRM notes).
   - Services: `lists`, `leads`, `companies`, `deals`, `tasks`, `appointments`, `campaigns` (email, SMS + logs, WhatsApp), `funnels` (one file per resource). Normalisers are in `src/lib/records/`, and status labels and tones in `status.ts`.
   - **Leads:** every lead, with its list and a status filter. **SMS campaigns:** each row opens its delivery log.
   - **Funnels:** a row opens its stats and latest events; the view accepts a slug or an id.
   - **Analytics** (`src/lib/records/analytics.ts`) is computed in the browser from campaign rows and `/sms-logs`, over a 7/30/90-day or all-time range. `ui/StatGrid` draws the KPI tiles.
   - Rows are sorted newest first (`newestFirst`). Paginated endpoints go through `fetchAllPages` (`src/lib/api/paginate.ts`).
   - Build each view from `RecordsView` (search, refresh, loading/error/empty states) + `ui/DataTable` (columns, `rowHref` makes the whole row a link) + the cell helpers in `records/cells.tsx`.
+    - Per-row actions go in a trailing column from `records/rowActions.tsx` (`actionsColumn`). They are buttons, not a dropdown: `DataTable`'s wrapper is `overflow-x-auto`, which clips vertically too, so a menu on the last row would be cut off. The cell is `relative z-10` so it sits above `rowHref`'s full-row link, and `Column.hideHeader` keeps the header for screen readers only.
   - **Paging is in the browser, not the API.** Every list is already read whole, so `RecordsView` slices it with `usePagination` (15 a page, `pageSize` to change it) and draws `ui/Pagination` under the table with the "1–15 of 312" count. Searching resets to page one, and turning the page scrolls the table back into view.
 - **Layout:** `(app)/layout.tsx` = `AuthGate` + `AppShell` for every signed-in section. `ui/RouteTabs` renders link tabs (the agent header and Records).
 - **Generic hooks:** `useAsync(load, deps)` for read-only requests (`refreshing` is true during `reload()`), `useClipboard`, `useCountdown`, `usePagination(rows, pageSize, resetKey)` for in-memory paging. The UI kit also has `Switch`, `Select` (native), `QrCode` and `Pagination`. Response helpers (`pickList`, `pickOne`, `toBool`, `toText`, `toNumber`) are in `src/lib/api/pick.ts`.
@@ -188,6 +201,8 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
   - `GET /user` returns the current user. `POST /logout` logs out. `POST /register` creates an account.
 - **Profile** (Macrid's `settings/account`): `POST /profile-update/{userId}` as multipart with `{name, username, email, phone, city, country, _method: "PUT"}` — a **full update**, so every field goes with every request or the missing ones are blanked. `picture` is optional and takes a **hosted gallery URL string, not a file**: upload to `/gallery` first. `username` is required, so an account without one sends the address's handle.
 - **Password:** `PUT /password-update/{userId}` with `{current_password, new_password, password}` (the new one twice).
+- **Plan:** `GET /package` returns the account's **own** plan at `data` — `{name, num_tokens, num_emails, num_whatsapp, num_sms, num_email_verifications, num_funnel_campaigns, num_lead_search, num_custom_domains, num_teams, remove_branding ("Yes"/"No"), num_resells}`. `POST /upgrade-account {code}` applies a licence code. Both confirmed on `api.dexisphere.com` (401 without a token, 2026-09-18).
+  - **Nothing lists the tiers** (`/packages` and `/plans` 404) and **nothing reports usage** (`/usage`, `/token-usage` and the rest 404 in Macrid's probes), so the catalogue is static and the UI states allowances, not consumption.
 - **401 handling (axios interceptor):**
   - `/login`, `/register` and `/logout` are skipped.
   - If `error` contains "run out of token", show an "upgrade your plan" warning and do **not** log the user out.
@@ -219,7 +234,12 @@ This clone uses TypeScript, a `src/` folder and Next 16.3.5.
 
 **Agent quirks:**
 - **The brief is `instructions`.** Macrid's UI calls it "description". Sending `description` is silently dropped.
-- **There is no `category` or `favorite` column.** `PUT {favorite: true}` returns 200 but discards the value, so favourites live in this browser only (`src/lib/agents/favorites.ts` + `useFavorites`): the actions menu toggles one and `AgentCard` shows a star. Move it to the API the day the column exists.
+- **There is no `category` column**, so `categoryOf` infers one from the name and brief.
+- **Favourites are real now** (2026-09-18): `POST /agents/{id}/favorite`, the sibling of `/sending`. The clone sends `{favorite: bool}`; `toggleFavorite` in `actions.ts` is optimistic with rollback, and the old browser-only store (`lib/agents/favorites.ts` + `useFavorites`) is gone. **`PUT {favorite: true}` still does nothing** — use the route.
+  - **The column is `is_favorite`** (seen in the row: `"is_favorite": 0`) and it holds an int, so `setAgentFavorite` posts **1/0 under both spellings**: `{favorite: 1|0, is_favorite: 1|0}`. Sending only `favorite`, and sending JSON `true`, both came back 0 — an absent or unread field reads as false, which turned every click into an unfavourite.
+    - If it still answers `"is_favorite": 0`, the next things to rule out are a **route that toggles and ignores the body** (then post nothing and let the response drive the star) and a **string comparison** (`"1"`, as `/integrations` wants for `status`). The payload is the only line that changes either way.
+  - **The response only overrules the click when it carries the flag.** `setAgentFavorite` merges the requested value onto the returned row unless it reports `favorite`/`is_favorite`, because a row that leaves the field out normalises to `false` and would silently undo the star. A bare toggle that answers without a row keeps the requested value too.
+  - Reads come off the agent row the same way. **If `GET /agents` omits the column, stars won't survive a reload** — that's a backend gap, not something the client papers over.
 - **Create from a task:** Macrid posts only `{instructions: task}` and the backend names the agent.
 - **`POST /chat` can rewrite the agent's own instructions.** When `instructions_updated` is true, update the local agent with the new `instructions` and do **not** send a PUT, because the backend has already saved it.
 - **No real reply field besides `reply`.** `message` in a response is the status line, never the reply.
@@ -338,7 +358,8 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 **Lists**
 - `GET /lists` returns `{lists:[{id,name,description,contacts_count}]}`.
 - `POST /lists` and `PUT /lists/{id}` take `{name, description}`. Delete with `DELETE /lists/{id}`.
-- Bulk delete: `POST /lists/bulk-delete {ids:[…]}`.
+- Bulk delete: `POST /lists/bulk-delete {ids:[…]}` (a plain array of ids).
+- **`DELETE /lists/{id}` has been seen to fail** with `{success: false, message: "Failed to delete list"}` and a `…\Controller` trace (2026-09-18, list 169). Macrid makes the identical call, so it's the backend, not the route. `deleteList` retries through `bulk-delete` with the one id — a different controller method — and reports the first error if that fails too.
 
 **Leads**
 - `GET /leads?page&per_page&list&status&leadsource&country` returns a paginator at `data`.

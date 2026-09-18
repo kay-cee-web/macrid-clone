@@ -51,6 +51,23 @@ export async function setSending(id: string, enabled: boolean) {
   }
 }
 
+/** Star or unstar. The row that comes back wins, so a toggle-style API self-corrects. */
+export async function toggleFavorite(id: string) {
+  markUsed(id);
+  const previous = findAgent(id);
+  if (!previous) return false;
+  const favorite = !previous.favorite;
+  upsert({ ...previous, favorite });
+  try {
+    const saved = await service.setAgentFavorite(id, favorite);
+    if (saved) upsert(saved);
+    return saved?.favorite ?? favorite;
+  } catch (err) {
+    upsert(previous);
+    throw err;
+  }
+}
+
 export async function deleteAgent(id: string) {
   markUsed(id);
   const previous = findAgent(id);

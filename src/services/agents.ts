@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { normalizeAgent, normalizeStats, toAgentPayload } from "@/lib/agents/normalize";
-import { pickList, pickOne } from "@/lib/api/pick";
+import { pickList, pickOne, toBool } from "@/lib/api/pick";
 import type { Agent, AgentInput, AgentRow, AgentStats } from "@/types/agent";
 
 /**
@@ -46,6 +46,27 @@ export async function deleteAgent(id: string): Promise<void> {
 }
 
 /** Kill switch for anything leaving the agent. Returns the updated agent and the API's own wording. */
+/**
+ * `POST /agents/{id}/favorite`, the sibling of `/sending`. The flag is sent in
+ * the body for the explicit form; a bare toggle ignores it and answers without
+ * a row, so the caller keeps what it asked for.
+ */
+export async function setAgentFavorite(id: string, favorite: boolean): Promise<Agent | null> {
+  // The column is `is_favorite` and it stores an int, so the flag goes as 1/0 under
+  // both spellings: JSON `true` came back as 0 every time, and a missing field reads
+  // as false, which made every click an unfavourite.
+  const flag = favorite ? 1 : 0;
+  const { data } = await api.post(`${BASE}/${id}/favorite`, { favorite: flag, is_favorite: flag });
+  assertEnvelope(data, "Could not update your favourites");
+  const row = pickOne<AgentRow>(data, "agent");
+  if (row?.id === undefined) return null;
+
+  // The row only overrules the click when it actually carries the flag: a row
+  // that leaves it out would otherwise read as false and undo the star.
+  const reported = row.favorite ?? row.is_favorite;
+  return { ...normalizeAgent(row), favorite: reported == null ? favorite : toBool(reported, favorite) };
+}
+
 export async function setAgentSending(id: string, enabled: boolean) {
   const { data } = await api.post(`${BASE}/${id}/sending`, { enabled });
   assertEnvelope(data, "Could not change sending");

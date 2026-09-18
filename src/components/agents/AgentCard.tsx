@@ -1,26 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Star } from "lucide-react";
 import { Pill } from "@/components/ui/Pill";
-import { useFavorites } from "@/hooks/useFavorites";
 import { categoryOf } from "@/lib/agents/category";
 import { cn } from "@/lib/cn";
 import { timeAgo } from "@/lib/format";
 import type { Agent } from "@/types/agent";
 import { AgentActionsMenu, type AgentDialog } from "./AgentActionsMenu";
 import { AgentIcon } from "./AgentIcon";
+import { FavoriteButton } from "./FavoriteButton";
 
-/** Favourites live in this browser only, so the star is a quiet marker. */
-function FavoriteStar({ shown }: { shown: boolean }) {
-  if (!shown) return null;
-  return (
-    <span title="Favourite" className="shrink-0 text-warn">
-      <Star aria-hidden className="size-4 fill-current" />
-      <span className="sr-only">Favourite</span>
-    </span>
-  );
-}
+/** The star and the menu, above the card's stretched name link. */
+const ACTIONS = "relative z-10 flex shrink-0 items-center gap-0.5";
+/** Revealed on hover or focus; always shown where there's no pointer to hover with. */
+const ON_HOVER = "transition-opacity can-hover:opacity-0 can-hover:group-hover:opacity-100 can-hover:focus-within:opacity-100";
 
 type AgentCardProps = {
   agent: Agent;
@@ -62,7 +55,6 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
   const brief = agent.instructions.trim();
   const category = categoryOf(agent);
   const briefText = brief || "No instructions yet. Open the agent and tell it what to do.";
-  const favorited = useFavorites().isFavorite(agent.id);
 
   if (layout === "list") {
     return (
@@ -73,7 +65,6 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
             <span className="truncate">
               <NameLink agent={agent} rounded="focus-visible:after:ring-inset" />
             </span>
-            <FavoriteStar shown={favorited} />
           </h3>
           <span className="truncate text-xs text-faint">{edited ? `Edited ${edited}` : "Never edited"}</span>
         </div>
@@ -81,7 +72,10 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
         <div className="hidden shrink-0 gap-1.5 sm:flex">
           <StatusPills agent={agent} />
         </div>
-        <AgentActionsMenu agent={agent} onDialog={onDialog} className="relative z-10" />
+        <div className={ACTIONS}>
+          <FavoriteButton agent={agent} />
+          <AgentActionsMenu agent={agent} onDialog={onDialog} />
+        </div>
       </article>
     );
   }
@@ -95,12 +89,11 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
     >
       <div className="flex items-start justify-between gap-3">
         <AgentIcon category={category} />
-        {/* Hidden until hover or focus, so the card reads as icon + title + brief. Always shown on touch screens. */}
-        <AgentActionsMenu
-          agent={agent}
-          onDialog={onDialog}
-          className="relative z-10 -mr-2 -mt-2 transition-opacity can-hover:opacity-0 can-hover:group-hover:opacity-100 can-hover:focus-within:opacity-100"
-        />
+        {/* The star keeps its place when starred; the menu waits for a hover. */}
+        <div className={cn(ACTIONS, "-mr-2 -mt-2")}>
+          <FavoriteButton agent={agent} />
+          <AgentActionsMenu agent={agent} onDialog={onDialog} className={ON_HOVER} />
+        </div>
       </div>
 
       <div className="grid gap-3">
@@ -108,7 +101,6 @@ export function AgentCard({ agent, layout, onDialog }: AgentCardProps) {
           <span className="truncate">
             <NameLink agent={agent} rounded="after:rounded-3xl" />
           </span>
-          <FavoriteStar shown={favorited} />
           {flag && (
             <span title={flag} className={cn("size-2 shrink-0 rounded-full", agent.isActive ? "bg-warn" : "bg-faint")}>
               <span className="sr-only">{flag}</span>

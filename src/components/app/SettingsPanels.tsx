@@ -7,16 +7,16 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 /** Title and sub-line at the top of a settings panel. */
 export function PanelHeading({ title, description }: { title: string; description: string }) {
   return (
-    <div className="grid gap-1 pr-10">
+    <div className="grid gap-1">
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="max-w-[62ch] text-sm text-muted">{description}</p>
     </div>
   );
 }
 
-/** Rows divided by hairlines, the way the agent settings pages read. */
+/** One bordered card of hairline-divided rows — the agent settings look. */
 export function Rows({ children }: { children: ReactNode }) {
-  return <div className="-mx-4 divide-y divide-line">{children}</div>;
+  return <div className="divide-y divide-line overflow-hidden rounded-[14px] border border-line bg-surface">{children}</div>;
 }
 
 export function AppearancePanel() {

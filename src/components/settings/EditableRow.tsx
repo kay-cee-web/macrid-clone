@@ -87,7 +87,7 @@ export function EditableRow({
       ) : (
         <>
           <span className={value ? "truncate text-sm text-ink" : "text-sm text-faint"}>{value || empty}</span>
-          <Button variant="secondary" size="sm" icon={<Pencil className="size-3.5" />} onClick={open}>
+          <Button variant="secondary" size="sm" iconRight={<Pencil className="size-3.5" />} onClick={open}>
             Edit
           </Button>
         </>

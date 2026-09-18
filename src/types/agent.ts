@@ -12,6 +12,9 @@ export type AgentRow = {
   updated_at?: string | null;
   /** Not a backend column yet; read tolerantly for when it lands. */
   category?: string | null;
+  /** Written by `POST /agents/{id}/favorite`; both spellings are read. */
+  favorite?: boolean | number | null;
+  is_favorite?: boolean | number | null;
 };
 
 /** The agent shape every screen uses. */
@@ -24,6 +27,8 @@ export type Agent = {
   isActive: boolean;
   /** Kill switch: when false the agent still researches and drafts, but sends nothing. */
   sendingEnabled: boolean;
+  /** Starred by the user. Toggled through `POST /agents/{id}/favorite`. */
+  favorite: boolean;
   category: string;
   createdAt: string | null;
   updatedAt: string | null;

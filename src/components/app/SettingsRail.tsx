@@ -1,11 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { CreditCard, KeyRound, Palette, UserRound, Users, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { initialsOf } from "@/lib/format";
 import type { User } from "@/types/auth";
 
 export type SectionId = "workspace" | "members" | "plan" | "keys" | "personal" | "appearance";
+
+export const SECTION_IDS: SectionId[] = ["workspace", "members", "plan", "keys", "personal", "appearance"];
+
+export const sectionHref = (id: SectionId) => `/settings?section=${id}`;
 
 type Item = { id: SectionId; label: string; Icon?: LucideIcon };
 
@@ -28,35 +33,27 @@ const GROUPS: { heading: string; items: Item[] }[] = [
   },
 ];
 
-/** Grouped section list: a column beside the panel, a scrolling row on phones. */
-export function SettingsRail({
-  workspace,
-  user,
-  value,
-  onChange,
-}: {
-  workspace: string;
-  user: User | null;
-  value: SectionId;
-  onChange: (id: SectionId) => void;
-}) {
+/** Grouped section list: a sticky column beside the panel, a scrolling row on phones. */
+export function SettingsRail({ workspace, user, value }: { workspace: string; user: User | null; value: SectionId }) {
   return (
     <nav
       aria-label="Settings sections"
-      className="flex shrink-0 gap-1 overflow-x-auto border-b border-line bg-raised/50 p-3 sm:flex-col sm:gap-5 sm:overflow-y-auto sm:border-b-0 sm:border-r sm:p-4"
+      className="flex gap-1 overflow-x-auto md:sticky md:top-8 md:grid md:gap-5 md:self-start md:overflow-visible"
     >
       {GROUPS.map((group) => (
-        <div key={group.heading} className="grid content-start gap-1 sm:gap-0.5">
-          <span className="hidden px-2.5 pb-1 text-xs font-medium text-faint sm:block">{group.heading}</span>
+        <div key={group.heading} className="grid content-start gap-1 md:gap-0.5">
+          <span className="hidden px-2.5 pb-1 text-xs font-medium text-faint md:block">{group.heading}</span>
           {group.items.map(({ id, label, Icon }) => (
-            <button
+            <Link
               key={id}
-              type="button"
+              href={sectionHref(id)}
+              scroll={false}
               aria-current={value === id ? "page" : undefined}
-              onClick={() => onChange(id)}
               className={cn(
                 "flex items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-left text-sm transition-colors [&_svg]:size-4",
-                value === id ? "bg-surface font-medium text-ink shadow-float" : "text-muted hover:bg-surface/70 hover:text-ink",
+                value === id
+                  ? "bg-surface font-medium text-ink ring-1 ring-inset ring-line"
+                  : "text-muted hover:bg-raised hover:text-ink",
               )}
             >
               {Icon ? (
@@ -67,7 +64,7 @@ export function SettingsRail({
                 </span>
               )}
               <span className="min-w-0 truncate">{id === "workspace" ? workspace : label}</span>
-            </button>
+            </Link>
           ))}
         </div>
       ))}

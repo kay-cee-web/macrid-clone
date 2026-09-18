@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export type MenuItem = {
   label: string;
   icon?: ReactNode;
-  onSelect: () => void;
+  /** Navigates instead of acting; `onSelect` still runs, for closing a drawer. */
+  href?: string;
+  onSelect?: () => void;
   tone?: "default" | "danger";
   disabled?: boolean;
   /** Marks the current choice in a pick-one menu (e.g. sort). */
@@ -53,28 +56,34 @@ export function Menu({ trigger, items, align = "end", side = "bottom", className
             align === "end" ? "right-0" : "left-0",
           )}
         >
-          {items.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              role={item.checked === undefined ? "menuitem" : "menuitemradio"}
-              aria-checked={item.checked}
-              disabled={item.disabled}
-              onClick={() => {
+          {items.map((item) => {
+            const shared = {
+              role: item.checked === undefined ? "menuitem" : "menuitemradio",
+              "aria-checked": item.checked,
+              onClick: () => {
                 setOpen(false);
-                item.onSelect();
-              }}
-              className={cn(
+                item.onSelect?.();
+              },
+              className: cn(
                 "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm",
                 "transition-colors disabled:opacity-50 [&_svg]:size-4",
                 item.tone === "danger" ? "text-bad hover:bg-bad-soft" : "text-ink hover:bg-raised",
-              )}
-            >
-              {item.icon}
-              <span className="flex-1">{item.label}</span>
-              {item.checked && <Check className="text-accent" />}
-            </button>
-          ))}
+              ),
+              children: (
+                <>
+                  {item.icon}
+                  <span className="flex-1">{item.label}</span>
+                  {item.checked && <Check className="text-accent" />}
+                </>
+              ),
+            };
+
+            return item.href ? (
+              <Link key={item.label} href={item.href} {...shared} />
+            ) : (
+              <button key={item.label} type="button" disabled={item.disabled} {...shared} />
+            );
+          })}
         </div>
       )}
     </div>

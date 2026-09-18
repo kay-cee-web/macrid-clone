@@ -75,14 +75,14 @@ export function PersonalPanel({ user, onSignOut }: { user: User; onSignOut: () =
           <Button
             variant="secondary"
             size="sm"
-            icon={<KeyRound className="size-3.5" />}
+            iconRight={<KeyRound className="size-3.5" />}
             onClick={() => setChangingPassword(true)}
           >
             Change
           </Button>
         </SettingRow>
         <SettingRow label="Sign out" description="Ends this session in this browser.">
-          <Button variant="secondary" size="sm" icon={<LogOut className="size-3.5" />} onClick={onSignOut}>
+          <Button variant="secondary" size="sm" iconRight={<LogOut className="size-3.5" />} onClick={onSignOut}>
             Sign out
           </Button>
         </SettingRow>

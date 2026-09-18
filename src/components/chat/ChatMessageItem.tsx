@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { CircleAlert, RotateCw } from "lucide-react";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/Button";
@@ -7,8 +8,8 @@ import { buttonStyles } from "@/components/ui/button-styles";
 import { Markdown } from "@/components/ui/Markdown";
 import { Pill } from "@/components/ui/Pill";
 import type { ThreadMessage } from "@/hooks/useChat";
-import { macridAppLink } from "@/lib/config";
 import { timeAgo } from "@/lib/format";
+import { PLAN_HREF } from "@/lib/plans/plan";
 import { linkRecordMentions } from "@/lib/records/mentions";
 import type { ChatImage } from "@/types/agent";
 import { MessageActions } from "./MessageActions";
@@ -58,9 +59,9 @@ export function ChatMessageItem({ message, agentName, onRetry, onViewInstruction
           <p className="min-w-0 flex-1 text-sm">{message.text}</p>
           <div className="flex gap-2">
             {message.outOfTokens && (
-              <a href={macridAppLink("/settings/plans")} target="_blank" rel="noreferrer" className={buttonStyles({ size: "sm" })}>
+              <Link href={PLAN_HREF} className={buttonStyles({ size: "sm" })}>
                 Upgrade plan
-              </a>
+              </Link>
             )}
             {message.retry && (
               <Button size="sm" variant="secondary" icon={<RotateCw className="size-3.5" />} onClick={() => onRetry(message)}>

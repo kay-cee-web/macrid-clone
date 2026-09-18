@@ -38,7 +38,7 @@ export function SkillsCatalog() {
   );
 
   /** Skills run in a chat, so using one drafts it on the home composer. */
-  const draft = (text: string) => router.push(`/agents?task=${encodeURIComponent(text)}`);
+  const draft = (text: string) => router.push(`/?task=${encodeURIComponent(text)}`);
   const use = (skill: Skill) => draft(skillPrompt(skill.slug));
 
   return (

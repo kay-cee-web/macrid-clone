@@ -4,7 +4,7 @@ const REDIRECT_KEY = "redirectAfterLogin";
 /** Routes a user should never be sent back to after signing in. */
 const AUTH_PATHS = ["/login", "/register", "/logout", "/email-verify", "/forgot-password"];
 
-export const DEFAULT_AFTER_LOGIN = "/agents";
+export const DEFAULT_AFTER_LOGIN = "/";
 
 function safeStorage(): Storage | null {
   try {

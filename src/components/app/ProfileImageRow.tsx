@@ -54,7 +54,7 @@ export function ProfileImageRow({ user, onSaved }: { user: User; onSaved: () => 
         variant="secondary"
         size="sm"
         loading={busy}
-        icon={<Camera className="size-3.5" />}
+        iconRight={<Camera className="size-3.5" />}
         onClick={() => input.current?.click()}
       >
         {picture ? "Change" : "Upload"}
