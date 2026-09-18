@@ -8,6 +8,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   block?: boolean;
   loading?: boolean;
   icon?: ReactNode;
+  /** Sits after the label, at the button's right edge. */
+  iconRight?: ReactNode;
 };
 
 export function Button({
@@ -16,6 +18,7 @@ export function Button({
   block,
   loading,
   icon,
+  iconRight,
   className,
   children,
   disabled,
@@ -32,6 +35,7 @@ export function Button({
     >
       {loading ? <Spinner className="size-3.5" /> : icon}
       {children}
+      {!loading && iconRight}
     </button>
   );
 }

@@ -11,6 +11,7 @@ import { reportFormError } from "@/lib/api/form-errors";
 import { email, required } from "@/lib/validation";
 import { login } from "@/services/auth";
 import { AuthCard, AuthSwitch } from "./AuthCard";
+import { SocialAuth } from "./SocialAuth";
 
 export function LoginForm() {
   const { signIn } = useAuth();
@@ -35,6 +36,7 @@ export function LoginForm() {
   return (
     <>
       <AuthCard icon={Lock} title="Welcome back" description="Sign in to see what your agents have been doing.">
+        <SocialAuth />
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <TextField
             id="email"

@@ -13,7 +13,7 @@ type SuggestionChipsProps = {
   onPick: (text: string) => void;
   /** "cards" under a heading (chat), or a quiet row of pills (home, under the composer). */
   variant?: "cards" | "pills";
-  /** In the chat a pick sends straight away, so it's held back while a turn runs. */
+  /** A pick sends straight away, so it's held back while a turn runs (or an agent is being created). */
   disabled?: boolean;
   className?: string;
 };

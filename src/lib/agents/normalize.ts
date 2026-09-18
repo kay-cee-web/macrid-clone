@@ -11,6 +11,7 @@ export function normalizeAgent(row: AgentRow): Agent {
     isActive: toBool(row.is_active, true),
     // The backend defaults sending to on.
     sendingEnabled: toBool(row.sending_enabled, true),
+    favorite: toBool(row.favorite ?? row.is_favorite, false),
     category: row.category ?? "",
     createdAt: row.created_at ?? null,
     updatedAt: row.updated_at ?? row.created_at ?? null,

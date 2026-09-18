@@ -37,6 +37,11 @@
   /* Provider logo colours, drawn on a light tile in both themes. */
   --logo-anthropic: #d97757;
   --logo-gemini: #4285f4;
+  /* Google's mark on the sign-in button: brand colours, so the same in both themes. */
+  --logo-google-blue: #4285f4;
+  --logo-google-green: #34a853;
+  --logo-google-yellow: #fbbc05;
+  --logo-google-red: #ea4335;
   /* Tapotik's hero glow; the same in both themes, so dark doesn't redefine it. */
   --aurora:
     radial-gradient(ellipse 40% 50% at 30% 40%, rgb(91 91 247 / 0.5), transparent 70%),

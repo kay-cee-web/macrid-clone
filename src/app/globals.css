@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./base.css";
 
 /* `dark:` follows the site's own theme switch (data-theme), falling back to the
    OS preference — the same rule the colour tokens use. */
@@ -52,6 +53,10 @@
   --color-night-ink: var(--night-ink);
   --color-logo-anthropic: var(--logo-anthropic);
   --color-logo-gemini: var(--logo-gemini);
+  --color-logo-google-blue: var(--logo-google-blue);
+  --color-logo-google-green: var(--logo-google-green);
+  --color-logo-google-yellow: var(--logo-google-yellow);
+  --color-logo-google-red: var(--logo-google-red);
 }
 
 /* The logo gradient, as a fill and as clipped text. */
@@ -97,38 +102,3 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@layer base {
-  /* Grid items default to min-width: auto, so one row that is wide by design (category chips,
-     tabs, a table, a code block) stretches its whole column past a phone screen. Let columns
-     shrink so those rows scroll inside their own box. Utilities (min-w-max…) still win. */
-  .grid > * {
-    min-width: 0;
-  }
-  body {
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-  h1, h2, h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-    text-wrap: balance;
-  }
-  :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  ::selection {
-    background: var(--accent-soft);
-    color: var(--ink);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}

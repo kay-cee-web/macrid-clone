@@ -1,13 +1,11 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import { AgentsHome } from "@/components/agents/AgentsHome";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Agents" };
-
-export default function AgentsPage() {
-  return (
-    <Suspense>
-      <AgentsHome />
-    </Suspense>
-  );
+/** Home lives at `/` now. Older links — `/agents?task=…` among them — still land on it. */
+export default async function AgentsRedirect({ searchParams }: PageProps<"/agents">) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    for (const item of Array.isArray(value) ? value : [value]) if (item) query.append(key, item);
+  }
+  const search = query.toString();
+  redirect(search ? `/?${search}` : "/");
 }

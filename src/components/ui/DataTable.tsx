@@ -11,6 +11,8 @@ export type Column<T> = {
   numeric?: boolean;
   /** Hide on narrow screens to keep the table readable. */
   wide?: boolean;
+  /** Keep the header for screen readers but not on screen (an actions column). */
+  hideHeader?: boolean;
   className?: string;
 };
 
@@ -45,7 +47,7 @@ export function DataTable<T>({ label, columns, rows, rowKey, rowHref, skeletonRo
                   hideNarrow(column.wide),
                 )}
               >
-                {column.header}
+                {column.hideHeader ? <span className="sr-only">{column.header}</span> : column.header}
               </th>
             ))}
           </tr>

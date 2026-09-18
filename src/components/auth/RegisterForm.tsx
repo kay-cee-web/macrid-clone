@@ -14,6 +14,7 @@ import { dexisphereSiteLink } from "@/lib/config";
 import { email, minLength, password, required } from "@/lib/validation";
 import { register } from "@/services/auth";
 import { AuthCard, AuthSwitch } from "./AuthCard";
+import { SocialAuth } from "./SocialAuth";
 
 const INITIAL = { name: "", email: "", licence: "", password: "", confirm: "", accept: false };
 type FieldName = keyof typeof INITIAL;
@@ -63,6 +64,7 @@ export function RegisterForm() {
         title="Create your account"
         description="Set up agents that run Dexisphere for you."
       >
+        <SocialAuth />
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <TextField id="name" label="Full name" autoComplete="name" placeholder="Alex Kim" {...form.bind("name")} />
           <TextField

@@ -5,8 +5,7 @@ import { Copy, Ellipsis, Hash, MessageSquare, Pencil, Star, StarOff, Trash } fro
 import { toast } from "sonner";
 import { IconButton } from "@/components/ui/IconButton";
 import { Menu } from "@/components/ui/Menu";
-import { useFavorites } from "@/hooks/useFavorites";
-import { cloneAgent } from "@/lib/agents/actions";
+import { cloneAgent, toggleFavorite } from "@/lib/agents/actions";
 import { extractApiError } from "@/lib/api/errors";
 import type { Agent } from "@/types/agent";
 
@@ -21,8 +20,16 @@ type AgentActionsMenuProps = {
 
 export function AgentActionsMenu({ agent, onDialog, className }: AgentActionsMenuProps) {
   const router = useRouter();
-  const { isFavorite, toggle } = useFavorites();
-  const favorited = isFavorite(agent.id);
+  const favorited = agent.favorite;
+
+  const favorite = async () => {
+    try {
+      const next = await toggleFavorite(agent.id);
+      toast.success(next ? `${agent.name} added to favourites.` : `${agent.name} removed from favourites.`);
+    } catch (err) {
+      toast.error(extractApiError(err, "Could not update your favourites"));
+    }
+  };
 
   const clone = async () => {
     const id = toast.loading(`Cloning ${agent.name}…`);
@@ -51,7 +58,7 @@ export function AgentActionsMenu({ agent, onDialog, className }: AgentActionsMen
         {
           label: favorited ? "Remove favourite" : "Favourite",
           icon: favorited ? <StarOff /> : <Star />,
-          onSelect: () => toggle(agent.id),
+          onSelect: () => void favorite(),
         },
         { label: "Rename", icon: <Pencil />, onSelect: () => onDialog({ type: "rename", agent }) },
         { label: "Clone", icon: <Copy />, onSelect: () => void clone() },
