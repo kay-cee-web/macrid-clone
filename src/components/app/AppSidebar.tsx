@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Cpu, Database, House, LayoutGrid } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { MAIN_NAV } from "@/data/nav";
 import { FavoriteAgents } from "./FavoriteAgents";
 import { NavLink } from "./NavLink";
 import { RecentAgents } from "./RecentAgents";
@@ -20,18 +20,11 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       <UserMenu placement="bottom" />
 
       <nav aria-label="Agents" className="grid gap-1">
-        <NavLink href="/" icon={<House />} onNavigate={onNavigate}>
-          Home
-        </NavLink>
-        <NavLink href="/agents/all" icon={<LayoutGrid />} onNavigate={onNavigate}>
-          Agent hub
-        </NavLink>
-        <NavLink href="/agents/workbench" icon={<Cpu />} matchPrefix onNavigate={onNavigate}>
-          Workbench
-        </NavLink>
-        <NavLink href="/records" icon={<Database />} matchPrefix onNavigate={onNavigate}>
-          Records
-        </NavLink>
+        {MAIN_NAV.map(({ href, label, Icon, matchPrefix }) => (
+          <NavLink key={href} href={href} icon={<Icon />} matchPrefix={matchPrefix} onNavigate={onNavigate}>
+            {label}
+          </NavLink>
+        ))}
       </nav>
 
       <FavoriteAgents onNavigate={onNavigate} />

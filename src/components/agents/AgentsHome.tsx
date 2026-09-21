@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { AnnouncementPill } from "@/components/ui/AnnouncementPill";
@@ -18,19 +18,17 @@ const PILL = "h-10 rounded-full border border-line bg-surface/80 px-4 shadow-flo
 
 export function AgentsHome() {
   const searchParams = useSearchParams();
+  // `?task=` still drafts here: a skill's "Use" lands on home with `/slug` to finish typing.
   const [task, setTask] = useState(() => searchParams.get("task") ?? "");
-  const composerRef = useRef<HTMLTextAreaElement>(null);
   const { create, creating } = useCreateAgent();
   const greeting = useGreeting();
 
-  const draft = (text: string) => {
-    setTask(text);
-    composerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    composerRef.current?.focus({ preventScroll: true });
-  };
-  const pickIdea = (idea: Idea) => draft(idea.description);
-  /** A suggestion is a whole task: it makes the agent and goes out, rather than sitting in the composer. */
+  /**
+   * Everything on home starts work: the typed task, a suggestion and an idea card each make the
+   * agent and open its chat with the task already sent, rather than leaving it in a composer.
+   */
   const startNow = (text: string) => void create(text, [], { send: true });
+  const pickIdea = (idea: Idea) => startNow(idea.description);
 
   return (
     <div className="min-h-full">
@@ -61,20 +59,20 @@ export function AgentsHome() {
           <ComposerWithAttachments
             id="new-agent-task"
             label="Describe the task for a new agent"
-            textareaRef={composerRef}
             value={task}
             onChange={setTask}
-            onSubmit={async (value, images) => Boolean(await create(value, images))}
+            onSubmit={async (value, images) => Boolean(await create(value, images, { send: true }))}
             submitting={creating}
             submitLabel="Create agent"
-            placeholder="Describe the work you'd otherwise do by hand, e.g. find 40 dental clinics in Austin with no website…"
+            placeholder="Describe a task to hand off…"
             className="w-full"
           />
 
           <SuggestionChips variant="pills" onPick={startNow} disabled={creating} />
         </section>
 
-        <IdeaBrowser onPick={pickIdea} />
+        {/* Two rows is enough to start from; the whole catalogue lives on Workbench → Workflows. */}
+        <IdeaBrowser onPick={pickIdea} limit={6} moreHref="/agents/workbench" disabled={creating} />
       </div>
     </div>
   );

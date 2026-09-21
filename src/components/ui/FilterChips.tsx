@@ -32,7 +32,7 @@ export function FilterChips<T extends string>({
   const style = STYLES[variant];
 
   return (
-    <div className={cn("-mx-1 overflow-x-auto px-1 py-1", className)}>
+    <div className={cn("scrollbar-none -mx-1 overflow-x-auto px-1 py-1", className)}>
       <div role="tablist" aria-label={label} className="flex min-w-max gap-2">
         {items.map((item) => {
           const active = item.value === value;

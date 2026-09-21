@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { isActivePath } from "@/lib/ui/nav";
 
 type NavLinkProps = {
   href: string;
@@ -17,7 +18,7 @@ type NavLinkProps = {
 
 export function NavLink({ href, children, icon, matchPrefix, onNavigate, className }: NavLinkProps) {
   const pathname = usePathname();
-  const active = matchPrefix ? pathname === href || pathname.startsWith(`${href}/`) : pathname === href;
+  const active = isActivePath(pathname, href, matchPrefix);
 
   return (
     <Link
