@@ -29,17 +29,19 @@ function PlatformIcons({ idea }: { idea: Idea }) {
 type IdeaCardProps = {
   idea: CategorizedIdea;
   onPick: (idea: Idea) => void;
-  /** Spoken name of what picking does, e.g. "Draft" or "Send to chat". */
+  /** Spoken name of what picking does, e.g. "Start" or "Send to chat". */
   action?: string;
   /** "cover" is the artwork tile used on home and Workflows; "card" takes `AgentCard`'s shape. */
   variant?: "cover" | "card";
+  /** While a pick is being acted on (an agent being created), so a second click can't make a second one. */
+  disabled?: boolean;
 };
 
 /**
  * A standing task, as the artwork tile (`cover`) that home and Workflows show,
  * or as a plain card built to `AgentCard`'s shape.
  */
-export function IdeaCard({ idea, onPick, action = "Use", variant = "cover" }: IdeaCardProps) {
+export function IdeaCard({ idea, onPick, action = "Use", variant = "cover", disabled }: IdeaCardProps) {
   const readiness = readinessOf(idea, useWorkspaceSetup());
   const StatusIcon = readiness.ready ? CircleCheck : readiness.tone === "warn" ? PlugZap : CircleDashed;
   const label = `${action}: ${idea.title}. ${idea.description}`;
@@ -49,8 +51,9 @@ export function IdeaCard({ idea, onPick, action = "Use", variant = "cover" }: Id
       <button
         type="button"
         onClick={() => onPick(idea)}
+        disabled={disabled}
         aria-label={label}
-        className="group grid content-start gap-3 rounded-2xl text-left focus-visible:outline-offset-4"
+        className="group grid content-start gap-3 rounded-2xl text-left transition-opacity focus-visible:outline-offset-4 disabled:opacity-60"
       >
         <IdeaCover idea={idea} category={idea.category} readiness={readiness} />
         <span className="flex min-w-0 items-center gap-3 px-1">
@@ -67,8 +70,9 @@ export function IdeaCard({ idea, onPick, action = "Use", variant = "cover" }: Id
     <button
       type="button"
       onClick={() => onPick(idea)}
+      disabled={disabled}
       aria-label={label}
-      className="group grid h-full content-start gap-8 rounded-3xl border border-line bg-raised/40 p-6 text-left backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float focus-visible:outline-offset-4"
+      className="group grid h-full content-start gap-8 rounded-3xl border border-line bg-raised/40 p-6 text-left backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float focus-visible:outline-offset-4 disabled:opacity-60"
     >
       <div className="flex items-start justify-between gap-3">
         <AgentIcon category={idea.category} />

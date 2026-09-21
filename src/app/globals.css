@@ -70,6 +70,14 @@
   color: transparent;
 }
 
+/* Still scrolls (touch, trackpad, Shift+wheel, keyboard); only the bar is gone. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility shadow-glow {
   box-shadow: 0 12px 40px -8px var(--glow);
 }

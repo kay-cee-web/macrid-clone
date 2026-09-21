@@ -68,7 +68,7 @@ export function TaskComposer({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="field-sizing-content max-h-60 min-h-16 w-full resize-none bg-transparent px-1 text-base leading-relaxed text-ink outline-none placeholder:text-faint"
+        className="field-sizing-content max-h-60 min-h-16 w-full resize-none bg-transparent px-1 text-base leading-relaxed text-ink outline-none placeholder:font-light placeholder:text-faint/70"
       />
       <div className="flex items-center gap-2">
         {tools}

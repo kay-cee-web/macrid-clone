@@ -6,9 +6,10 @@ import { IconButton } from "@/components/ui/IconButton";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/cn";
 import { AppSidebar } from "./AppSidebar";
+import { BottomTabs } from "./BottomTabs";
 
 /**
- * Fixed sidebar on large screens; a slide-in drawer below that.
+ * Fixed sidebar on large screens; below that, a slide-in drawer and a bottom tab bar.
  * <main> is the scroll container, so full-height views (the chat) can use h-full.
  */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -62,6 +63,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="app-main" className="min-h-0 min-w-0 flex-1 overflow-y-auto lg:h-dvh">
         {children}
       </main>
+
+      <BottomTabs />
     </div>
   );
 }
