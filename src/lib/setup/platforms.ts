@@ -1,3 +1,4 @@
+import { CONNECTORS_BY_KEY } from "@/data/connectors";
 import { PLATFORMS, type PlatformId } from "@/data/platforms";
 import type { Connections } from "@/types/connector";
 
@@ -6,34 +7,57 @@ import type { Connections } from "@/types/connector";
  * ready    something the agent can use is connected
  * shared   works on a Macrid shared resource (SMS sender, Places key)
  * missing  nothing connected, so the agent can draft but not do it
- * unknown  no endpoint says (WhatsApp Business, LinkedIn, Facebook); never blocks
+ * unknown  no endpoint says (WhatsApp Business, Facebook); never blocks
+ * planned  no connector exists yet (LinkedIn, Slack…); never blocks either
  */
-export type SetupState = "ready" | "shared" | "missing" | "unknown";
-export type PlatformSetup = { state: SetupState; note: string };
+export type SetupState = "ready" | "shared" | "missing" | "unknown" | "planned";
+/** `connector` stands for the platform on cards: the connected one, else the usual one. */
+export type PlatformSetup = { state: SetupState; note: string; connector: string };
 export type WorkspaceSetup = Record<PlatformId, PlatformSetup>;
 
-const connected = (connections: Connections, ...keys: string[]) =>
-  keys.some((key) => connections.state[key]?.status === "connected");
+/** Where nothing connected isn't "missing": there's a shared fallback, or no way to check. */
+const IDLE: Partial<Record<PlatformId, SetupState>> = {
+  sms: "shared", google_maps: "shared", whatsapp: "unknown", facebook: "unknown",
+};
+
+const NOTES: Partial<Record<PlatformId, Partial<Record<SetupState, string>>>> = {
+  email: {
+    ready: "A mailbox is connected.",
+    missing: "No mailbox is connected. Add SMTP, Gmail or Outlook so the agent can send email.",
+  },
+  sms: {
+    ready: "Texts go out from your own Twilio sender.",
+    shared: "Texts go out on Dexisphere's shared sender. Add Twilio to use your own number.",
+  },
+  whatsapp: { unknown: "WhatsApp Business is connected through Meta in Dexisphere; its status can't be checked here." },
+  facebook: { unknown: "Facebook is set up in Dexisphere; its status can't be checked here." },
+  google_maps: {
+    ready: "Uses your own Google Places key.",
+    shared: "Uses Dexisphere's shared Google Places key, which has a daily limit.",
+  },
+  google_business: { missing: "Connect Google Business Profile so the agent can read your listings." },
+  calendar: { missing: "Connect Google Calendar or Outlook so the agent can see your schedule." },
+};
+
+const GENERIC_NOTE: Record<SetupState, (name: string) => string> = {
+  ready: (name) => `${name} is connected.`,
+  shared: (name) => `${name} runs on Dexisphere's shared account.`,
+  missing: (name) => `Connect ${name} so the agent can use it.`,
+  unknown: (name) => `${name}'s status can't be checked here.`,
+  planned: (name) => `Nothing connects ${name} yet. It's on the list to build.`,
+};
+
+function platformSetup(id: PlatformId, connections: Connections): PlatformSetup {
+  const { name, connectors } = PLATFORMS[id];
+  const live = connectors.find((key) => connections.state[key]?.status === "connected");
+  const planned = CONNECTORS_BY_KEY[connectors[0]]?.auth === "planned";
+  const state: SetupState = planned ? "planned" : live ? "ready" : IDLE[id] ?? "missing";
+  return { state, connector: live ?? connectors[0], note: NOTES[id]?.[state] ?? GENERIC_NOTE[state](name) };
+}
 
 export function setupFrom(connections: Connections): WorkspaceSetup {
-  const has = (...keys: string[]) => connected(connections, ...keys);
-  return {
-    email: has("smtp", "gmail", "outlook_mail")
-      ? { state: "ready", note: "A mailbox is connected." }
-      : { state: "missing", note: "No mailbox is connected. Add SMTP, Gmail or Outlook so the agent can send email." },
-    sms: has("twilio")
-      ? { state: "ready", note: "Texts go out from your own Twilio sender." }
-      : { state: "shared", note: "Texts go out on Dexisphere's shared sender. Add Twilio to use your own number." },
-    whatsapp: { state: "unknown", note: "WhatsApp Business is connected through Meta in Dexisphere; its status can't be checked here." },
-    google_maps: has("google_places")
-      ? { state: "ready", note: "Uses your own Google Places key." }
-      : { state: "shared", note: "Uses Dexisphere's shared Google Places key, which has a daily limit." },
-    google_business: has("gbp")
-      ? { state: "ready", note: "Google Business Profile is connected." }
-      : { state: "missing", note: "Connect Google Business Profile so the agent can read your listings." },
-    linkedin: { state: "unknown", note: "" },
-    facebook: { state: "unknown", note: "" },
-  };
+  const ids = Object.keys(PLATFORMS) as PlatformId[];
+  return Object.fromEntries(ids.map((id) => [id, platformSetup(id, connections)])) as WorkspaceSetup;
 }
 
 /** Platforms among `ids` that still need connecting. */

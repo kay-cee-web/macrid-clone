@@ -3,7 +3,9 @@ import { api } from "@/lib/api/client";
 import { assertEnvelope, extractApiError } from "@/lib/api/errors";
 import { applyLegacyRows, applyModernRows, applyPlatformRows, blankState, readRows } from "@/lib/connections/readState";
 import type { Connections, ConnectionState, Connector } from "@/types/connector";
-import { createMailAccount, createSmsSender, fetchMailAccounts, fetchSmsSenders } from "./senders";
+import {
+  createMailAccount, createSmsSender, fetchMailAccounts, fetchSmsSenders, removeAllMailAccounts, removeAllSmsSenders,
+} from "./senders";
 
 /**
  * Workspace connections (shared by every agent). /connectors is the newer
@@ -102,6 +104,8 @@ export async function connectApiKey(connector: Connector, values: Record<string,
 }
 
 export async function disconnectConnector(connector: Connector, connection: ConnectionState, source: Connections["source"]) {
+  if (connector.store === "mail_accounts") return removeAllMailAccounts();
+  if (connector.store === "sms_senders") return removeAllSmsSenders();
   if (connector.store === "platform_apis") {
     const cleared = Object.fromEntries((connector.fields ?? []).map((field) => [field.name, ""]));
     await savePlatformKeys(cleared, `Could not remove ${connector.name}`);

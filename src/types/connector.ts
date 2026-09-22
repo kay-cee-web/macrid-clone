@@ -1,13 +1,15 @@
 import type { LucideIcon } from "lucide-react";
 
-export type ConnectorCategory = "channel" | "prospect" | "email_platform";
+/** `planned` is the "Coming soon" shelf: connectors a workflow needs that nothing on the backend connects yet. */
+export type ConnectorCategory = "channel" | "prospect" | "email_platform" | "planned";
 
 /**
  * oauth     consent popup via the connector's `connect` route
  * api_key   a form of credential fields
  * external  set up inside the main Macrid app (e.g. SMTP mailboxes, Facebook)
+ * planned   no route yet; listed so the gap is visible until the backend builds it
  */
-export type ConnectorAuth = "oauth" | "api_key" | "external";
+export type ConnectorAuth = "oauth" | "api_key" | "external" | "planned";
 
 export type ConnectorField = {
   name: string;
@@ -25,7 +27,10 @@ export type Connector = {
   category: ConnectorCategory;
   auth: ConnectorAuth;
   description: string;
+  /** Drawn when there's no `logo`: SMTP, a bank, anything with no brand of its own. */
   Icon: LucideIcon;
+  /** The brand mark's file name in `public/logos`, without `.svg`. */
+  logo?: string;
   /** OAuth: GET this to receive `auth_url`. */
   connect?: string;
   /** External: path inside the Macrid app where it's managed. */

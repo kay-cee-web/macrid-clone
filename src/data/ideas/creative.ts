@@ -33,7 +33,7 @@ export const CREATIVE: Idea[] = [
   {
     title: "Campaign visuals",
     blocked: "an image tool for agents",
-    platforms: [],
+    platforms: ["image_generation"],
     description: "When a campaign is written, generate the images to go with it in my colours and sizes.",
   },
   {
