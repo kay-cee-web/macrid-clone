@@ -33,7 +33,7 @@ export const MONEY: Idea[] = [
   {
     title: "Low balance warning",
     blocked: "a bank connection",
-    platforms: [],
+    platforms: ["bank"],
     description: "When a tracked account drops below the floor I set, warn me the same day.",
   },
   {

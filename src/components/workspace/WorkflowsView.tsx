@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IdeaCard } from "@/components/agents/IdeaCard";
+import { WorkspaceConnectorFlows } from "@/components/plugins/ConnectorFlows";
 import { TileGrid } from "@/components/ui/TileGrid";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { CATEGORIES, ideasFor } from "@/data/ideas";
@@ -43,17 +44,19 @@ export function WorkflowsView() {
           items={[{ value: "suggested", label: "Suggested" }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]}
         />
 
-        <TileGrid>
-          {ideas.map((idea) => (
-            <IdeaCard
-              key={`${idea.category}-${idea.title}`}
-              idea={idea}
-              variant="cover"
-              action="Send to chat"
-              onPick={() => sendToChat(idea.description)}
-            />
-          ))}
-        </TileGrid>
+        <WorkspaceConnectorFlows>
+          <TileGrid>
+            {ideas.map((idea) => (
+              <IdeaCard
+                key={`${idea.category}-${idea.title}`}
+                idea={idea}
+                variant="cover"
+                action="Send to chat"
+                onPick={() => sendToChat(idea.description)}
+              />
+            ))}
+          </TileGrid>
+        </WorkspaceConnectorFlows>
       </div>
     </div>
   );

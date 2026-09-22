@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CATEGORIES, ideasFor } from "@/data/ideas";
+import { WorkspaceConnectorFlows } from "@/components/plugins/ConnectorFlows";
 import { buttonStyles } from "@/components/ui/button-styles";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { TileGrid } from "@/components/ui/TileGrid";
@@ -57,18 +58,21 @@ export function IdeaBrowser({
       />
 
       <div role="tabpanel" aria-label={filter === "all" ? "All tasks" : filter}>
-        <TileGrid>
-          {shown.map((idea) => (
-            <IdeaCard
-              key={`${idea.category}-${idea.title}`}
-              idea={idea}
-              variant="cover"
-              onPick={onPick}
-              action={action}
-              disabled={disabled}
-            />
-          ))}
-        </TileGrid>
+        {/* The cards' logos connect and disconnect in place; this holds their dialogs. */}
+        <WorkspaceConnectorFlows>
+          <TileGrid>
+            {shown.map((idea) => (
+              <IdeaCard
+                key={`${idea.category}-${idea.title}`}
+                idea={idea}
+                variant="cover"
+                onPick={onPick}
+                action={action}
+                disabled={disabled}
+              />
+            ))}
+          </TileGrid>
+        </WorkspaceConnectorFlows>
       </div>
 
       {more && (

@@ -58,7 +58,7 @@ export const GROWTH: Idea[] = [
   {
     title: "Store health check",
     blocked: "a Shopify connector",
-    platforms: [],
+    platforms: ["shopify"],
     description: "Read my store's products, stock and orders, and flag what's running out and what's worth pushing.",
   },
 ];

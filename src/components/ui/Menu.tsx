@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { useDismiss } from "@/hooks/useDismiss";
 import { cn } from "@/lib/cn";
 
 export type MenuItem = {
@@ -29,20 +30,8 @@ type MenuProps = {
 export function Menu({ trigger, items, align = "end", side = "bottom", className }: MenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
-    document.addEventListener("pointerdown", onPointer);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointer);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(open, rootRef, close);
 
   return (
     <div ref={rootRef} className={cn("relative inline-flex", className)}>

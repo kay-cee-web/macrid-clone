@@ -8,7 +8,7 @@ import type { Idea } from "@/types/idea";
 export const EDUCATION: Idea[] = [
   {
     title: "Study session reminder",
-    platforms: [],
+    platforms: ["calendar"],
     description: "Every weekday, block focus time on my calendar and remind me ten minutes before it starts.",
   },
   {

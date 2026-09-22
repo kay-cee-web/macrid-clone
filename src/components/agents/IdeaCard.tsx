@@ -1,30 +1,16 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { CircleCheck, CircleDashed, PlugZap } from "lucide-react";
 import { Pill } from "@/components/ui/Pill";
 import { readinessOf, type CategorizedIdea } from "@/data/ideas";
-import { PLATFORMS } from "@/data/platforms";
 import { useWorkspaceSetup } from "@/hooks/useWorkspaceSetup";
+import { cn } from "@/lib/cn";
+import { connectorsFor } from "@/lib/setup/connectorsFor";
 import type { Idea } from "@/types/idea";
 import { AgentIcon } from "./AgentIcon";
 import { IdeaCover } from "./IdeaCover";
-
-/** The services the task touches, as quiet glyphs. */
-function PlatformIcons({ idea }: { idea: Idea }) {
-  if (idea.platforms.length === 0) return null;
-  return (
-    <span className="flex shrink-0 items-center gap-1.5 text-faint">
-      {idea.platforms.map((id) => {
-        const { name, Icon } = PLATFORMS[id];
-        return (
-          <span key={id} title={name}>
-            <Icon aria-hidden className="size-4" />
-          </span>
-        );
-      })}
-    </span>
-  );
-}
+import { PlatformLogos } from "./PlatformLogos";
 
 type IdeaCardProps = {
   idea: CategorizedIdea;
@@ -37,61 +23,87 @@ type IdeaCardProps = {
   disabled?: boolean;
 };
 
+type PickButtonProps = {
+  label: string;
+  title: string;
+  onClick: () => void;
+  disabled?: boolean;
+  rounded: string;
+  children: ReactNode;
+};
+
+/** The title, stretched over the whole card as its one action; the connector logos sit above it. */
+function PickButton({ label, title, onClick, disabled, rounded, children }: PickButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={title}
+      className={cn(
+        "block w-full truncate text-left after:absolute after:inset-0 focus-visible:outline-none",
+        "focus-visible:after:ring-2 focus-visible:after:ring-accent",
+        rounded,
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 /**
  * A standing task, as the artwork tile (`cover`) that home and Workflows show,
- * or as a plain card built to `AgentCard`'s shape.
+ * or as a plain card built to `AgentCard`'s shape. Both are an `<article>`
+ * whose title button covers the card, so the logos can be buttons of their own.
  */
 export function IdeaCard({ idea, onPick, action = "Use", variant = "cover", disabled }: IdeaCardProps) {
-  const readiness = readinessOf(idea, useWorkspaceSetup());
+  const setup = useWorkspaceSetup();
+  const readiness = readinessOf(idea, setup);
   const StatusIcon = readiness.ready ? CircleCheck : readiness.tone === "warn" ? PlugZap : CircleDashed;
-  const label = `${action}: ${idea.title}. ${idea.description}`;
+  const connectors = connectorsFor(idea.platforms, setup);
+  const pick = { label: `${action}: ${idea.title}. ${idea.description}`, title: readiness.reason, onClick: () => onPick(idea), disabled };
 
   if (variant === "cover") {
     return (
-      <button
-        type="button"
-        onClick={() => onPick(idea)}
-        disabled={disabled}
-        aria-label={label}
-        className="group grid content-start gap-3 rounded-2xl text-left transition-opacity focus-visible:outline-offset-4 disabled:opacity-60"
+      <article
+        data-disabled={disabled || undefined}
+        className="group relative grid content-start gap-3 transition-opacity data-disabled:opacity-60"
       >
         <IdeaCover idea={idea} category={idea.category} readiness={readiness} />
-        <span className="flex min-w-0 items-center gap-3 px-1">
-          <span className="min-w-0 flex-1 truncate text-base font-medium text-ink group-hover:text-accent">
-            {idea.title}
-          </span>
-          <PlatformIcons idea={idea} />
-        </span>
-      </button>
+        <div className="flex min-w-0 items-center gap-3 px-1">
+          <h3 className="min-w-0 flex-1 font-sans text-base font-medium tracking-normal text-ink group-hover:text-accent">
+            <PickButton {...pick} rounded="after:rounded-2xl">{idea.title}</PickButton>
+          </h3>
+          <PlatformLogos items={connectors} />
+        </div>
+      </article>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => onPick(idea)}
-      disabled={disabled}
-      aria-label={label}
-      className="group grid h-full content-start gap-8 rounded-3xl border border-line bg-raised/40 p-6 text-left backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float focus-visible:outline-offset-4 disabled:opacity-60"
+    <article
+      data-disabled={disabled || undefined}
+      className="group relative grid h-full content-start gap-8 rounded-3xl border border-line bg-raised/40 p-6 backdrop-blur transition-[background-color,box-shadow,opacity] duration-200 hover:bg-raised/80 hover:shadow-float data-disabled:opacity-60"
     >
       <div className="flex items-start justify-between gap-3">
         <AgentIcon category={idea.category} />
-        <span title={readiness.reason} className="min-w-0">
-          <Pill tone={readiness.tone}>
-            <StatusIcon aria-hidden className="size-3.5 shrink-0" />
-            <span className="truncate">{readiness.label}</span>
-          </Pill>
-        </span>
+        <Pill tone={readiness.tone} className="min-w-0">
+          <StatusIcon aria-hidden className="size-3.5 shrink-0" />
+          <span className="truncate">{readiness.label}</span>
+        </Pill>
       </div>
 
       <div className="grid gap-2">
         <span className="font-mono text-xs uppercase tracking-[0.06em] text-faint">{idea.category}</span>
-        <h3 className="flex min-w-0 items-center gap-2.5 text-xl text-ink group-hover:text-accent">
-          <span className="min-w-0 flex-1 truncate">{idea.title}</span>
-          <PlatformIcons idea={idea} />
-        </h3>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <h3 className="min-w-0 flex-1 text-xl text-ink group-hover:text-accent">
+            <PickButton {...pick} rounded="after:rounded-3xl">{idea.title}</PickButton>
+          </h3>
+          <PlatformLogos items={connectors} />
+        </div>
         <p className="line-clamp-2 min-h-13 text-base leading-relaxed text-muted">{idea.description}</p>
       </div>
-    </button>
+    </article>
   );
 }

@@ -1,3 +1,4 @@
+import { PLATFORMS } from "@/data/platforms";
 import { missingIn, platformNames, type WorkspaceSetup } from "@/lib/setup/platforms";
 import type { Idea, IdeaCategory } from "@/types/idea";
 import { ANALYTICS } from "./analytics";
@@ -95,3 +96,9 @@ export function readinessOf(idea: Idea, setup: WorkspaceSetup | null = null): Re
 }
 
 export const readyCountIn = (category: IdeaCategory) => IDEAS[category].filter((idea) => idea.ready).length;
+
+/** Workflows that touch a connector: a "Coming soon" card says how many are waiting on it. */
+export const workflowsNeeding = (connectorKey: string) =>
+  CATEGORIES.flatMap((category) => IDEAS[category]).filter((idea) =>
+    idea.platforms.some((id) => PLATFORMS[id].connectors.includes(connectorKey)),
+  ).length;

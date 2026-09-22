@@ -56,3 +56,19 @@ export async function deleteSmsSender(id: string) {
   const { data } = await api.delete(`/sms-senders/${id}`);
   assertEnvelope(data, "Could not remove the SMS sender");
 }
+
+/**
+ * Disconnecting SMTP or Twilio removes every sender of that kind (the confirm
+ * dialog names them first). One at a time, so a failure stops where it happened.
+ */
+export async function removeAllMailAccounts() {
+  const accounts = await fetchMailAccounts();
+  for (const account of accounts) await deleteMailAccount(account.id);
+  return accounts.length === 1 ? "Mailbox removed." : `${accounts.length} mailboxes removed.`;
+}
+
+export async function removeAllSmsSenders() {
+  const senders = await fetchSmsSenders();
+  for (const sender of senders) await deleteSmsSender(sender.id);
+  return "Twilio disconnected. Texts go out on Dexisphere's shared sender again.";
+}
