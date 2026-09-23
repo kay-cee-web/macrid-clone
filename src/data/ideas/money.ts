@@ -7,17 +7,17 @@ import type { Idea } from "@/types/idea";
 export const MONEY: Idea[] = [
   {
     title: "Weekly expense report",
-    platforms: ["email"],
+    platforms: ["inbox", "email"],
     description: "Every Friday, pull the receipts out of my inbox, total them and email the summary to finance.",
   },
   {
     title: "New payment alert",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "When a payment confirmation over $1,000 lands, tell me straight away with who it's from and what it's for.",
   },
   {
     title: "Subscription watch",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "Every month, scan my inbox for recurring charges and flag the subscriptions I'm not using.",
   },
   {

@@ -20,7 +20,7 @@ export const GROWTH: Idea[] = [
   },
   {
     title: "Customer feedback digest",
-    platforms: ["google_business", "email"],
+    platforms: ["google_business", "inbox"],
     description: "Every Monday, gather last week's reviews and customer replies and summarise the themes worth acting on.",
   },
   {

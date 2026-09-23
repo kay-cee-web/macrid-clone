@@ -105,7 +105,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
     - `SetupNotice` warns while the draft names a platform with nothing connected (`platformsMentioned` + `missingIn`), or asks to send while the agent's sending is off. It never blocks the send.
     - `ApprovalBar` offers Send / Don't send / Ask for changes when "Ask before sending" is on and the last reply asks for a go-ahead (`asksForApproval`).
 - **Workspace setup** (`src/lib/setup/`): `setupFrom(connections)` gives each platform one of `ready | shared | missing | unknown`.
-  - email: SMTP, Gmail or Outlook connected. sms: `shared` without Twilio (Macrid's system sender, `smssender_id: 1`).
+  - email (sending): SMTP, Gmail or Outlook connected. inbox (reading): an IMAP mailbox or Outlook — **Gmail doesn't count**, it connects for sending only. Tag an idea `inbox` when it reads mail, `email` when it sends, both when it does both. sms: `shared` without Twilio (Macrid's system sender, `smssender_id: 1`).
   - google_maps: `shared` without the user's own Places key. google_business: needs GBP.
   - whatsapp and facebook are `unknown` unless `/connectors` reports them connected: no endpoint reliably does, and `unknown` never blocks.
   - A platform whose connector is `auth: "planned"` (linkedin, slack, jira, github, shopify, bank, image_generation, email_verification) is `planned`, which never blocks either; the ideas that need one are `blocked`.
@@ -313,6 +313,23 @@ Connections belong to the user's workspace, not to one agent.
   - `DELETE /connectors/{key}` on the newer route, or `DELETE /integrations/{recordId}` on the legacy route.
   - For `platform_apis`, `POST /platform-apis` with that provider's fields set to empty strings.
 - **Search quota:** `GET /places/search-usage` (fallback `/search-usage`).
+
+### Google services and mailboxes (backend note, 2026-09-23)
+
+Reading Gmail needs Google's *restricted* scopes (a paid yearly CASA audit), so **Gmail connects for sending only (`gmail.send`) and mail is read over IMAP**. All the routes below are live on `api.dexisphere.com`; the payloads were seen 2026-09-23:
+
+- `GET /connectors/google/services` → `{services: [{service, label, does, status: "active"|"disconnected", account, expires, error}]}`. `expires` is the access token's and the backend refreshes it, so a past date isn't a disconnect. **Drive, Sheets and Docs share `drive.file`**, so connecting one turns all three on.
+- `GET /mailboxes/providers` → `{providers: [{key, label, needs: "app_password"|"host", help, defaults: {host, port, encryption: "ssl"}}]}`; `custom` is the one that `needs` a host. `GET /mailboxes` → `{mailboxes: []}` (no row seen yet).
+- `POST /mailboxes` failures come back as `{status: false, message}` ("connection failed", or the php-imap notice while the extension was missing). A successful connect hasn't been seen yet.
+
+- **Google** (one OAuth grant per service, each asking only for its own scopes): `gmail` (send), `calendar` (`calendar.events` + `freebusy`), `drive`, `sheets`, `docs` (all `drive.file`: files the app made or the user picked — it can't list or search the Drive), `contacts`, `gbp`. A hidden `gmail_read` appears only if the backend sets `GOOGLE_ALLOW_RESTRICTED`.
+  - `GET /connectors/google/redirect?service=…` → `{auth_url}`; the callback is `/connectors/google/callback`.
+  - `GET /connectors/google/services` gives every service's live status; `applyGoogleServices` lets it overrule `/connectors` for any connector with `googleService`.
+  - `POST /connectors/google/disconnect {service}` drops one service **locally** (Google has no per-service revoke); only `service: "all"` revokes at Google.
+- **Mailboxes** (IMAP + app password; Gmail, Outlook, Yahoo, Zoho or a custom server): the `mailbox` connector, `store: "mailboxes"`, with its own `MailboxModal` (add) and `MailboxesModal` (Test / Remove per row), opened from `ConnectorFlows`.
+  - `GET /mailboxes/providers` (host, port, app-password steps per provider; "custom" is always offered), `GET /mailboxes`, `POST /mailboxes {provider, email, password}` (custom adds `host, port, encryption, validate_cert`), `POST /mailboxes/{id}/test`, `DELETE /mailboxes/{id}`.
+  - The backend **tests the login before saving** and strips spaces from the password, so a saved mailbox already works. Disconnecting the connector removes every mailbox, one at a time.
+  - The agent's `read_inbox` uses the first active mailbox (or one named with `mailbox`), then `gmail_read`, then Outlook, and treats every message body as untrusted.
 - **Connector catalogue** (names, logos, auth type, fields, connect route): copy it from `Macrid/lib/connectors.js`.
 
 ## Media upload (chat attachments)

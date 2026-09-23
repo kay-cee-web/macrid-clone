@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
 /** `planned` is the "Coming soon" shelf: connectors a workflow needs that nothing on the backend connects yet. */
-export type ConnectorCategory = "channel" | "prospect" | "email_platform" | "planned";
+export type ConnectorCategory = "channel" | "workspace" | "prospect" | "email_platform" | "planned";
 
 /**
  * oauth     consent popup via the connector's `connect` route
@@ -33,15 +33,21 @@ export type Connector = {
   logo?: string;
   /** OAuth: GET this to receive `auth_url`. */
   connect?: string;
+  /**
+   * A Google service (`?service=` on the redirect). Its status comes from
+   * /connectors/google/services and it disconnects through /connectors/google/disconnect.
+   */
+  googleService?: string;
   /** External: path inside the Macrid app where it's managed. */
   manageHref?: string;
   fields?: ConnectorField[];
   /**
    * Where the credentials live when it isn't /connectors or /integrations:
-   * platform_apis (Google Places), mail_accounts (SMTP), sms_senders (Twilio).
-   * The last two can hold several senders, so they are added, not disconnected.
+   * platform_apis (Google Places), mail_accounts (SMTP), sms_senders (Twilio),
+   * mailboxes (IMAP, for reading mail). The last three can hold several, so
+   * they are added one by one; disconnecting removes them all.
    */
-  store?: "platform_apis" | "mail_accounts" | "sms_senders";
+  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes";
   optional?: boolean;
 };
 

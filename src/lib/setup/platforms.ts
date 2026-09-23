@@ -22,8 +22,12 @@ const IDLE: Partial<Record<PlatformId, SetupState>> = {
 
 const NOTES: Partial<Record<PlatformId, Partial<Record<SetupState, string>>>> = {
   email: {
-    ready: "A mailbox is connected.",
-    missing: "No mailbox is connected. Add SMTP, Gmail or Outlook so the agent can send email.",
+    ready: "The agent has an address to send from.",
+    missing: "Nothing is connected to send from. Add Gmail, Outlook or SMTP so the agent can send email.",
+  },
+  inbox: {
+    ready: "The agent can read your mail.",
+    missing: "Add a mailbox so the agent can read your mail. Gmail connected for sending doesn't give it read access.",
   },
   sms: {
     ready: "Texts go out from your own Twilio sender.",
@@ -36,7 +40,7 @@ const NOTES: Partial<Record<PlatformId, Partial<Record<SetupState, string>>>> = 
     shared: "Uses Dexisphere's shared Google Places key, which has a daily limit.",
   },
   google_business: { missing: "Connect Google Business Profile so the agent can read your listings." },
-  calendar: { missing: "Connect Google Calendar or Outlook so the agent can see your schedule." },
+  calendar: { missing: "Connect Google Calendar or Outlook so the agent can book and check your schedule." },
 };
 
 const GENERIC_NOTE: Record<SetupState, (name: string) => string> = {
@@ -68,7 +72,8 @@ export const platformNames = (ids: PlatformId[]) => ids.map((id) => PLATFORMS[id
 
 /** Words in a task that point at a platform, for the pre-send check in chat. */
 const MENTIONS: [PlatformId, RegExp][] = [
-  ["email", /\b(e-?mails?|newsletters?|inbox|mailbox)\b/i],
+  ["email", /\b(e-?mails?|newsletters?)\b/i],
+  ["inbox", /\b(inbox|mailbox|unread)\b/i],
   ["sms", /\b(sms|texts?|text messages?)\b/i],
   ["whatsapp", /\bwhats\s?app\b/i],
   ["google_business", /\bgoogle business( profile)?\b|\bgbp\b/i],

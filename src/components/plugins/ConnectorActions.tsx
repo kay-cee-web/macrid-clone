@@ -49,8 +49,10 @@ export function ConnectorActions({ connector, compact = false }: { connector: Co
   if (!flows?.connections) return null;
 
   const connected = flows.connections?.state[connector.key]?.status === "connected";
-  // Mailboxes and SMS senders can be several: add more here, fine-tune them in Dexisphere.
-  const multiple = connector.store === "mail_accounts" || connector.store === "sms_senders";
+  // Senders and mailboxes can be several: add more here. Senders are fine-tuned in
+  // Dexisphere; mailboxes are managed here, since only this app reads them.
+  const mailboxes = connector.store === "mailboxes";
+  const multiple = mailboxes || connector.store === "mail_accounts" || connector.store === "sms_senders";
 
   if (connector.auth === "external") {
     return connected ? (
@@ -63,7 +65,7 @@ export function ConnectorActions({ connector, compact = false }: { connector: Co
   if (!connected) {
     return (
       <Button size="sm" loading={flows.pending === connector.key} onClick={() => flows.connect(connector)}>
-        {multiple ? "Add sender" : connector.auth === "api_key" ? "Add key" : "Connect"}
+        {mailboxes ? "Add mailbox" : multiple ? "Add sender" : connector.auth === "api_key" ? "Add key" : "Connect"}
       </Button>
     );
   }
@@ -78,7 +80,11 @@ export function ConnectorActions({ connector, compact = false }: { connector: Co
           <Button variant="ghost" size="sm" onClick={() => flows.connect(connector)}>
             Add another
           </Button>
-          <ManageLink connector={connector}>Manage</ManageLink>
+          {mailboxes ? (
+            <Button variant="ghost" size="sm" onClick={flows.manageMailboxes}>Manage</Button>
+          ) : (
+            <ManageLink connector={connector}>Manage</ManageLink>
+          )}
         </>
       )}
     </>

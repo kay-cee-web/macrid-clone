@@ -4,7 +4,7 @@ import type { Idea } from "@/types/idea";
 export const WORK: Idea[] = [
   {
     title: "Morning briefing",
-    platforms: ["email", "calendar"],
+    platforms: ["inbox", "calendar"],
     description: "Every morning, digest my unread mail, today's meetings and the tasks due, in that order, as one short note.",
   },
   {
@@ -26,7 +26,7 @@ export const WORK: Idea[] = [
   },
   {
     title: "Unanswered email nudge",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "When a reply has sat unanswered for a day, remind me with a one-line summary of what it was about.",
   },
   {
