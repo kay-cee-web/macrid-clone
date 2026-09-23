@@ -10,7 +10,7 @@ export const CRM: Idea[] = [
   },
   {
     title: "Warm reply to deal",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "When a prospect replies with interest, create the deal, set its stage, and put the follow-up task on my calendar.",
   },
   {

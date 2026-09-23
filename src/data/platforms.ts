@@ -9,6 +9,8 @@ export const PLATFORMS = {
   facebook: { name: "Facebook", connectors: ["facebook"] },
   google_business: { name: "Google Business", connectors: ["gbp"] },
   email: { name: "Email", connectors: ["gmail", "outlook_mail", "smtp"] },
+  /** Reading mail. Gmail's connection sends only, so it doesn't count here. */
+  inbox: { name: "Inbox", connectors: ["mailbox", "outlook_mail"] },
   whatsapp: { name: "WhatsApp", connectors: ["whatsapp_business"] },
   sms: { name: "SMS", connectors: ["twilio"] },
   calendar: { name: "Calendar", connectors: ["calendar", "outlook_mail"] },

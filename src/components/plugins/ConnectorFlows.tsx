@@ -11,6 +11,8 @@ import { refreshSetup } from "@/lib/setup/store";
 import { disconnectConnector } from "@/services/connections";
 import type { Connections, Connector } from "@/types/connector";
 import { ApiKeyModal } from "./ApiKeyModal";
+import { MailboxesModal } from "./MailboxesModal";
+import { MailboxModal } from "./MailboxModal";
 
 type ConnectorFlows = {
   connections: Connections | null;
@@ -18,6 +20,8 @@ type ConnectorFlows = {
   pending: string | null;
   connect: (connector: Connector) => void;
   disconnect: (connector: Connector) => void;
+  /** The mailbox list: test or remove one at a time. */
+  manageMailboxes: () => void;
 };
 
 const ConnectorFlowsContext = createContext<ConnectorFlows | null>(null);
@@ -34,6 +38,12 @@ function disconnectWarning(connector: Connector, detail: string) {
   if (connector.store === "sms_senders") {
     return `Your Twilio sender is removed${which}, and texts go back out on Dexisphere's shared sender.`;
   }
+  if (connector.store === "mailboxes") {
+    return `Every mailbox connected here is removed${which}. Agents can't read your mail until you add one again.`;
+  }
+  if (connector.googleService) {
+    return `Agents lose ${connector.name} straight away. Your other Google connections keep working.`;
+  }
   return "Agents lose access to it until you connect it again.";
 }
 
@@ -47,6 +57,7 @@ type ProviderProps = { connections: Connections | null; onChanged: () => void; c
 export function ConnectorFlowsProvider({ connections, onChanged, children }: ProviderProps) {
   const [keyFor, setKeyFor] = useState<Connector | null>(null);
   const [disconnecting, setDisconnecting] = useState<Connector | null>(null);
+  const [mailbox, setMailbox] = useState<"add" | "manage" | null>(null);
   const source = connections?.source ?? "connectors";
 
   const oauth = useOAuthPopup(({ key, ok, message }) => {
@@ -61,8 +72,13 @@ export function ConnectorFlowsProvider({ connections, onChanged, children }: Pro
     connections,
     pending: oauth.pending,
     // OAuth opens its popup synchronously, inside the click, so blockers allow it.
-    connect: (connector) => (connector.auth === "oauth" ? void oauth.connect(connector) : setKeyFor(connector)),
+    connect: (connector) => {
+      if (connector.auth === "oauth") void oauth.connect(connector);
+      else if (connector.store === "mailboxes") setMailbox("add");
+      else setKeyFor(connector);
+    },
     disconnect: setDisconnecting,
+    manageMailboxes: () => setMailbox("manage"),
   };
   const connection = disconnecting ? connections?.state[disconnecting.key] : undefined;
 
@@ -70,6 +86,10 @@ export function ConnectorFlowsProvider({ connections, onChanged, children }: Pro
     <ConnectorFlowsContext.Provider value={flows}>
       {children}
       {keyFor && <ApiKeyModal connector={keyFor} source={source} onClose={() => setKeyFor(null)} onConnected={onChanged} />}
+      {mailbox === "add" && <MailboxModal onClose={() => setMailbox(null)} onConnected={onChanged} />}
+      {mailbox === "manage" && (
+        <MailboxesModal onClose={() => setMailbox(null)} onAdd={() => setMailbox("add")} onChanged={onChanged} />
+      )}
       {disconnecting && (
         <ConfirmModal
           title={`Disconnect ${disconnecting.name}?`}

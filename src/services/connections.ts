@@ -1,8 +1,12 @@
 import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
 import { assertEnvelope, extractApiError } from "@/lib/api/errors";
-import { applyLegacyRows, applyModernRows, applyPlatformRows, blankState, readRows } from "@/lib/connections/readState";
+import {
+  applyGoogleServices, applyLegacyRows, applyMailboxes, applyModernRows, applyPlatformRows, blankState, readRows,
+} from "@/lib/connections/readState";
 import type { Connections, ConnectionState, Connector } from "@/types/connector";
+import { disconnectGoogleService, fetchGoogleServices } from "./googleConnectors";
+import { fetchMailboxes, removeAllMailboxes } from "./mailboxes";
 import {
   createMailAccount, createSmsSender, fetchMailAccounts, fetchSmsSenders, removeAllMailAccounts, removeAllSmsSenders,
 } from "./senders";
@@ -10,8 +14,9 @@ import {
 /**
  * Workspace connections (shared by every agent). /connectors is the newer
  * route and may 404; /integrations is the legacy one. Google Places keys are
- * always in /platform-apis; SMTP mailboxes and Twilio senders have their own
- * routes. Writes must go to the routes of whichever read answered.
+ * always in /platform-apis; SMTP senders, Twilio senders, IMAP mailboxes and
+ * the Google services have their own routes. Writes must go to the routes of
+ * whichever read answered.
  */
 async function readPlatformKeys(state: Record<string, ConnectionState>, problems: string[]) {
   try {
@@ -35,6 +40,15 @@ async function readSenders(state: Record<string, ConnectionState>, problems: str
     const active = sms.value.filter((sender) => sender.active);
     state.twilio = { status: active.length ? "connected" : "disconnected", recordId: active[0]?.id ?? null, detail: active.map((s) => s.sender).join(", ") };
   } else problems.push(extractApiError(sms.reason, "Could not load your SMS senders"));
+}
+
+/** Google's per-service grants and the IMAP mailboxes overrule whatever /connectors says about them. */
+async function readGoogleAndMailboxes(state: Record<string, ConnectionState>, problems: string[]) {
+  const [google, mailboxes] = await Promise.allSettled([fetchGoogleServices(), fetchMailboxes()]);
+  if (google.status === "fulfilled") applyGoogleServices(state, google.value);
+  else problems.push(extractApiError(google.reason, "Could not load your Google connections"));
+  if (mailboxes.status === "fulfilled") applyMailboxes(state, mailboxes.value);
+  else problems.push(extractApiError(mailboxes.reason, "Could not load your mailboxes"));
 }
 
 export async function fetchConnections(): Promise<Connections> {
@@ -61,7 +75,9 @@ export async function fetchConnections(): Promise<Connections> {
     }
   }
 
-  await Promise.all([readPlatformKeys(state, problems), readSenders(state, problems)]);
+  await Promise.all([
+    readPlatformKeys(state, problems), readSenders(state, problems), readGoogleAndMailboxes(state, problems),
+  ]);
   return { source, state, problems };
 }
 
@@ -106,6 +122,8 @@ export async function connectApiKey(connector: Connector, values: Record<string,
 export async function disconnectConnector(connector: Connector, connection: ConnectionState, source: Connections["source"]) {
   if (connector.store === "mail_accounts") return removeAllMailAccounts();
   if (connector.store === "sms_senders") return removeAllSmsSenders();
+  if (connector.store === "mailboxes") return removeAllMailboxes();
+  if (connector.googleService) return disconnectGoogleService(connector.googleService, connector.name);
   if (connector.store === "platform_apis") {
     const cleared = Object.fromEntries((connector.fields ?? []).map((field) => [field.name, ""]));
     await savePlatformKeys(cleared, `Could not remove ${connector.name}`);

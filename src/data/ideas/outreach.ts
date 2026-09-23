@@ -48,7 +48,7 @@ export const OUTREACH: Idea[] = [
   },
   {
     title: "Auto-stop on reply",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "The moment someone answers, pull them out of every running sequence and hand the conversation to me.",
   },
   {
@@ -58,7 +58,7 @@ export const OUTREACH: Idea[] = [
   },
   {
     title: "Inbound reply triage",
-    platforms: ["email"],
+    platforms: ["inbox"],
     description: "As replies land, sort them (interested, not now, wrong person, unsubscribe) and put a draft response under each.",
   },
 ];

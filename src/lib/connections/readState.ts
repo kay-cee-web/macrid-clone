@@ -1,4 +1,6 @@
 import { CONNECTORS, CONNECTORS_BY_KEY, CONNECTOR_ALIASES } from "@/data/connectors";
+import type { GoogleService } from "@/services/googleConnectors";
+import type { Mailbox } from "@/services/mailboxes";
 import type { ConnectionState } from "@/types/connector";
 
 type Row = Record<string, unknown>;
@@ -57,6 +59,28 @@ export function applyLegacyRows(state: Record<string, ConnectionState>, payload:
     const detail = row.list_id ? `List ${row.list_id}` : row.form_id ? `Form ${row.form_id}` : row.group_id ? `Group ${row.group_id}` : "";
     state[key] = { status: off ? "disconnected" : "connected", recordId: idOf(row), detail };
   }
+}
+
+/** GET /connectors/google/services: the one source for every Google card. */
+export function applyGoogleServices(state: Record<string, ConnectionState>, services: GoogleService[]) {
+  for (const connector of CONNECTORS.filter((c) => c.googleService)) {
+    const found = services.find((s) => s.service === connector.googleService);
+    if (!found) continue;
+    // A service that reports an error shows it in place of the account.
+    const detail = found.error || found.email;
+    state[connector.key] = { status: found.connected ? "connected" : "disconnected", recordId: null, detail };
+  }
+}
+
+/** GET /mailboxes: connected once one works; several are named by the first. */
+export function applyMailboxes(state: Record<string, ConnectionState>, mailboxes: Mailbox[]) {
+  const active = mailboxes.filter((m) => m.active);
+  const emails = active.map((m) => m.email).filter(Boolean);
+  state.mailbox = {
+    status: active.length ? "connected" : "disconnected",
+    recordId: active[0]?.id ?? null,
+    detail: emails.length > 1 ? `${emails[0]} +${emails.length - 1} more` : emails[0] ?? "",
+  };
 }
 
 /** GET /platform-apis: Google Places lives here, not in /connectors. */
