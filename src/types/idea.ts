@@ -12,6 +12,8 @@ export type IdeaCategory =
   | "Deliverability"
   | "Analytics"
   | "Creative"
+  /** Writing and publishing posts on social networks. */
+  | "Social media"
   | "Research"
   | "Work productivity"
   | "Business growth"

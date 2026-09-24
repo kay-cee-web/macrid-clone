@@ -15,6 +15,7 @@ const SIGNALS: Record<Exclude<IdeaCategory, "Reminders">, [RegExp, number][]> = 
   Deliverability: [[/deliverab|bounce|spam|inbox placement|verify (?:e-?mails?|addresses)|sending domain|dmarc|spf|dkim/g, 3]],
   Analytics: [[/analytics|report|metrics|\bkpis?\b|open rate|click rate|dashboard/g, 2], [/performance|stats/g, 1]],
   Creative: [[/\bseo\b|blog|caption|social post|brand voice|copywrit|repurpos|newsletter copy/g, 2], [/content|draft|write/g, 1]],
+  "Social media": [[/social media|linkedin post|instagram|tiktok|\btweets?\b|x thread|hashtags?|\breels?\b|telegram channel|cross-?post|publish (?:the |my )?posts?/g, 3]],
   Research: [[/research|compare|pricing|market|\bicp\b|sources?|find out/g, 2]],
   "Work productivity": [[/briefing|wrap-?up|triage|stand-?up|my (?:day|inbox|calendar)|to-?do/g, 2], [/\bdigest\b|reminder/g, 1]],
   "Business growth": [[/churn|retention|upsell|competitor|reviews?|feedback|referral|win-?back/g, 2]],
