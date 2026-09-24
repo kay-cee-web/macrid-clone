@@ -56,12 +56,23 @@ export function toConnection(row: Row): PaymentConnection {
     live: toBool(row.live, true),
     problem: toText(pickField(row, ["last_error", "problem", "error"])) || (broken ? "The key stopped working." : ""),
     webhookReady: secretSet === undefined ? null : toBool(secretSet, false),
-    notify: {
-      notify_events: toList(row.notify_events),
-      notify_channels: toList(row.notify_channels),
-      notify_to: toText(row.notify_to),
-      notify_min_amount: toMaybeNumber(row.notify_min_amount),
-    },
+    notify: toNotify(row),
+  };
+}
+
+/**
+ * Saved alert settings. POST …/notifications answers with them nested (seen
+ * 2026-09-24: `alerts: {events, channels, to, min_amount, verified}`); a row
+ * may carry them the same way or flat as `notify_*`. The connections list
+ * doesn't include them yet, so the form opens on the defaults.
+ */
+function toNotify(row: Row): PaymentConnection["notify"] {
+  const alerts = (row.alerts ?? {}) as Row;
+  return {
+    notify_events: toList(pickField(alerts, ["events"]) ?? row.notify_events),
+    notify_channels: toList(pickField(alerts, ["channels"]) ?? row.notify_channels),
+    notify_to: toText(pickField(alerts, ["to"]) ?? row.notify_to),
+    notify_min_amount: toMaybeNumber(pickField(alerts, ["min_amount"]) ?? row.notify_min_amount),
   };
 }
 
