@@ -14,6 +14,7 @@ import { OUTREACH } from "./outreach";
 import { PROSPECTING } from "./prospecting";
 import { REMINDERS } from "./reminders";
 import { RESEARCH } from "./research";
+import { SOCIAL } from "./social";
 import { WORK } from "./work";
 
 /**
@@ -29,6 +30,7 @@ export const CATEGORIES: IdeaCategory[] = [
   "Deliverability",
   "Analytics",
   "Creative",
+  "Social media",
   "Research",
   "Work productivity",
   "Business growth",
@@ -46,6 +48,7 @@ export const IDEAS: Record<IdeaCategory, Idea[]> = {
   Deliverability: DELIVERABILITY,
   Analytics: ANALYTICS,
   Creative: CREATIVE,
+  "Social media": SOCIAL,
   Research: RESEARCH,
   "Work productivity": WORK,
   "Business growth": GROWTH,

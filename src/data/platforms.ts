@@ -7,6 +7,11 @@ export const PLATFORMS = {
   google_maps: { name: "Google Maps", connectors: ["google_places"] },
   linkedin: { name: "LinkedIn", connectors: ["linkedin"] },
   facebook: { name: "Facebook", connectors: ["facebook"] },
+  x: { name: "X", connectors: ["x"] },
+  instagram: { name: "Instagram", connectors: ["instagram"] },
+  tiktok: { name: "TikTok", connectors: ["tiktok"] },
+  /** Posting to a channel the user runs, not the agent's own Telegram chat channel. */
+  telegram: { name: "Telegram", connectors: ["telegram_channel"] },
   google_business: { name: "Google Business", connectors: ["gbp"] },
   email: { name: "Email", connectors: ["gmail", "outlook_mail", "smtp"] },
   /** Reading mail. Gmail's connection sends only, so it doesn't count here. */

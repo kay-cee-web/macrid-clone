@@ -1,4 +1,6 @@
-import { Briefcase, GitPullRequest, Hash, ImagePlus, Landmark, MailCheck, ShoppingBag, Ticket } from "lucide-react";
+import {
+  AtSign, Briefcase, Camera, GitPullRequest, Hash, ImagePlus, Landmark, MailCheck, Megaphone, Music2, ShoppingBag, Ticket,
+} from "lucide-react";
 import type { Connector } from "@/types/connector";
 
 /**
@@ -10,7 +12,23 @@ import type { Connector } from "@/types/connector";
 export const PLANNED_CONNECTORS: Connector[] = [
   {
     key: "linkedin", name: "LinkedIn", category: "planned", auth: "planned", Icon: Briefcase, logo: "linkedin",
-    description: "Find the decision-makers behind a company and research competitors from their pages.",
+    description: "Publish posts to your profile or company page, find the decision-makers behind a company and research competitors.",
+  },
+  {
+    key: "x", name: "X", category: "planned", auth: "planned", Icon: AtSign, logo: "x",
+    description: "Publish posts and threads from your account, and see how they did.",
+  },
+  {
+    key: "instagram", name: "Instagram", category: "planned", auth: "planned", Icon: Camera, logo: "instagram",
+    description: "Publish feed posts, carousels and reels to a business account.",
+  },
+  {
+    key: "tiktok", name: "TikTok", category: "planned", auth: "planned", Icon: Music2, logo: "tiktok",
+    description: "Upload short videos with their captions to your TikTok account.",
+  },
+  {
+    key: "telegram_channel", name: "Telegram channel", category: "planned", auth: "planned", Icon: Megaphone, logo: "telegram",
+    description: "Post updates to a Telegram channel you run. Chatting with an agent over Telegram is a channel in its settings.",
   },
   {
     key: "slack", name: "Slack", category: "planned", auth: "planned", Icon: Hash, logo: "slack",
