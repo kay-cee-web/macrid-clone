@@ -24,6 +24,8 @@ export const PLATFORMS = {
   github: { name: "GitHub", connectors: ["github"] },
   shopify: { name: "Shopify", connectors: ["shopify"] },
   bank: { name: "Bank account", connectors: ["bank"] },
+  /** The user's own payment accounts, read-only. Any one of them will do; Stripe stands for them on cards. */
+  payments: { name: "a payment account", connectors: ["stripe", "paypal", "paystack", "flutterwave", "paddle", "lemonsqueezy"] },
   image_generation: { name: "Image generation", connectors: ["image_generation"] },
   email_verification: { name: "Email verification", connectors: ["email_verification"] },
 } satisfies Record<string, { name: string; connectors: string[] }>;

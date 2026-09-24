@@ -3,109 +3,127 @@ import {
   Rocket, Send, Sheet, Store, Users, Waves,
 } from "lucide-react";
 import type { Connector, ConnectorCategory } from "@/types/connector";
-import { FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS, apiKeyFields } from "./fields";
+import {
+  API_SECRET, API_URL, FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS, apiKeyFields, optional,
+} from "./fields";
+import { MESSAGING_CONNECTORS } from "./messaging";
+import { PAYMENT_CONNECTORS } from "./payments";
 import { PLANNED_CONNECTORS } from "./planned";
 
-/** Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js). */
+/**
+ * Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js).
+ * Copy rule: say what the user gets, not which scope it needs, in under about
+ * 60 characters, so a card stays one or two lines at any width.
+ */
 export const CONNECTOR_CATEGORIES: { key: ConnectorCategory; label: string; blurb: string }[] = [
-  { key: "channel", label: "Outreach channels", blurb: "Where your agents and campaigns send from." },
-  { key: "workspace", label: "Inbox, calendar and files", blurb: "What your agents read and keep: mail, meetings, documents and contacts." },
+  { key: "google", label: "Google", blurb: "One sign-in per service, so you share only what you need." },
+  { key: "microsoft", label: "Microsoft", blurb: "Mail and calendar for Microsoft accounts." },
+  { key: "mailbox", label: "Mailbox", blurb: "The read half: replies and anything else in your inbox." },
+  { key: "messaging", label: "Messaging", blurb: "Talk to this agent from your phone." },
+  { key: "payments", label: "Payments", blurb: "Read-only. Agents see your sales; they can't move money." },
+  { key: "sending", label: "Sending", blurb: "Your own senders for email, SMS and WhatsApp broadcasts." },
   { key: "prospect", label: "Prospect sources", blurb: "Where Dexisphere looks for businesses worth contacting." },
   { key: "email_platform", label: "Email platforms", blurb: "Keep a list you already own in step with your pipeline." },
   { key: "planned", label: "Coming soon", blurb: "Workflows already ask for these, but nothing connects them yet." },
 ];
 
 /** One consent screen per Google service, asking only for that service's scopes. */
-const google = (service: string) => ({ connect: `/connectors/google/redirect?service=${service}`, googleService: service });
+const google = (service: string) =>
+  ({ category: "google", auth: "oauth", connect: `/connectors/google/redirect?service=${service}`, googleService: service }) as const;
 
 export const CONNECTORS: Connector[] = [
   {
-    key: "smtp", name: "Email (SMTP)", category: "channel", auth: "api_key", Icon: Mail, store: "mail_accounts",
-    manageHref: "/multi-channel-outreach/email", fields: SMTP_FIELDS,
-    description: "Send campaigns and sequences from your own mailbox.",
+    key: "gmail", name: "Gmail", Icon: Send, logo: "gmail", ...google("gmail"),
+    description: "Send email from your own address, so replies land in your inbox.",
   },
   {
-    key: "twilio", name: "SMS (Twilio)", category: "channel", auth: "api_key", Icon: MessageSquare, logo: "twilio",
-    store: "sms_senders", manageHref: "/multi-channel-outreach/sms", fields: TWILIO_FIELDS, optional: true,
-    description: "Text from your own number. Optional: without it, SMS goes out on Dexisphere's shared sender.",
+    key: "calendar", name: "Google Calendar", Icon: Calendar, logo: "calendar", ...google("calendar"),
+    description: "Book, move and cancel meetings, and check what's already taken.",
   },
   {
-    key: "whatsapp_business", name: "WhatsApp Business", category: "channel", auth: "external", Icon: MessageCircle,
-    logo: "whatsapp_business", manageHref: "/settings/whatsapp-settings",
-    description: "Send WhatsApp broadcasts from your business number. Connected through Meta inside Dexisphere.",
+    key: "drive", name: "Google Drive", Icon: HardDrive, logo: "drive", ...google("drive"),
+    description: "Open files you pick, and save what your agent creates.",
   },
   {
-    key: "gmail", name: "Gmail", category: "channel", auth: "oauth", Icon: Send, logo: "gmail", ...google("gmail"),
-    description: "Send from your own Google address. Sending only: to read your mail, add a mailbox.",
+    key: "sheets", name: "Google Sheets", Icon: Sheet, logo: "sheets", ...google("sheets"),
+    description: "Read and update spreadsheets you share with your agent.",
   },
   {
-    key: "outlook_mail", name: "Outlook", category: "channel", auth: "oauth", Icon: Mail, logo: "outlook_mail",
+    key: "docs", name: "Google Docs", Icon: FileText, logo: "docs", ...google("docs"),
+    description: "Draft and edit documents without leaving the chat.",
+  },
+  {
+    key: "contacts", name: "Google Contacts", Icon: Contact, logo: "contacts", ...google("contacts"),
+    description: "Pull your contacts in, and save new ones back.",
+  },
+  {
+    key: "gbp", name: "Google Business Profile", Icon: Store, logo: "gbp", ...google("gbp"),
+    description: "Read the listings you manage, with reviews and enquiries.",
+  },
+  {
+    key: "outlook_mail", name: "Outlook", category: "microsoft", auth: "oauth", Icon: Mail, logo: "outlook_mail",
     connect: "/connectors/outlook/redirect", description: "Mail and calendar for Microsoft accounts, in one grant.",
   },
   {
-    key: "mailbox", name: "Mailbox (IMAP)", category: "workspace", auth: "api_key", Icon: Inbox, store: "mailboxes",
-    description: "Let agents read your mail. Gmail, Outlook, Yahoo, Zoho or any IMAP server, with an app password.",
+    key: "mailbox", name: "Mailbox", category: "mailbox", auth: "api_key", Icon: Inbox, store: "mailboxes",
+    description: "Read replies from Gmail, Outlook or any IMAP account. Needs an app password, not your normal one.",
+  },
+  ...MESSAGING_CONNECTORS,
+  ...PAYMENT_CONNECTORS,
+  {
+    key: "smtp", name: "Email (SMTP)", category: "sending", auth: "api_key", Icon: Mail, store: "mail_accounts",
+    manageHref: "/multi-channel-outreach/email", fields: SMTP_FIELDS,
+    description: "Send campaigns from any mailbox, with its server details.",
   },
   {
-    key: "calendar", name: "Google Calendar", category: "workspace", auth: "oauth", Icon: Calendar, logo: "calendar",
-    ...google("calendar"), description: "Book and move appointments, and check a slot is free before offering it.",
+    key: "twilio", name: "SMS (Twilio)", category: "sending", auth: "api_key", Icon: MessageSquare, logo: "twilio",
+    store: "sms_senders", manageHref: "/multi-channel-outreach/sms", fields: TWILIO_FIELDS, optional: true,
+    description: "Text from your own number instead of the shared one.",
   },
   {
-    key: "drive", name: "Google Drive", category: "workspace", auth: "oauth", Icon: HardDrive, logo: "drive",
-    ...google("drive"), description: "Save what agents make, and open files you pick. It sees only those, not your whole Drive.",
-  },
-  {
-    key: "sheets", name: "Google Sheets", category: "workspace", auth: "oauth", Icon: Sheet, logo: "sheets",
-    ...google("sheets"), description: "Export lead lists and pipeline reports to a spreadsheet.",
-  },
-  {
-    key: "docs", name: "Google Docs", category: "workspace", auth: "oauth", Icon: FileText, logo: "docs",
-    ...google("docs"), description: "Write proposals, briefs and reports straight into a document.",
-  },
-  {
-    key: "contacts", name: "Google Contacts", category: "workspace", auth: "oauth", Icon: Contact, logo: "contacts",
-    ...google("contacts"), description: "Look people up and save new contacts to your Google account.",
+    key: "whatsapp_business", name: "WhatsApp Business", category: "sending", auth: "external", Icon: MessageCircle,
+    logo: "whatsapp_business", manageHref: "/settings/whatsapp-settings",
+    description: "Send WhatsApp broadcasts from your business number.",
   },
   {
     key: "google_places", name: "Google Places", category: "prospect", auth: "api_key", Icon: MapPin, logo: "google_places",
     store: "platform_apis", optional: true, fields: [PLACES_KEY],
-    description: "Find local businesses by niche, city and radius. Optional: Dexisphere's shared key has a daily limit.",
+    description: "Find local businesses without the shared daily limit.",
   },
   {
-    key: "gbp", name: "Google Business Profile", category: "prospect", auth: "oauth", Icon: Store, logo: "gbp",
-    ...google("gbp"), description: "Read your own listings, hours, reviews and posts.",
+    key: "facebook", name: "Facebook", category: "prospect", auth: "oauth", Icon: Users, logo: "facebook",
+    connect: "/connectors/facebook/redirect", description: "Find the pages and businesses active in your niche.",
   },
-  {
-    key: "facebook", name: "Facebook", category: "prospect", auth: "external", Icon: Users, logo: "facebook",
-    manageHref: "/settings/fb-settings", description: "Pull pages and the businesses engaging with your niche.",
-  },
+  // Fields as GET /connectors lists them (2026-09-24).
   {
     key: "mailchimp", name: "Mailchimp", category: "email_platform", auth: "api_key", Icon: AtSign, logo: "mailchimp",
-    fields: apiKeyFields(LIST_ID), description: "Push captured leads into a Mailchimp audience.",
+    fields: apiKeyFields("Account → Extras → API keys", optional(LIST_ID)),
+    description: "Push captured leads into a Mailchimp audience.",
   },
   {
     key: "brevo", name: "Brevo", category: "email_platform", auth: "api_key", Icon: Send, logo: "brevo",
-    fields: apiKeyFields(LIST_ID), description: "Sync a list and send from Brevo.",
+    fields: apiKeyFields("SMTP & API → API keys"), description: "Sync a list and send from Brevo.",
   },
   {
     key: "klaviyo", name: "Klaviyo", category: "email_platform", auth: "api_key", Icon: Waves,
-    fields: apiKeyFields(LIST_ID), description: "Keep a Klaviyo list in step with your CRM.",
+    fields: [{ ...apiKeyFields("Settings → API keys. The private one, not public.")[0], label: "Private API key" }],
+    description: "Keep a Klaviyo list in step with your CRM.",
   },
   {
     key: "convertkit", name: "ConvertKit", category: "email_platform", auth: "api_key", Icon: Flame, logo: "convertkit",
-    fields: apiKeyFields(FORM_ID), description: "Subscribe new leads to a ConvertKit form.",
+    fields: apiKeyFields(undefined, API_SECRET, optional(FORM_ID)), description: "Subscribe new leads to a ConvertKit form.",
   },
   {
     key: "activecampaign", name: "ActiveCampaign", category: "email_platform", auth: "api_key", Icon: Layers,
-    fields: apiKeyFields(LIST_ID), description: "Hand leads to an ActiveCampaign automation.",
+    fields: [API_URL, ...apiKeyFields()], description: "Hand leads to an ActiveCampaign automation.",
   },
   {
     key: "mailerlite", name: "MailerLite", category: "email_platform", auth: "api_key", Icon: Boxes,
-    fields: apiKeyFields(GROUP_ID), description: "Add leads to a MailerLite group.",
+    fields: apiKeyFields("Integrations → API", optional(GROUP_ID)), description: "Add leads to a MailerLite group.",
   },
   {
     key: "getresponse", name: "GetResponse", category: "email_platform", auth: "api_key", Icon: Rocket,
-    fields: apiKeyFields(LIST_ID), description: "Feed a GetResponse list from your funnels.",
+    fields: apiKeyFields(), description: "Feed a GetResponse list from your funnels.",
   },
   {
     key: "systeme", name: "Systeme.io", category: "email_platform", auth: "api_key", Icon: Boxes,

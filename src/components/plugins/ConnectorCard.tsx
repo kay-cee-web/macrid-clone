@@ -12,16 +12,22 @@ type ConnectorCardProps = {
   loading: boolean;
 };
 
-/** The label under the name when nothing is connected yet. */
-function idleLabel(connector: Connector, connection: ConnectionState | undefined) {
-  if (connector.auth === "planned") return "Coming soon";
-  if (connector.auth === "external" && connection?.status === "unknown") return "Not set up";
-  return connector.optional ? "Optional" : "Not connected";
+/**
+ * Three states, and only three: Not connected, Connected, Needs attention.
+ * The last is the one that matters: a connection that broke quietly is the
+ * failure users blame the product for. "Coming soon" isn't a state, just a shelf.
+ */
+function Badge({ connector, connection }: { connector: Connector; connection: ConnectionState | undefined }) {
+  if (connector.auth === "planned") return <Pill>Coming soon</Pill>;
+  if (connection?.status === "attention") return <Pill tone="warn" dot>Needs attention</Pill>;
+  if (connection?.status === "connected") return <Pill tone="good" dot>Connected</Pill>;
+  return <Pill>Not connected</Pill>;
 }
 
 /** One connector in the Plugins catalogue. Its buttons come from `ConnectorActions`, inside a `ConnectorFlowsProvider`. */
 export function ConnectorCard({ connector, connection, loading }: ConnectorCardProps) {
-  const connected = connector.auth !== "planned" && connection?.status === "connected";
+  const status = connector.auth === "planned" ? undefined : connection?.status;
+  const detail = status === "connected" || status === "attention" ? connection?.detail : "";
 
   return (
     <article className="group flex h-full flex-col gap-4 rounded-3xl border border-line bg-raised/40 p-6 backdrop-blur transition-[background-color,box-shadow] duration-200 hover:bg-raised/80 hover:shadow-float">
@@ -33,16 +39,18 @@ export function ConnectorCard({ connector, connection, loading }: ConnectorCardP
             <Skeleton className="h-5 w-24 rounded-full" />
           ) : (
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-              {connected ? <Pill tone="good" dot>Connected</Pill> : <Pill>{idleLabel(connector, connection)}</Pill>}
-              {connected && connection?.detail && (
-                <span className="truncate font-mono text-xs text-faint">{connection.detail}</span>
-              )}
+              <Badge connector={connector} connection={connection} />
+              {status === "connected" && detail && <span className="truncate font-mono text-xs text-faint">{detail}</span>}
             </span>
           )}
         </div>
       </div>
 
       <p className="text-sm leading-relaxed text-muted">{connector.description}</p>
+      {/* What broke, in the backend's words, where the user will look before pressing anything. */}
+      {status === "attention" && detail && (
+        <p className="rounded-xl bg-warn-soft px-3 py-2 text-sm text-warn">{detail}</p>
+      )}
 
       {/* mt-auto lines the buttons up across a row, however tall each card runs. */}
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">

@@ -1,15 +1,22 @@
 import type { LucideIcon } from "lucide-react";
+import type { ChannelProvider } from "./channel";
 
-/** `planned` is the "Coming soon" shelf: connectors a workflow needs that nothing on the backend connects yet. */
-export type ConnectorCategory = "channel" | "workspace" | "prospect" | "email_platform" | "planned";
+/**
+ * The Plugins page's groups, by who makes the service (Google, Microsoft) or
+ * what it's for. `planned` is the "Coming soon" shelf: connectors a workflow
+ * needs that nothing on the backend connects yet.
+ */
+export type ConnectorCategory =
+  | "google" | "microsoft" | "mailbox" | "messaging" | "payments" | "sending" | "prospect" | "email_platform" | "planned";
 
 /**
  * oauth     consent popup via the connector's `connect` route
  * api_key   a form of credential fields
- * external  set up inside the main Macrid app (e.g. SMTP mailboxes, Facebook)
+ * external  set up inside the main Macrid app (e.g. WhatsApp Business, Facebook)
+ * channel   one agent's chat link (WhatsApp, Telegram), paired in its settings
  * planned   no route yet; listed so the gap is visible until the backend builds it
  */
-export type ConnectorAuth = "oauth" | "api_key" | "external" | "planned";
+export type ConnectorAuth = "oauth" | "api_key" | "external" | "channel" | "planned";
 
 export type ConnectorField = {
   name: string;
@@ -26,6 +33,7 @@ export type Connector = {
   name: string;
   category: ConnectorCategory;
   auth: ConnectorAuth;
+  /** What the user gets, in under about 60 characters. Never the scope it needs. */
   description: string;
   /** Drawn when there's no `logo`: SMTP, a bank, anything with no brand of its own. */
   Icon: LucideIcon;
@@ -38,23 +46,33 @@ export type Connector = {
    * /connectors/google/services and it disconnects through /connectors/google/disconnect.
    */
   googleService?: string;
+  /** Channel: the provider in /agents/{id}/{provider}/…. */
+  channel?: ChannelProvider;
   /** External: path inside the Macrid app where it's managed. */
   manageHref?: string;
   fields?: ConnectorField[];
   /**
    * Where the credentials live when it isn't /connectors or /integrations:
    * platform_apis (Google Places), mail_accounts (SMTP), sms_senders (Twilio),
-   * mailboxes (IMAP, for reading mail). The last three can hold several, so
-   * they are added one by one; disconnecting removes them all.
+   * mailboxes (IMAP, for reading mail), payments (/payments/connections).
+   * mail_accounts, sms_senders and mailboxes can hold several, so they are
+   * added one by one; disconnecting removes them all.
    */
-  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes";
+  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments";
   optional?: boolean;
 };
 
+/**
+ * connected     working
+ * attention     set up but broken: an expired token, a revoked app password,
+ *               a webhook secret never set. `detail` says what.
+ * disconnected  nothing set up
+ * unknown       no endpoint says
+ */
 export type ConnectionState = {
-  status: "connected" | "disconnected" | "unknown";
+  status: "connected" | "attention" | "disconnected" | "unknown";
   recordId: string | null;
-  /** Account email, list id, key hint… */
+  /** Account email, list id, key hint… or, for `attention`, the problem. */
   detail: string;
 };
 
@@ -64,3 +82,7 @@ export type Connections = {
   state: Record<string, ConnectionState>;
   problems: string[];
 };
+
+/** Set up, working or not: what "Disconnect" and "Manage" act on. */
+export const isSetUp = (state: ConnectionState | undefined) =>
+  state?.status === "connected" || state?.status === "attention";

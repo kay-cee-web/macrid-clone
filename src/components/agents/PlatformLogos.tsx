@@ -12,6 +12,7 @@ const DOT: Record<SetupState, string> = {
   ready: "bg-good",
   shared: "bg-teal",
   missing: "bg-warn",
+  attention: "bg-bad",
   unknown: "bg-faint",
   planned: "bg-faint",
 };
@@ -19,7 +20,7 @@ const DOT: Record<SetupState, string> = {
 /** Name, status and the one action that fits: Connect, Disconnect, set up in Dexisphere, or coming soon. */
 function ConnectorPanel({ connector, state }: PlatformConnector) {
   const flows = useConnectorFlows();
-  const detail = state === "ready" ? flows?.connections?.state[connector.key]?.detail : "";
+  const detail = state === "ready" || state === "attention" ? flows?.connections?.state[connector.key]?.detail : "";
   return (
     <div className="grid w-64 gap-3 p-3">
       <div className="flex items-center gap-2.5">

@@ -2,11 +2,12 @@ import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
 import { assertEnvelope, extractApiError } from "@/lib/api/errors";
 import {
-  applyGoogleServices, applyLegacyRows, applyMailboxes, applyModernRows, applyPlatformRows, blankState, readRows,
+  applyGoogleServices, applyLegacyRows, applyMailboxes, applyModernRows, applyPayments, applyPlatformRows, blankState, readRows,
 } from "@/lib/connections/readState";
 import type { Connections, ConnectionState, Connector } from "@/types/connector";
 import { disconnectGoogleService, fetchGoogleServices } from "./googleConnectors";
 import { fetchMailboxes, removeAllMailboxes } from "./mailboxes";
+import { deletePaymentConnection, fetchPaymentConnectionsWithWebhooks } from "./payments";
 import {
   createMailAccount, createSmsSender, fetchMailAccounts, fetchSmsSenders, removeAllMailAccounts, removeAllSmsSenders,
 } from "./senders";
@@ -42,13 +43,17 @@ async function readSenders(state: Record<string, ConnectionState>, problems: str
   } else problems.push(extractApiError(sms.reason, "Could not load your SMS senders"));
 }
 
-/** Google's per-service grants and the IMAP mailboxes overrule whatever /connectors says about them. */
-async function readGoogleAndMailboxes(state: Record<string, ConnectionState>, problems: string[]) {
-  const [google, mailboxes] = await Promise.allSettled([fetchGoogleServices(), fetchMailboxes()]);
+/** Google's grants, the IMAP mailboxes and payment accounts overrule whatever /connectors says about them. */
+async function readOwnRoutes(state: Record<string, ConnectionState>, problems: string[]) {
+  const [google, mailboxes, payments] = await Promise.allSettled([
+    fetchGoogleServices(), fetchMailboxes(), fetchPaymentConnectionsWithWebhooks(),
+  ]);
   if (google.status === "fulfilled") applyGoogleServices(state, google.value);
   else problems.push(extractApiError(google.reason, "Could not load your Google connections"));
   if (mailboxes.status === "fulfilled") applyMailboxes(state, mailboxes.value);
   else problems.push(extractApiError(mailboxes.reason, "Could not load your mailboxes"));
+  if (payments.status === "fulfilled") applyPayments(state, payments.value);
+  else problems.push(extractApiError(payments.reason, "Could not load your payment accounts"));
 }
 
 export async function fetchConnections(): Promise<Connections> {
@@ -76,7 +81,7 @@ export async function fetchConnections(): Promise<Connections> {
   }
 
   await Promise.all([
-    readPlatformKeys(state, problems), readSenders(state, problems), readGoogleAndMailboxes(state, problems),
+    readPlatformKeys(state, problems), readSenders(state, problems), readOwnRoutes(state, problems),
   ]);
   return { source, state, problems };
 }
@@ -124,6 +129,10 @@ export async function disconnectConnector(connector: Connector, connection: Conn
   if (connector.store === "sms_senders") return removeAllSmsSenders();
   if (connector.store === "mailboxes") return removeAllMailboxes();
   if (connector.googleService) return disconnectGoogleService(connector.googleService, connector.name);
+  if (connector.store === "payments") {
+    if (!connection.recordId) throw new Error(`Nothing to disconnect for ${connector.name}.`);
+    return deletePaymentConnection(connection.recordId, connector.name);
+  }
   if (connector.store === "platform_apis") {
     const cleared = Object.fromEntries((connector.fields ?? []).map((field) => [field.name, ""]));
     await savePlatformKeys(cleared, `Could not remove ${connector.name}`);
