@@ -12,50 +12,51 @@ import type { Connector } from "@/types/connector";
 export const PLANNED_CONNECTORS: Connector[] = [
   {
     key: "linkedin", name: "LinkedIn", category: "planned", auth: "planned", Icon: Briefcase, logo: "linkedin",
-    description: "Publish posts to your profile or company page, find the decision-makers behind a company and research competitors.",
+    description: "Publish posts, and find the people behind a company.",
   },
   {
     key: "x", name: "X", category: "planned", auth: "planned", Icon: AtSign, logo: "x",
-    description: "Publish posts and threads from your account, and see how they did.",
+    description: "Publish posts and threads from your account.",
   },
   {
     key: "instagram", name: "Instagram", category: "planned", auth: "planned", Icon: Camera, logo: "instagram",
-    description: "Publish feed posts, carousels and reels to a business account.",
+    description: "Publish posts, carousels and reels.",
   },
   {
     key: "tiktok", name: "TikTok", category: "planned", auth: "planned", Icon: Music2, logo: "tiktok",
-    description: "Upload short videos with their captions to your TikTok account.",
+    description: "Upload short videos with their captions.",
   },
   {
+    // Posting to a channel the user runs; chatting with an agent is the `telegram_chat` card.
     key: "telegram_channel", name: "Telegram channel", category: "planned", auth: "planned", Icon: Megaphone, logo: "telegram",
-    description: "Post updates to a Telegram channel you run. Chatting with an agent over Telegram is a channel in its settings.",
+    description: "Post updates to a Telegram channel you run.",
   },
   {
     key: "slack", name: "Slack", category: "planned", auth: "planned", Icon: Hash, logo: "slack",
-    description: "Post alerts and summaries to a channel your team already reads.",
+    description: "Post alerts and summaries where your team reads.",
   },
   {
     key: "jira", name: "Jira", category: "planned", auth: "planned", Icon: Ticket, logo: "jira",
-    description: "Hear about tickets assigned to you, with the context around them.",
+    description: "Hear about tickets assigned to you.",
   },
   {
     key: "github", name: "GitHub", category: "planned", auth: "planned", Icon: GitPullRequest, logo: "github",
-    description: "Get nudged about pull requests waiting on your review.",
+    description: "Get nudged about pull requests to review.",
   },
   {
     key: "shopify", name: "Shopify", category: "planned", auth: "planned", Icon: ShoppingBag, logo: "shopify",
-    description: "Read products, stock and orders, and flag what's running out.",
+    description: "Read products, stock and orders.",
   },
   {
     key: "bank", name: "Bank account", category: "planned", auth: "planned", Icon: Landmark,
-    description: "Watch balances so an agent can warn you before an account runs low.",
+    description: "Hear before an account runs low.",
   },
   {
     key: "image_generation", name: "Image generation", category: "planned", auth: "planned", Icon: ImagePlus,
-    description: "Let agents make a campaign's images, not just describe them.",
+    description: "Make a campaign's images, not just describe them.",
   },
   {
     key: "email_verification", name: "Email verification", category: "planned", auth: "planned", Icon: MailCheck,
-    description: "Check every address on a list before a campaign goes out.",
+    description: "Check every address before a campaign goes out.",
   },
 ];

@@ -11,6 +11,7 @@ export const SETUP_LABEL: Record<SetupState, string> = {
   ready: "Connected",
   shared: "Not connected · using the shared one",
   missing: "Not connected",
+  attention: "Needs attention",
   unknown: "Status can't be checked here",
   planned: "Coming soon",
 };

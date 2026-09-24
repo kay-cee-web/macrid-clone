@@ -7,21 +7,31 @@ import { CONNECTORS_BY_KEY } from "@/data/connectors";
 import { useOAuthPopup } from "@/hooks/useOAuthPopup";
 import { useWorkspaceConnections } from "@/hooks/useWorkspaceSetup";
 import { extractApiError } from "@/lib/api/errors";
+import { disconnectWarning } from "@/lib/connections/warnings";
 import { refreshSetup } from "@/lib/setup/store";
 import { disconnectConnector } from "@/services/connections";
+import { testPaymentConnection } from "@/services/payments";
 import type { Connections, Connector } from "@/types/connector";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { MailboxesModal } from "./MailboxesModal";
 import { MailboxModal } from "./MailboxModal";
+import { PaymentAlertsModal } from "./PaymentAlertsModal";
+import { PaymentConnectModal } from "./PaymentConnectModal";
 
 type ConnectorFlows = {
+  /** Set inside an agent: WhatsApp and Telegram pair in its settings. */
+  agentId?: string;
   connections: Connections | null;
-  /** The OAuth connector whose consent popup is open. */
+  /** The connector whose popup is open or whose test is running. */
   pending: string | null;
   connect: (connector: Connector) => void;
   disconnect: (connector: Connector) => void;
   /** The mailbox list: test or remove one at a time. */
   manageMailboxes: () => void;
+  /** A payment account's webhook and alert settings. */
+  alerts: (connector: Connector) => void;
+  /** Ask the backend to try a payment account's key again. */
+  test: (connector: Connector) => void;
 };
 
 const ConnectorFlowsContext = createContext<ConnectorFlows | null>(null);
@@ -29,36 +39,21 @@ const ConnectorFlowsContext = createContext<ConnectorFlows | null>(null);
 /** Null outside a provider, where a connector's status shows without its buttons. */
 export const useConnectorFlows = () => useContext(ConnectorFlowsContext);
 
-/** What disconnecting takes away, said before it happens. */
-function disconnectWarning(connector: Connector, detail: string) {
-  const which = detail ? ` (${detail})` : "";
-  if (connector.store === "mail_accounts") {
-    return `Every mailbox connected here is removed${which}. Agents can't send email from them until you add one again.`;
-  }
-  if (connector.store === "sms_senders") {
-    return `Your Twilio sender is removed${which}, and texts go back out on Dexisphere's shared sender.`;
-  }
-  if (connector.store === "mailboxes") {
-    return `Every mailbox connected here is removed${which}. Agents can't read your mail until you add one again.`;
-  }
-  if (connector.googleService) {
-    return `Agents lose ${connector.name} straight away. Your other Google connections keep working.`;
-  }
-  return "Agents lose access to it until you connect it again.";
-}
-
-type ProviderProps = { connections: Connections | null; onChanged: () => void; children: ReactNode };
+/** `agentId`: the open agent, for its chat channels (Plugins inside an agent). */
+type ProviderProps = { connections: Connections | null; onChanged: () => void; agentId?: string; children: ReactNode };
+type Dialog = { kind: "key" | "payment" | "alerts" | "disconnect"; connector: Connector } | { kind: "mailbox" | "mailboxes" };
 
 /**
- * Connecting and disconnecting in one place: the OAuth popup, the key form and
+ * Connecting and disconnecting in one place: the OAuth popup, the key forms and
  * the "are you sure?". Plugins wraps its catalogue in it; idea cards use
  * `WorkspaceConnectorFlows`. It holds the dialogs, so mount it once per page.
  */
-export function ConnectorFlowsProvider({ connections, onChanged, children }: ProviderProps) {
-  const [keyFor, setKeyFor] = useState<Connector | null>(null);
-  const [disconnecting, setDisconnecting] = useState<Connector | null>(null);
-  const [mailbox, setMailbox] = useState<"add" | "manage" | null>(null);
+export function ConnectorFlowsProvider({ connections, onChanged, agentId, children }: ProviderProps) {
+  const [dialog, setDialog] = useState<Dialog | null>(null);
+  const [testing, setTesting] = useState<string | null>(null);
   const source = connections?.source ?? "connectors";
+  const close = () => setDialog(null);
+  const recordOf = (connector: Connector) => connections?.state[connector.key]?.recordId ?? null;
 
   const oauth = useOAuthPopup(({ key, ok, message }) => {
     const name = CONNECTORS_BY_KEY[key]?.name ?? "The connection";
@@ -70,39 +65,64 @@ export function ConnectorFlowsProvider({ connections, onChanged, children }: Pro
 
   const flows: ConnectorFlows = {
     connections,
-    pending: oauth.pending,
+    agentId,
+    pending: oauth.pending ?? testing,
     // OAuth opens its popup synchronously, inside the click, so blockers allow it.
     connect: (connector) => {
       if (connector.auth === "oauth") void oauth.connect(connector);
-      else if (connector.store === "mailboxes") setMailbox("add");
-      else setKeyFor(connector);
+      else if (connector.store === "mailboxes") setDialog({ kind: "mailbox" });
+      else setDialog({ kind: connector.store === "payments" ? "payment" : "key", connector });
     },
-    disconnect: setDisconnecting,
-    manageMailboxes: () => setMailbox("manage"),
+    disconnect: (connector) => setDialog({ kind: "disconnect", connector }),
+    manageMailboxes: () => setDialog({ kind: "mailboxes" }),
+    alerts: (connector) => setDialog({ kind: "alerts", connector }),
+    test: async (connector) => {
+      const id = recordOf(connector);
+      if (!id) return;
+      setTesting(connector.key);
+      try {
+        toast.success(await testPaymentConnection(id, connector.name));
+      } catch (err) {
+        toast.error(extractApiError(err, `${connector.name} didn't answer`));
+      } finally {
+        setTesting(null);
+        onChanged();
+      }
+    },
   };
-  const connection = disconnecting ? connections?.state[disconnecting.key] : undefined;
+
+  const connection = dialog?.kind === "disconnect" ? connections?.state[dialog.connector.key] : undefined;
+  const alertsId = dialog?.kind === "alerts" ? recordOf(dialog.connector) : null;
 
   return (
     <ConnectorFlowsContext.Provider value={flows}>
       {children}
-      {keyFor && <ApiKeyModal connector={keyFor} source={source} onClose={() => setKeyFor(null)} onConnected={onChanged} />}
-      {mailbox === "add" && <MailboxModal onClose={() => setMailbox(null)} onConnected={onChanged} />}
-      {mailbox === "manage" && (
-        <MailboxesModal onClose={() => setMailbox(null)} onAdd={() => setMailbox("add")} onChanged={onChanged} />
+      {dialog?.kind === "key" && (
+        <ApiKeyModal connector={dialog.connector} source={source} onClose={close} onConnected={onChanged} />
       )}
-      {disconnecting && (
+      {dialog?.kind === "payment" && (
+        <PaymentConnectModal connector={dialog.connector} onClose={close} onConnected={onChanged} />
+      )}
+      {dialog?.kind === "alerts" && alertsId && (
+        <PaymentAlertsModal connector={dialog.connector} connectionId={alertsId} onClose={close} onSaved={onChanged} />
+      )}
+      {dialog?.kind === "mailbox" && <MailboxModal onClose={close} onConnected={onChanged} />}
+      {dialog?.kind === "mailboxes" && (
+        <MailboxesModal onClose={close} onAdd={() => setDialog({ kind: "mailbox" })} onChanged={onChanged} />
+      )}
+      {dialog?.kind === "disconnect" && (
         <ConfirmModal
-          title={`Disconnect ${disconnecting.name}?`}
-          description={disconnectWarning(disconnecting, connection?.detail ?? "")}
+          title={`Disconnect ${dialog.connector.name}?`}
+          description={disconnectWarning(dialog.connector, connection?.detail ?? "")}
           confirmLabel="Disconnect"
-          onClose={() => setDisconnecting(null)}
+          onClose={close}
           onConfirm={async () => {
             if (!connection) return false;
             try {
-              toast.success(await disconnectConnector(disconnecting, connection, source));
+              toast.success(await disconnectConnector(dialog.connector, connection, source));
               return true;
             } catch (err) {
-              toast.error(extractApiError(err, `Could not disconnect ${disconnecting.name}`));
+              toast.error(extractApiError(err, `Could not disconnect ${dialog.connector.name}`));
               return false;
             } finally {
               // Senders go one at a time, so even a failure may have changed something.

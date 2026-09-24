@@ -33,14 +33,22 @@ export const TWILIO_FIELDS: ConnectorField[] = [
   },
 ];
 
-export const apiKeyFields = (...extra: ConnectorField[]): ConnectorField[] => [
-  { name: "api_key", label: "API key", type: "password", required: true },
+/** The API key, with where to find it, then any other fields the platform wants. */
+export const apiKeyFields = (help?: string, ...extra: ConnectorField[]): ConnectorField[] => [
+  { name: "api_key", label: "API key", type: "password", required: true, help },
   ...extra,
 ];
 
-export const LIST_ID: ConnectorField = { name: "list_id", label: "List ID", type: "text", required: true };
+export const optional = (field: ConnectorField): ConnectorField => ({ ...field, required: false });
+
+export const LIST_ID: ConnectorField = { name: "list_id", label: "Audience ID", type: "text", required: true };
 export const FORM_ID: ConnectorField = { name: "form_id", label: "Form ID", type: "text", required: true };
 export const GROUP_ID: ConnectorField = { name: "group_id", label: "Group ID", type: "text", required: true };
+export const API_SECRET: ConnectorField = { name: "api_secret", label: "API secret", type: "password", required: true };
+export const API_URL: ConnectorField = {
+  name: "api_url", label: "API URL", type: "text", required: true,
+  placeholder: "https://youraccount.api-us1.com", help: "Settings → Developer",
+};
 
 export const PLACES_KEY: ConnectorField = {
   name: "google_place_api_key",

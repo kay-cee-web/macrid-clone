@@ -1,19 +1,39 @@
 import type { Idea } from "@/types/idea";
 
 /**
- * Money that passes through the inbox. Nothing here reads a bank or a payment
- * processor: the agent works from the receipts and invoices it can see.
+ * Money through the inbox and the user's own payment accounts (Stripe, PayPal,
+ * Paystack…), read-only. The agent can see what was paid, but nothing stores
+ * invoices, so chasing one only gets halfway, and no bank is connected.
  */
 export const MONEY: Idea[] = [
+  {
+    title: "New payment alert",
+    ready: true,
+    platforms: ["payments"],
+    description: "Every hour, check my payment accounts and tell me about any payment over $1,000: who paid and what for.",
+  },
+  {
+    title: "Revenue this month",
+    ready: true,
+    platforms: ["payments"],
+    description: "Every Monday, total what came in this month in each currency, after fees, and say where the month lands at this pace.",
+  },
+  {
+    title: "Did they pay?",
+    ready: true,
+    platforms: ["payments"],
+    description: "When I name a client or an amount, check my payment accounts and tell me whether and when it was paid.",
+  },
+  {
+    title: "Refunds and disputes",
+    ready: true,
+    platforms: ["payments"],
+    description: "Every Monday, list last week's refunds and disputes, what each one cost and who they were for.",
+  },
   {
     title: "Weekly expense report",
     platforms: ["inbox", "email"],
     description: "Every Friday, pull the receipts out of my inbox, total them and email the summary to finance.",
-  },
-  {
-    title: "New payment alert",
-    platforms: ["inbox"],
-    description: "When a payment confirmation over $1,000 lands, tell me straight away with who it's from and what it's for.",
   },
   {
     title: "Subscription watch",
@@ -22,8 +42,8 @@ export const MONEY: Idea[] = [
   },
   {
     title: "Invoice reminder",
-    platforms: ["email"],
-    description: "When an invoice has gone unpaid for seven days, draft a polite payment reminder to the client.",
+    platforms: ["payments", "email"],
+    description: "When an invoice has gone unpaid for seven days, check it really hasn't been paid, then draft a polite reminder.",
   },
   {
     title: "Budget check",
@@ -37,20 +57,14 @@ export const MONEY: Idea[] = [
     description: "When a tracked account drops below the floor I set, warn me the same day.",
   },
   {
-    title: "Revenue this month",
-    ready: true,
-    platforms: [],
-    description: "Every Monday, total what I've won and what's still open, and say what the month lands on if nothing changes.",
-  },
-  {
     title: "Quote to invoice",
     platforms: ["email"],
     description: "When a deal is won, draft the invoice from what we agreed and send it to the right contact.",
   },
   {
     title: "Chase the late payers",
-    platforms: ["email"],
-    description: "Every Friday, list the invoices past their date and draft the next chase for each, firmer as they age.",
+    platforms: ["payments", "email"],
+    description: "Every Friday, list the invoices past their date that still haven't been paid, and draft the next chase for each.",
   },
   {
     title: "Spend per campaign",
