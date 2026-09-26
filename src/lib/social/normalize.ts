@@ -1,12 +1,11 @@
-import { pickField, toText } from "@/lib/api/pick";
+import { pickField, toBool, toText } from "@/lib/api/pick";
 import { socialKey } from "@/data/connectors/social";
 import type { SocialAccount, SocialKind, SocialPlatform, SocialPost, SocialPostStatus } from "@/types/social";
 
 /**
- * Readers for the /social routes. **No payload has ever been seen** — the
- * routes 500 — so every field is read through a list of likely names and the
- * review note falls back to our own. Tighten these against the first real
- * response rather than trusting them.
+ * Readers for the /social routes. Both shapes are confirmed against live
+ * payloads (2026-09-26), so the candidate-name lists are belt and braces rather
+ * than guesses now.
  */
 type Row = Record<string, unknown>;
 
@@ -15,14 +14,26 @@ const asList = (value: unknown): Row[] => (Array.isArray(value) ? (value as Row[
 const toStrings = (value: unknown): string[] =>
   Array.isArray(value) ? value.map(toText).filter(Boolean) : toText(value).split(/[,\s]+/).filter(Boolean);
 
+/**
+ * A connected account, confirmed with a real X grant (2026-09-26):
+ * `{id: 1, platform: "x", kind: "social", name: "Okpara Favour | Full-Stack JS",
+ * handle: "okparafavour202", avatar, currency: null, can: [...], active: true,
+ * problem: null}`.
+ *
+ * `active: false` is a grant that stopped working — an expired or revoked
+ * token — and the row can say that without filling `problem`, so it needs its
+ * own wording or the card would keep reading Connected.
+ */
 export function toAccount(row: Row): SocialAccount {
   const kind = toText(pickField(row, ["kind", "type"])).toLowerCase();
+  const off = toBool(pickField(row, ["active", "is_active"]), true) === false;
+  const problem = toText(pickField(row, ["last_error", "error", "problem"]));
   return {
     id: toText(row.id),
     platform: socialKey(toText(pickField(row, ["platform", "provider", "network", "service"]))),
     name: toText(pickField(row, ["name", "label", "account_name", "username", "title"])),
     kind: (kind === "ads" ? "ads" : "social") as SocialKind,
-    problem: toText(pickField(row, ["last_error", "error", "problem"])),
+    problem: problem || (off ? "Sign in again to keep posting." : ""),
   };
 }
 

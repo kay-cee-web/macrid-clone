@@ -8,6 +8,7 @@ import { disconnectGoogleService } from "./googleConnectors";
 import { removeAllMailboxes } from "./mailboxes";
 import { deletePaymentConnection } from "./payments";
 import { createMailAccount, createSmsSender, removeAllMailAccounts, removeAllSmsSenders } from "./senders";
+import { disconnectSocialAccount } from "./social";
 
 /**
  * Workspace connections, shared by every agent. Which route speaks for which
@@ -48,6 +49,16 @@ export async function savePlatformKeys(patch: Record<string, string>, fallback: 
   assertEnvelope(data, fallback);
 }
 
+/**
+ * Stores whose disconnect is one row on their own route, keyed by `store` so a
+ * new family is one line here rather than another branch below.
+ */
+const DELETE_BY_ID: Partial<Record<NonNullable<Connector["store"]>, (id: string, name: string) => Promise<string>>> = {
+  payments: deletePaymentConnection,
+  email_platforms: disconnectEmailPlatform,
+  social: disconnectSocialAccount,
+};
+
 export async function connectApiKey(connector: Connector, values: Record<string, string>, source: Connections["source"]) {
   if (connector.store === "mail_accounts") return createMailAccount(values);
   if (connector.store === "sms_senders") return createSmsSender(values);
@@ -72,16 +83,17 @@ export async function disconnectConnector(connector: Connector, connection: Conn
   if (connector.store === "sms_senders") return removeAllSmsSenders();
   if (connector.store === "mailboxes") return removeAllMailboxes();
   if (connector.googleService) return disconnectGoogleService(connector.googleService, connector.name);
-  // These delete by record id, so the id has to have come from their own route:
-  // the leftover reader's ids belong to another table and would hit the wrong row.
-  if (connector.store === "payments" || connector.store === "email_platforms") {
+  // A store that deletes one row by id, on its own route. The id has to have
+  // come from that route: the leftover reader's ids belong to another table and
+  // would hit the wrong row, and its keys aren't connectors at all — a social
+  // account sent to DELETE /connectors/{key} answers "Unknown connector."
+  const deleteRow = connector.store ? DELETE_BY_ID[connector.store] : undefined;
+  if (deleteRow) {
     if (connection.owner !== connector.store) {
       throw new Error(`Couldn't read your ${connector.name} connection just now. Reload and try again.`);
     }
     if (!connection.recordId) throw new Error(`Nothing to disconnect for ${connector.name}.`);
-    return connector.store === "payments"
-      ? deletePaymentConnection(connection.recordId, connector.name)
-      : disconnectEmailPlatform(connection.recordId, connector.name);
+    return deleteRow(connection.recordId, connector.name);
   }
   if (connector.store === "platform_apis") {
     const cleared = Object.fromEntries((connector.fields ?? []).map((field) => [field.name, ""]));
