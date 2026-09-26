@@ -1,26 +1,25 @@
 import { CONNECTORS } from "@/data/connectors";
-import { SIGNS_WITH_KEY } from "@/data/connectors/payments";
 import type { GoogleService } from "@/services/googleConnectors";
 import type { Mailbox } from "@/services/mailboxes";
 import type { MailAccount, SmsSender } from "@/services/senders";
 import type { ConnectionState } from "@/types/connector";
-import type { EmailPlatformConnection } from "@/types/emailPlatform";
-import type { PaymentConnection } from "@/types/payment";
 import { readRows } from "./readState";
 
 /**
  * The groups that own themselves: each applier reads one dedicated route and is
  * the last word on its own connectors (see `services/connectionSources.ts`).
+ * This file covers our own mail and identity credentials; somebody else's
+ * accounts — payments, email platforms, social — are in `ownedAccounts.ts`.
  *
  * Two rules every applier keeps:
  * - It writes **every** connector it owns, `disconnected` included, so a stale
  *   /connectors row can't leave a card looking connected.
  * - It stamps `owner`, which is what makes its `recordId` safe to delete by.
  */
-type State = Record<string, ConnectionState>;
+export type State = Record<string, ConnectionState>;
 
 /** A writer bound to one group, so nothing it sets can miss the stamp. */
-const writer = (state: State, owner: ConnectionState["owner"]) =>
+export const writer = (state: State, owner: ConnectionState["owner"]) =>
   (key: string, value: Omit<ConnectionState, "owner">) => {
     state[key] = { ...value, owner };
   };
@@ -52,30 +51,6 @@ export function applyMailboxes(state: State, mailboxes: Mailbox[]) {
     recordId: active[0]?.id ?? null,
     detail: emails.length > 1 ? `${emails[0]} +${emails.length - 1} more` : emails[0] ?? "",
   });
-}
-
-/**
- * GET /payments/connections: one card per provider, standing for its first
- * account. A broken key, or a webhook secret never saved, needs attention.
- */
-export function applyPayments(state: State, connections: PaymentConnection[]) {
-  const set = writer(state, "payments");
-  for (const connector of CONNECTORS.filter((c) => c.store === "payments")) {
-    const mine = connections.filter((c) => c.provider === connector.key);
-    const first = mine[0];
-    if (!first) {
-      set(connector.key, { status: "disconnected", recordId: null, detail: "" });
-      continue;
-    }
-    const secretMissing = first.webhookReady === false && !SIGNS_WITH_KEY.includes(connector.key);
-    const problem = first.problem || (secretMissing ? "Webhook secret not set, so live alerts can't arrive." : "");
-    const more = mine.length > 1 ? ` +${mine.length - 1} more` : "";
-    set(connector.key, {
-      status: problem ? "attention" : "connected",
-      recordId: first.id,
-      detail: problem || `${first.account}${first.live ? "" : " · sandbox"}${more}`,
-    });
-  }
 }
 
 /** GET /mail-accounts: the SMTP senders, which can be several. */
@@ -111,26 +86,3 @@ export function applyPlatformRows(state: State, payload: unknown) {
   });
 }
 
-/**
- * GET /email-platforms. A saved key with no list chosen yet needs attention: it
- * is connected but can't push or pull until a target is picked, the same call as
- * a payment account with no webhook secret. Systeme.io is exempt — it groups
- * contacts by tag and needs no list.
- */
-export function applyEmailPlatforms(state: State, connections: EmailPlatformConnection[]) {
-  const set = writer(state, "email_platforms");
-  for (const connector of CONNECTORS.filter((c) => c.store === "email_platforms")) {
-    const first = connections.find((c) => c.platform === connector.key);
-    if (!first) {
-      set(connector.key, { status: "disconnected", recordId: null, detail: "" });
-      continue;
-    }
-    const needsList = !first.listless && !first.listId;
-    const problem = first.problem || (needsList ? `No ${first.listWord} chosen yet, so nothing can sync.` : "");
-    set(connector.key, {
-      status: problem ? "attention" : "connected",
-      recordId: first.id,
-      detail: problem || first.listName || `Syncing one ${first.listWord}`,
-    });
-  }
-}

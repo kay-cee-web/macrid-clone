@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { buttonStyles } from "@/components/ui/button-styles";
-import { workflowsNeeding } from "@/data/ideas";
 import { macridAppLink } from "@/lib/config";
 import type { Connector } from "@/types/connector";
 import { useConnectorFlows } from "./ConnectorFlows";
@@ -29,15 +28,6 @@ function ManageLink({ connector, children, variant = "ghost" }: {
   );
 }
 
-/** Where a planned connector's button would be: how many workflows are waiting on it. */
-function WaitingNote({ connector }: { connector: Connector }) {
-  const waiting = workflowsNeeding(connector.key);
-  return (
-    <span className="text-sm text-faint">
-      {waiting ? `${waiting} workflow${waiting === 1 ? " is" : "s are"} waiting on it` : "Not built yet"}
-    </span>
-  );
-}
 
 /**
  * A connector's buttons, the same on its Plugins card and in an idea card's
@@ -48,7 +38,6 @@ function WaitingNote({ connector }: { connector: Connector }) {
  */
 export function ConnectorActions({ connector, compact = false }: { connector: Connector; compact?: boolean }) {
   const flows = useConnectorFlows();
-  if (connector.auth === "planned") return <WaitingNote connector={connector} />;
   // Until the status is known, offer nothing: a second "Add key" would POST a duplicate row.
   if (!flows?.connections) return null;
 

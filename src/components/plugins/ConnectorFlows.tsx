@@ -61,7 +61,10 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
     pending: oauth.pending ?? testing,
     // OAuth opens its popup synchronously, inside the click, so blockers allow it.
     connect: (connector) => {
-      if (connector.auth === "oauth") void oauth.connect(connector);
+      // Nothing to call yet. Say only that, not why — we'd be guessing at the
+      // backend's state, and that guess belongs in a message to them, not here.
+      if (connector.auth === "planned") toast.message(`${connector.name} is a work in progress.`);
+      else if (connector.auth === "oauth") void oauth.connect(connector);
       else if (connector.store === "mailboxes") setDialog({ kind: "mailbox" });
       else setDialog({ kind: connector.store === "payments" ? "payment" : "key", connector });
     },
