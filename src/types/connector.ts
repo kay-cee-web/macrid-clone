@@ -3,11 +3,12 @@ import type { ChannelProvider } from "./channel";
 
 /**
  * The Plugins page's groups, by who makes the service (Google, Microsoft) or
- * what it's for. `planned` is the "Coming soon" shelf: connectors a workflow
- * needs that nothing on the backend connects yet.
+ * what it's for. `planned` is the "Others" shelf: connectors a workflow needs
+ * that have no route on the backend yet, where Connect says so in a toast.
  */
 export type ConnectorCategory =
-  | "google" | "microsoft" | "mailbox" | "messaging" | "payments" | "sending" | "prospect" | "email_platform" | "planned";
+  | "google" | "microsoft" | "mailbox" | "messaging" | "payments" | "sending" | "prospect" | "email_platform"
+  | "social" | "planned";
 
 /**
  * oauth     consent popup via the connector's `connect` route
@@ -62,7 +63,7 @@ export type Connector = {
    * mail_accounts, sms_senders and mailboxes can hold several, so they are
    * added one by one; disconnecting removes them all.
    */
-  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments" | "email_platforms";
+  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments" | "email_platforms" | "social";
   optional?: boolean;
 };
 

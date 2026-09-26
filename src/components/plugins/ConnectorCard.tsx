@@ -13,12 +13,13 @@ type ConnectorCardProps = {
 };
 
 /**
- * Three states, and only three: Not connected, Connected, Needs attention.
- * The last is the one that matters: a connection that broke quietly is the
- * failure users blame the product for. "Coming soon" isn't a state, just a shelf.
+ * Three states, and only three: Not connected, Connected, Needs attention. The
+ * last is the one that matters: a connection that broke quietly is the failure
+ * users blame the product for. A connector whose route isn't built yet is still
+ * just Not connected — pressing Connect is what says so, and `note` carries any
+ * standing requirement.
  */
-function Badge({ connector, connection }: { connector: Connector; connection: ConnectionState | undefined }) {
-  if (connector.auth === "planned") return <Pill>Coming soon</Pill>;
+function Badge({ connection }: { connection: ConnectionState | undefined }) {
   if (connection?.status === "attention") return <Pill tone="warn" dot>Needs attention</Pill>;
   if (connection?.status === "connected") return <Pill tone="good" dot>Connected</Pill>;
   return <Pill>Not connected</Pill>;
@@ -26,7 +27,7 @@ function Badge({ connector, connection }: { connector: Connector; connection: Co
 
 /** One connector in the Plugins catalogue. Its buttons come from `ConnectorActions`, inside a `ConnectorFlowsProvider`. */
 export function ConnectorCard({ connector, connection, loading }: ConnectorCardProps) {
-  const status = connector.auth === "planned" ? undefined : connection?.status;
+  const status = connection?.status;
   const detail = status === "connected" || status === "attention" ? connection?.detail : "";
 
   return (
@@ -39,7 +40,7 @@ export function ConnectorCard({ connector, connection, loading }: ConnectorCardP
             <Skeleton className="h-5 w-24 rounded-full" />
           ) : (
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-              <Badge connector={connector} connection={connection} />
+              <Badge connection={connection} />
               {status === "connected" && detail && <span className="truncate font-mono text-xs text-faint">{detail}</span>}
             </span>
           )}

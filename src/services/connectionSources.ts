@@ -1,9 +1,9 @@
 import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
 import { assertEnvelope, extractApiError } from "@/lib/api/errors";
+import { applyEmailPlatforms, applyPayments, applySocialAccounts } from "@/lib/connections/ownedAccounts";
 import {
-  applyEmailPlatforms, applyGoogleServices, applyMailAccounts, applyMailboxes, applyPayments, applyPlatformRows,
-  applySmsSenders,
+  applyGoogleServices, applyMailAccounts, applyMailboxes, applyPlatformRows, applySmsSenders,
 } from "@/lib/connections/ownedState";
 import { applyLegacyRows, applyModernRows } from "@/lib/connections/readState";
 import type { ConnectionState, Connections } from "@/types/connector";
@@ -12,6 +12,7 @@ import { fetchGoogleServices } from "./googleConnectors";
 import { fetchMailboxes } from "./mailboxes";
 import { fetchPaymentConnectionsWithWebhooks } from "./payments";
 import { fetchMailAccounts, fetchSmsSenders } from "./senders";
+import { fetchSocialAccounts } from "./social";
 
 /**
  * Where a connector's status comes from. The backend keeps each family in its
@@ -45,6 +46,9 @@ async function readPlatformKeys() {
 
 const GROUPS: Group[] = [
   group("email platforms", fetchEmailPlatforms, applyEmailPlatforms),
+  // Answers 500 until the backend deploys DexiSocialController, which shows up
+  // on the Plugins page as a problem rather than being swallowed.
+  group("social accounts", fetchSocialAccounts, applySocialAccounts),
   group("payment accounts", fetchPaymentConnectionsWithWebhooks, applyPayments),
   group("mailboxes", fetchMailboxes, applyMailboxes),
   group("Google connections", fetchGoogleServices, applyGoogleServices),
@@ -80,8 +84,11 @@ export async function readOthers(state: State, problems: string[]): Promise<Conn
 export async function readOwnedGroups(state: State, problems: string[]) {
   const results = await Promise.allSettled(GROUPS.map((entry) => entry.run(state)));
   results.forEach((result, index) => {
-    if (result.status === "rejected") {
-      problems.push(extractApiError(result.reason, `Could not load your ${GROUPS[index].label}`));
-    }
+    if (result.status !== "rejected") return;
+    // Name the group as well as the reason: two groups failing with the same
+    // "Server Error" would otherwise be two identical lines saying nothing.
+    const label = `Could not load your ${GROUPS[index].label}`;
+    const reason = extractApiError(result.reason, label);
+    problems.push(reason.startsWith(label) ? reason : `${label} — ${reason}`);
   });
 }

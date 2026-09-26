@@ -13,7 +13,7 @@ export const SETUP_LABEL: Record<SetupState, string> = {
   missing: "Not connected",
   attention: "Needs attention",
   unknown: "Status can't be checked here",
-  planned: "Coming soon",
+  planned: "Work in progress",
 };
 
 /**

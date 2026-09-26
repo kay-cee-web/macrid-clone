@@ -100,7 +100,7 @@ export function readinessOf(idea: Idea, setup: WorkspaceSetup | null = null): Re
 
 export const readyCountIn = (category: IdeaCategory) => IDEAS[category].filter((idea) => idea.ready).length;
 
-/** Workflows that touch a connector: a "Coming soon" card says how many are waiting on it. */
+/** How many workflows touch a connector — what a still-unbuilt one is holding up. */
 export const workflowsNeeding = (connectorKey: string) =>
   CATEGORIES.flatMap((category) => IDEAS[category]).filter((idea) =>
     idea.platforms.some((id) => PLATFORMS[id].connectors.includes(connectorKey)),

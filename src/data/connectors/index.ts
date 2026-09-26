@@ -7,6 +7,7 @@ import { EMAIL_PLATFORM_CONNECTORS } from "./emailPlatforms";
 import { MESSAGING_CONNECTORS } from "./messaging";
 import { PAYMENT_CONNECTORS } from "./payments";
 import { PLANNED_CONNECTORS } from "./planned";
+import { SOCIAL_CONNECTORS } from "./social";
 
 /**
  * Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js).
@@ -22,7 +23,8 @@ export const CONNECTOR_CATEGORIES: { key: ConnectorCategory; label: string; blur
   { key: "sending", label: "Sending", blurb: "Your own senders for email, SMS and WhatsApp broadcasts." },
   { key: "prospect", label: "Prospect sources", blurb: "Where Dexisphere looks for businesses worth contacting." },
   { key: "email_platform", label: "Email platforms", blurb: "Keep a list you already own in step with your pipeline." },
-  { key: "planned", label: "Coming soon", blurb: "Workflows already ask for these, but nothing connects them yet." },
+  { key: "social", label: "Social", blurb: "An agent drafts the post; you approve it before anything goes public." },
+  { key: "planned", label: "Others", blurb: "Workflows ask for these. The routes are still being built." },
 ];
 
 /** One consent screen per Google service, asking only for that service's scopes. */
@@ -93,6 +95,7 @@ export const CONNECTORS: Connector[] = [
     connect: "/connectors/facebook/redirect", description: "Find the pages and businesses active in your niche.",
   },
   ...EMAIL_PLATFORM_CONNECTORS,
+  ...SOCIAL_CONNECTORS,
   ...PLANNED_CONNECTORS,
 ];
 
