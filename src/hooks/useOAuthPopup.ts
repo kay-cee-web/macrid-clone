@@ -6,8 +6,18 @@ import { extractApiError } from "@/lib/api/errors";
 import { fetchOAuthUrl } from "@/services/connections";
 import type { Connector } from "@/types/connector";
 
-/** The backend's callback page posts this source when consent finishes. */
-const MESSAGE_SOURCE = "macrid-connector";
+/**
+ * The source the backend's callback page posts when consent finishes —
+ * confirmed by reading the live `/connectors/google/callback` page, which sends
+ * `{source: "dexisphere-connector", ok, message}`. The Macrid spelling is kept
+ * only because the rename may not have reached every route; drop it once it has.
+ *
+ * Getting this wrong fails quietly rather than loudly: the message is ignored,
+ * the popup-closed poll settles the flow as `ok: false`, and the connection
+ * still refreshes — so the card updates but neither the success line nor the
+ * backend's reason is ever shown.
+ */
+const MESSAGE_SOURCES = ["dexisphere-connector", "macrid-connector"];
 const WIDTH = 560;
 const HEIGHT = 680;
 
@@ -38,7 +48,7 @@ export function useOAuthPopup(onFinished: (result: { key: string; ok: boolean; m
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.data?.source === MESSAGE_SOURCE) settle(event.data.ok === true, event.data.message);
+      if (MESSAGE_SOURCES.includes(event.data?.source)) settle(event.data.ok === true, event.data.message);
     };
     window.addEventListener("message", onMessage);
     return () => {
