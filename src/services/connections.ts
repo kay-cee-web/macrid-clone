@@ -1,88 +1,26 @@
-import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
-import { assertEnvelope, extractApiError } from "@/lib/api/errors";
-import {
-  applyGoogleServices, applyLegacyRows, applyMailboxes, applyModernRows, applyPayments, applyPlatformRows, blankState, readRows,
-} from "@/lib/connections/readState";
+import { assertEnvelope } from "@/lib/api/errors";
+import { blankState, readRows } from "@/lib/connections/readState";
 import type { Connections, ConnectionState, Connector } from "@/types/connector";
-import { disconnectGoogleService, fetchGoogleServices } from "./googleConnectors";
-import { fetchMailboxes, removeAllMailboxes } from "./mailboxes";
-import { deletePaymentConnection, fetchPaymentConnectionsWithWebhooks } from "./payments";
-import {
-  createMailAccount, createSmsSender, fetchMailAccounts, fetchSmsSenders, removeAllMailAccounts, removeAllSmsSenders,
-} from "./senders";
+import { readOthers, readOwnedGroups } from "./connectionSources";
+import { connectEmailPlatform, disconnectEmailPlatform } from "./emailPlatforms";
+import { disconnectGoogleService } from "./googleConnectors";
+import { removeAllMailboxes } from "./mailboxes";
+import { deletePaymentConnection } from "./payments";
+import { createMailAccount, createSmsSender, removeAllMailAccounts, removeAllSmsSenders } from "./senders";
 
 /**
- * Workspace connections (shared by every agent). /connectors is the newer
- * route and may 404; /integrations is the legacy one. Google Places keys are
- * always in /platform-apis; SMTP senders, Twilio senders, IMAP mailboxes and
- * the Google services have their own routes. Writes must go to the routes of
- * whichever read answered.
+ * Workspace connections, shared by every agent. Which route speaks for which
+ * connector is declared in `connectionSources.ts`: each family's own route owns
+ * it, and /connectors covers the rest. Writes go to the owning route too —
+ * `store` picks it below — falling back to whichever read answered.
  */
-async function readPlatformKeys(state: Record<string, ConnectionState>, problems: string[]) {
-  try {
-    const { data } = await api.get("/platform-apis");
-    assertEnvelope(data, "Could not read your platform keys");
-    applyPlatformRows(state, data);
-  } catch (err) {
-    problems.push(extractApiError(err, "Could not load your Google Places key"));
-  }
-}
-
-/** Senders are the source of truth for SMTP and SMS, whatever /connectors says. */
-async function readSenders(state: Record<string, ConnectionState>, problems: string[]) {
-  const [mail, sms] = await Promise.allSettled([fetchMailAccounts(), fetchSmsSenders()]);
-  if (mail.status === "fulfilled") {
-    const emails = mail.value.map((account) => account.email).filter(Boolean);
-    const detail = emails.length > 1 ? `${emails[0]} +${emails.length - 1} more` : emails[0] ?? "";
-    state.smtp = { status: mail.value.length ? "connected" : "disconnected", recordId: mail.value[0]?.id ?? null, detail };
-  } else problems.push(extractApiError(mail.reason, "Could not load your mailboxes"));
-  if (sms.status === "fulfilled") {
-    const active = sms.value.filter((sender) => sender.active);
-    state.twilio = { status: active.length ? "connected" : "disconnected", recordId: active[0]?.id ?? null, detail: active.map((s) => s.sender).join(", ") };
-  } else problems.push(extractApiError(sms.reason, "Could not load your SMS senders"));
-}
-
-/** Google's grants, the IMAP mailboxes and payment accounts overrule whatever /connectors says about them. */
-async function readOwnRoutes(state: Record<string, ConnectionState>, problems: string[]) {
-  const [google, mailboxes, payments] = await Promise.allSettled([
-    fetchGoogleServices(), fetchMailboxes(), fetchPaymentConnectionsWithWebhooks(),
-  ]);
-  if (google.status === "fulfilled") applyGoogleServices(state, google.value);
-  else problems.push(extractApiError(google.reason, "Could not load your Google connections"));
-  if (mailboxes.status === "fulfilled") applyMailboxes(state, mailboxes.value);
-  else problems.push(extractApiError(mailboxes.reason, "Could not load your mailboxes"));
-  if (payments.status === "fulfilled") applyPayments(state, payments.value);
-  else problems.push(extractApiError(payments.reason, "Could not load your payment accounts"));
-}
-
 export async function fetchConnections(): Promise<Connections> {
   const state = blankState();
   const problems: string[] = [];
-  let source: Connections["source"] = "connectors";
-
-  try {
-    const { data } = await api.get("/connectors");
-    assertEnvelope(data, "Could not read your connections");
-    applyModernRows(state, data);
-  } catch (err) {
-    source = "legacy";
-    // A 404 just means the newer route isn't deployed; anything else is worth reporting.
-    if (!(isAxiosError(err) && err.response?.status === 404)) {
-      problems.push(extractApiError(err, "Could not read your connections"));
-    }
-    try {
-      const { data } = await api.get("/integrations");
-      assertEnvelope(data, "Could not read your integrations");
-      applyLegacyRows(state, data);
-    } catch (legacyErr) {
-      problems.push(extractApiError(legacyErr, "Could not load your email platforms"));
-    }
-  }
-
-  await Promise.all([
-    readPlatformKeys(state, problems), readSenders(state, problems), readOwnRoutes(state, problems),
-  ]);
+  // Others first, then each group over the top: a group that answers is the last word.
+  const source = await readOthers(state, problems);
+  await readOwnedGroups(state, problems);
   return { source, state, problems };
 }
 
@@ -113,6 +51,11 @@ export async function savePlatformKeys(patch: Record<string, string>, fallback: 
 export async function connectApiKey(connector: Connector, values: Record<string, string>, source: Connections["source"]) {
   if (connector.store === "mail_accounts") return createMailAccount(values);
   if (connector.store === "sms_senders") return createSmsSender(values);
+  // The key is tested and saved, and the lists come back with it; the target is chosen next.
+  if (connector.store === "email_platforms") {
+    const { message } = await connectEmailPlatform(connector.key, values, connector.name);
+    return message;
+  }
   if (connector.store === "platform_apis") {
     await savePlatformKeys(values, `Could not connect ${connector.name}`);
     return `${connector.name} connected.`;
@@ -129,9 +72,16 @@ export async function disconnectConnector(connector: Connector, connection: Conn
   if (connector.store === "sms_senders") return removeAllSmsSenders();
   if (connector.store === "mailboxes") return removeAllMailboxes();
   if (connector.googleService) return disconnectGoogleService(connector.googleService, connector.name);
-  if (connector.store === "payments") {
+  // These delete by record id, so the id has to have come from their own route:
+  // the leftover reader's ids belong to another table and would hit the wrong row.
+  if (connector.store === "payments" || connector.store === "email_platforms") {
+    if (connection.owner !== connector.store) {
+      throw new Error(`Couldn't read your ${connector.name} connection just now. Reload and try again.`);
+    }
     if (!connection.recordId) throw new Error(`Nothing to disconnect for ${connector.name}.`);
-    return deletePaymentConnection(connection.recordId, connector.name);
+    return connector.store === "payments"
+      ? deletePaymentConnection(connection.recordId, connector.name)
+      : disconnectEmailPlatform(connection.recordId, connector.name);
   }
   if (connector.store === "platform_apis") {
     const cleared = Object.fromEntries((connector.fields ?? []).map((field) => [field.name, ""]));

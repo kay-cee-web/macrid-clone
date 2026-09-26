@@ -8,6 +8,7 @@ import { workflowsNeeding } from "@/data/ideas";
 import { macridAppLink } from "@/lib/config";
 import type { Connector } from "@/types/connector";
 import { useConnectorFlows } from "./ConnectorFlows";
+import { EmailPlatformActions } from "./EmailPlatformActions";
 import { PaymentActions } from "./PaymentActions";
 
 function ManageLink({ connector, children, variant = "ghost" }: {
@@ -79,7 +80,12 @@ export function ConnectorActions({ connector, compact = false }: { connector: Co
     );
   }
 
-  if (connector.store === "payments" && (connected || broken)) return <PaymentActions connector={connector} />;
+  if (connected || broken) {
+    if (connector.store === "payments") return <PaymentActions connector={connector} />;
+    // "Needs attention" here usually means no list chosen yet, not a broken key,
+    // so it offers the picker rather than Reconnect.
+    if (connector.store === "email_platforms") return <EmailPlatformActions connector={connector} />;
+  }
 
   if (!connected && !broken) {
     return (

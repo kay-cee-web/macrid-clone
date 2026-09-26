@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -70,9 +71,7 @@ function PaymentForm({ connector, provider, fields, onClose, onConnected }: Paym
           <Switch id={`pay-${connector.key}-live`} label="Live account" checked={live} onChange={setLive} />
         </div>
       )}
-      {failure && (
-        <p role="alert" className="rounded-xl bg-bad-soft px-3 py-2 text-sm text-bad">{failure}</p>
-      )}
+      {failure && <Alert>{failure}</Alert>}
       <p className="text-xs text-muted">
         Read-only: agents can see payments, never refund or charge. We check the key works before saving it, and it&apos;s never shown again.
       </p>

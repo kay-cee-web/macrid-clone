@@ -1,11 +1,9 @@
 import {
-  AtSign, Boxes, Calendar, Contact, FileText, Flame, HardDrive, Inbox, Layers, Mail, MapPin, MessageCircle, MessageSquare,
-  Rocket, Send, Sheet, Store, Users, Waves,
+  Calendar, Contact, FileText, HardDrive, Inbox, Mail, MapPin, MessageCircle, MessageSquare, Send, Sheet, Store, Users,
 } from "lucide-react";
 import type { Connector, ConnectorCategory } from "@/types/connector";
-import {
-  API_SECRET, API_URL, FORM_ID, GROUP_ID, LIST_ID, PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS, apiKeyFields, optional,
-} from "./fields";
+import { PLACES_KEY, SMTP_FIELDS, TWILIO_FIELDS } from "./fields";
+import { EMAIL_PLATFORM_CONNECTORS } from "./emailPlatforms";
 import { MESSAGING_CONNECTORS } from "./messaging";
 import { PAYMENT_CONNECTORS } from "./payments";
 import { PLANNED_CONNECTORS } from "./planned";
@@ -94,41 +92,7 @@ export const CONNECTORS: Connector[] = [
     key: "facebook", name: "Facebook", category: "prospect", auth: "oauth", Icon: Users, logo: "facebook",
     connect: "/connectors/facebook/redirect", description: "Find the pages and businesses active in your niche.",
   },
-  // Fields as GET /connectors lists them (2026-09-24).
-  {
-    key: "mailchimp", name: "Mailchimp", category: "email_platform", auth: "api_key", Icon: AtSign, logo: "mailchimp",
-    fields: apiKeyFields("Account → Extras → API keys", optional(LIST_ID)),
-    description: "Push captured leads into a Mailchimp audience.",
-  },
-  {
-    key: "brevo", name: "Brevo", category: "email_platform", auth: "api_key", Icon: Send, logo: "brevo",
-    fields: apiKeyFields("SMTP & API → API keys"), description: "Sync a list and send from Brevo.",
-  },
-  {
-    key: "klaviyo", name: "Klaviyo", category: "email_platform", auth: "api_key", Icon: Waves,
-    fields: [{ ...apiKeyFields("Settings → API keys. The private one, not public.")[0], label: "Private API key" }],
-    description: "Keep a Klaviyo list in step with your CRM.",
-  },
-  {
-    key: "convertkit", name: "ConvertKit", category: "email_platform", auth: "api_key", Icon: Flame, logo: "convertkit",
-    fields: apiKeyFields(undefined, API_SECRET, optional(FORM_ID)), description: "Subscribe new leads to a ConvertKit form.",
-  },
-  {
-    key: "activecampaign", name: "ActiveCampaign", category: "email_platform", auth: "api_key", Icon: Layers,
-    fields: [API_URL, ...apiKeyFields()], description: "Hand leads to an ActiveCampaign automation.",
-  },
-  {
-    key: "mailerlite", name: "MailerLite", category: "email_platform", auth: "api_key", Icon: Boxes,
-    fields: apiKeyFields("Integrations → API", optional(GROUP_ID)), description: "Add leads to a MailerLite group.",
-  },
-  {
-    key: "getresponse", name: "GetResponse", category: "email_platform", auth: "api_key", Icon: Rocket,
-    fields: apiKeyFields(), description: "Feed a GetResponse list from your funnels.",
-  },
-  {
-    key: "systeme", name: "Systeme.io", category: "email_platform", auth: "api_key", Icon: Boxes,
-    fields: apiKeyFields(), description: "Sync contacts with a Systeme.io funnel.",
-  },
+  ...EMAIL_PLATFORM_CONNECTORS,
   ...PLANNED_CONNECTORS,
 ];
 

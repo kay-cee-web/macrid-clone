@@ -1,10 +1,12 @@
 import { CONNECTORS, CONNECTORS_BY_KEY, CONNECTOR_ALIASES } from "@/data/connectors";
-import type { GoogleService } from "@/services/googleConnectors";
-import { SIGNS_WITH_KEY } from "@/data/connectors/payments";
-import type { Mailbox } from "@/services/mailboxes";
-import type { PaymentConnection } from "@/types/payment";
 import type { ConnectionState } from "@/types/connector";
 
+/**
+ * Readers for the "others" layer: /connectors, /integrations behind it, and
+ * /platform-apis. It speaks for every connector with no group of its own, and
+ * stands in for the grouped ones only while their own route can't be read —
+ * each group's reader (`ownedState.ts`) overwrites it. See `connectionSources.ts`.
+ */
 type Row = Record<string, unknown>;
 
 export const blankState = (): Record<string, ConnectionState> =>
@@ -69,64 +71,3 @@ export function applyLegacyRows(state: Record<string, ConnectionState>, payload:
   }
 }
 
-/** GET /connectors/google/services: the one source for every Google card. */
-export function applyGoogleServices(state: Record<string, ConnectionState>, services: GoogleService[]) {
-  for (const connector of CONNECTORS.filter((c) => c.googleService)) {
-    const found = services.find((s) => s.service === connector.googleService);
-    if (!found) continue;
-    // A granted service that reports an error (an expired or revoked token) needs attention.
-    const status = found.connected ? (found.error ? "attention" : "connected") : "disconnected";
-    state[connector.key] = { status, recordId: null, detail: found.error || found.email };
-  }
-}
-
-/** GET /mailboxes: connected once one works; saved ones that all fail (a revoked app password) need attention. */
-export function applyMailboxes(state: Record<string, ConnectionState>, mailboxes: Mailbox[]) {
-  const active = mailboxes.filter((m) => m.active);
-  const emails = active.map((m) => m.email).filter(Boolean);
-  if (!active.length && mailboxes.length) {
-    const first = mailboxes[0];
-    state.mailbox = { status: "attention", recordId: first.id, detail: first.error || `${first.email} stopped signing in` };
-    return;
-  }
-  state.mailbox = {
-    status: active.length ? "connected" : "disconnected",
-    recordId: active[0]?.id ?? null,
-    detail: emails.length > 1 ? `${emails[0]} +${emails.length - 1} more` : emails[0] ?? "",
-  };
-}
-
-/**
- * GET /payments/connections: one card per provider, standing for its first
- * account. A broken key, or a webhook secret never saved, needs attention.
- */
-export function applyPayments(state: Record<string, ConnectionState>, connections: PaymentConnection[]) {
-  for (const connector of CONNECTORS.filter((c) => c.store === "payments")) {
-    const mine = connections.filter((c) => c.provider === connector.key);
-    const first = mine[0];
-    if (!first) {
-      state[connector.key] = { status: "disconnected", recordId: null, detail: "" };
-      continue;
-    }
-    const secretMissing = first.webhookReady === false && !SIGNS_WITH_KEY.includes(connector.key);
-    const problem = first.problem || (secretMissing ? "Webhook secret not set, so live alerts can't arrive." : "");
-    const more = mine.length > 1 ? ` +${mine.length - 1} more` : "";
-    state[connector.key] = {
-      status: problem ? "attention" : "connected",
-      recordId: first.id,
-      detail: problem || `${first.account}${first.live ? "" : " · sandbox"}${more}`,
-    };
-  }
-}
-
-/** GET /platform-apis: Google Places lives here, not in /connectors. */
-export function applyPlatformRows(state: Record<string, ConnectionState>, payload: unknown) {
-  const rows = readRows(payload);
-  if (!rows.length) return;
-  const withKey = rows.find((r) => r.google_place_api_key);
-  state.google_places = {
-    status: withKey ? "connected" : "disconnected",
-    recordId: idOf(withKey ?? rows[0]),
-    detail: withKey ? "Your own key, no daily limit" : "",
-  };
-}

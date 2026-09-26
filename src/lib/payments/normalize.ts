@@ -1,31 +1,12 @@
 import { pickField, toBool, toMaybeNumber, toText } from "@/lib/api/pick";
 import { paymentKey } from "@/data/connectors/payments";
-import type { ConnectorField } from "@/types/connector";
+import { toFields } from "@/lib/connections/providerFields";
 import type { PaymentConnection, PaymentProvider, PaymentWebhook } from "@/types/payment";
 
 /** Readers for the /payments routes (shapes seen 2026-09-24, read tolerantly all the same). */
 type Row = Record<string, unknown>;
 
 const toList = (value: unknown) => (Array.isArray(value) ? value.map(toText).filter(Boolean) : []);
-
-/** Fields as a list of rows, or an object `{secret_key: "Secret key"}`. Secret-looking names become password inputs. */
-function toFields(value: unknown): ConnectorField[] {
-  const rows: Row[] = Array.isArray(value)
-    ? value.map((v) => (typeof v === "string" ? { name: v } : (v as Row)))
-    : Object.entries((value ?? {}) as Row).map(([name, label]) => (typeof label === "object" ? { name, ...(label as Row) } : { name, label }));
-  return rows.map((row): ConnectorField => {
-    const name = toText(pickField(row, ["name", "key", "field"]));
-    const secret = /secret|key|token|password/i.test(name) && !/client_id/i.test(name);
-    return {
-      name,
-      label: toText(pickField(row, ["label", "title"])) || name.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase()),
-      type: toText(row.type) === "text" || !secret ? "text" : "password",
-      required: toBool(row.required, true),
-      placeholder: toText(row.placeholder) || undefined,
-      help: toText(pickField(row, ["help", "hint", "description"])) || undefined,
-    };
-  }).filter((f) => f.name);
-}
 
 /** `{provider, label, fields: [{name, label}], help}` */
 export function toProvider(row: Row): PaymentProvider {
