@@ -39,11 +39,11 @@ export const apiKeyFields = (help?: string, ...extra: ConnectorField[]): Connect
   ...extra,
 ];
 
-export const optional = (field: ConnectorField): ConnectorField => ({ ...field, required: false });
-
-export const LIST_ID: ConnectorField = { name: "list_id", label: "Audience ID", type: "text", required: true };
-export const FORM_ID: ConnectorField = { name: "form_id", label: "Form ID", type: "text", required: true };
-export const GROUP_ID: ConnectorField = { name: "group_id", label: "Group ID", type: "text", required: true };
+/**
+ * No list, form or group id field any more: /email-platforms returns the real
+ * lists when the key is saved, so the target is picked from them instead of
+ * being typed in.
+ */
 export const API_SECRET: ConnectorField = { name: "api_secret", label: "API secret", type: "password", required: true };
 export const API_URL: ConnectorField = {
   name: "api_url", label: "API URL", type: "text", required: true,

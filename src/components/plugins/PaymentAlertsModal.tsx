@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Modal } from "@/components/ui/Modal";
@@ -88,7 +89,7 @@ function AlertsForm({ connector, connectionId, connection, webhook, onClose, onS
       <p className="text-xs text-muted">
         WhatsApp only delivers an alert if you&apos;ve messaged our number in the last 24 hours, until the alert template is approved.
       </p>
-      {failure && <p role="alert" className="rounded-xl bg-bad-soft px-3 py-2 text-sm text-bad">{failure}</p>}
+      {failure && <Alert>{failure}</Alert>}
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onClose}>Cancel</Button>
         <Button type="submit" loading={saving}>Save alerts</Button>

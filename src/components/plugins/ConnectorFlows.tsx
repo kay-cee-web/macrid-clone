@@ -2,21 +2,14 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { CONNECTORS_BY_KEY } from "@/data/connectors";
 import { useOAuthPopup } from "@/hooks/useOAuthPopup";
 import { useWorkspaceConnections } from "@/hooks/useWorkspaceSetup";
 import { extractApiError } from "@/lib/api/errors";
-import { disconnectWarning } from "@/lib/connections/warnings";
 import { refreshSetup } from "@/lib/setup/store";
-import { disconnectConnector } from "@/services/connections";
 import { testPaymentConnection } from "@/services/payments";
 import type { Connections, Connector } from "@/types/connector";
-import { ApiKeyModal } from "./ApiKeyModal";
-import { MailboxesModal } from "./MailboxesModal";
-import { MailboxModal } from "./MailboxModal";
-import { PaymentAlertsModal } from "./PaymentAlertsModal";
-import { PaymentConnectModal } from "./PaymentConnectModal";
+import { ConnectorDialogs, type Dialog } from "./ConnectorDialogs";
 
 type ConnectorFlows = {
   /** Set inside an agent: WhatsApp and Telegram pair in its settings. */
@@ -32,6 +25,8 @@ type ConnectorFlows = {
   alerts: (connector: Connector) => void;
   /** Ask the backend to try a payment account's key again. */
   test: (connector: Connector) => void;
+  /** Which list an email platform syncs with. */
+  chooseList: (connector: Connector) => void;
 };
 
 const ConnectorFlowsContext = createContext<ConnectorFlows | null>(null);
@@ -41,7 +36,6 @@ export const useConnectorFlows = () => useContext(ConnectorFlowsContext);
 
 /** `agentId`: the open agent, for its chat channels (Plugins inside an agent). */
 type ProviderProps = { connections: Connections | null; onChanged: () => void; agentId?: string; children: ReactNode };
-type Dialog = { kind: "key" | "payment" | "alerts" | "disconnect"; connector: Connector } | { kind: "mailbox" | "mailboxes" };
 
 /**
  * Connecting and disconnecting in one place: the OAuth popup, the key forms and
@@ -52,8 +46,6 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
   const source = connections?.source ?? "connectors";
-  const close = () => setDialog(null);
-  const recordOf = (connector: Connector) => connections?.state[connector.key]?.recordId ?? null;
 
   const oauth = useOAuthPopup(({ key, ok, message }) => {
     const name = CONNECTORS_BY_KEY[key]?.name ?? "The connection";
@@ -76,8 +68,9 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
     disconnect: (connector) => setDialog({ kind: "disconnect", connector }),
     manageMailboxes: () => setDialog({ kind: "mailboxes" }),
     alerts: (connector) => setDialog({ kind: "alerts", connector }),
+    chooseList: (connector) => setDialog({ kind: "list", connector }),
     test: async (connector) => {
-      const id = recordOf(connector);
+      const id = connections?.state[connector.key]?.recordId ?? null;
       if (!id) return;
       setTesting(connector.key);
       try {
@@ -91,44 +84,16 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
     },
   };
 
-  const connection = dialog?.kind === "disconnect" ? connections?.state[dialog.connector.key] : undefined;
-  const alertsId = dialog?.kind === "alerts" ? recordOf(dialog.connector) : null;
-
   return (
     <ConnectorFlowsContext.Provider value={flows}>
       {children}
-      {dialog?.kind === "key" && (
-        <ApiKeyModal connector={dialog.connector} source={source} onClose={close} onConnected={onChanged} />
-      )}
-      {dialog?.kind === "payment" && (
-        <PaymentConnectModal connector={dialog.connector} onClose={close} onConnected={onChanged} />
-      )}
-      {dialog?.kind === "alerts" && alertsId && (
-        <PaymentAlertsModal connector={dialog.connector} connectionId={alertsId} onClose={close} onSaved={onChanged} />
-      )}
-      {dialog?.kind === "mailbox" && <MailboxModal onClose={close} onConnected={onChanged} />}
-      {dialog?.kind === "mailboxes" && (
-        <MailboxesModal onClose={close} onAdd={() => setDialog({ kind: "mailbox" })} onChanged={onChanged} />
-      )}
-      {dialog?.kind === "disconnect" && (
-        <ConfirmModal
-          title={`Disconnect ${dialog.connector.name}?`}
-          description={disconnectWarning(dialog.connector, connection?.detail ?? "")}
-          confirmLabel="Disconnect"
-          onClose={close}
-          onConfirm={async () => {
-            if (!connection) return false;
-            try {
-              toast.success(await disconnectConnector(dialog.connector, connection, source));
-              return true;
-            } catch (err) {
-              toast.error(extractApiError(err, `Could not disconnect ${dialog.connector.name}`));
-              return false;
-            } finally {
-              // Senders go one at a time, so even a failure may have changed something.
-              onChanged();
-            }
-          }}
+      {dialog && (
+        <ConnectorDialogs
+          dialog={dialog}
+          connections={connections}
+          source={source}
+          setDialog={setDialog}
+          onChanged={onChanged}
         />
       )}
     </ConnectorFlowsContext.Provider>

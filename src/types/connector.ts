@@ -52,13 +52,17 @@ export type Connector = {
   manageHref?: string;
   fields?: ConnectorField[];
   /**
-   * Where the credentials live when it isn't /connectors or /integrations:
-   * platform_apis (Google Places), mail_accounts (SMTP), sms_senders (Twilio),
-   * mailboxes (IMAP, for reading mail), payments (/payments/connections).
+   * The group that owns this connector, when it isn't /connectors or
+   * /integrations: platform_apis (Google Places), mail_accounts (SMTP),
+   * sms_senders (Twilio), mailboxes (IMAP, for reading mail), payments
+   * (/payments/connections), email_platforms (/email-platforms). That route is
+   * the last word on its status and takes its writes — see
+   * `services/connectionSources.ts`.
+   *
    * mail_accounts, sms_senders and mailboxes can hold several, so they are
    * added one by one; disconnecting removes them all.
    */
-  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments";
+  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments" | "email_platforms";
   optional?: boolean;
 };
 
@@ -74,6 +78,14 @@ export type ConnectionState = {
   recordId: string | null;
   /** Account email, list id, key hint… or, for `attention`, the problem. */
   detail: string;
+  /**
+   * The group that wrote this, when its own route answered ("google" for the
+   * Google services, otherwise the `store`). Left unset by /connectors and
+   * /integrations. A delete that goes by `recordId` must check it: ids from the
+   * leftover reader belong to another table, so deleting by one would hit the
+   * wrong row.
+   */
+  owner?: Connector["store"] | "google";
 };
 
 export type Connections = {
