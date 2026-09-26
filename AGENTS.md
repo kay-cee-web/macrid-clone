@@ -337,8 +337,10 @@ Connections belong to the user's workspace, not to one agent.
   - `GET /platform-apis` holds AI keys and Google Places, which `/connectors` does not report.
 - **OAuth:**
   1. Open a blank popup inside the click handler, before any `await`, or the popup blocker will stop it.
-  2. `GET <connector.connect>` (e.g. `/connectors/google/redirect?service=gmail`, `/connectors/outlook/redirect`) returns `{auth_url}`.
+  2. `GET <connector.connect>` (e.g. `/connectors/google/redirect?service=gmail`, `/social/redirect?platform=meta`) returns `{auth_url}`. A provider the server has no keys for answers **422 `{status: false, message: "Meta is not configured on this server."}`**, which `assertEnvelope` turns into that exact message.
   3. Point the popup at that URL, then read connections again.
+  - **The callback posts `{source: "dexisphere-connector", ok, message}`** and closes — confirmed by reading the live `/connectors/google/callback` page (2026-09-26). `useOAuthPopup` matches that source; it also still accepts the old `macrid-connector` until the rename is known to have reached every route.
+    - **A wrong source fails silently, not loudly**: the message is ignored, the popup-closed poll settles the flow as `ok: false`, and connections still refresh — so the card updates while neither the success line nor the backend's reason ever appears. If an OAuth connect ever "works but says nothing", check this first.
 - **API key:**
   - `POST /connectors/{key}/api-key` with only the credential fields, on the newer route.
   - Otherwise `POST /integrations {service, ...fields, status: "1"}` on the legacy route.
