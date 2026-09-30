@@ -25,6 +25,7 @@ export function WorkspaceHeader({ agent, onInstructions, onDialog }: WorkspaceHe
     { href: base, label: "Chat" },
     { href: `${base}/briefing`, label: "For you" },
     { href: `${base}/meetings`, label: "Meetings" },
+    { href: `${base}/notes`, label: "Notes" },
     { href: `${base}/workflows`, label: "Workflows" },
     { href: `${base}/plugins`, label: "Plugins" },
     { href: `${base}/settings`, label: "Settings" },

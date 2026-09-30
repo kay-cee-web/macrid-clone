@@ -17,8 +17,9 @@ export const statusOf = (meeting: Meeting) => LABELS[meeting.status];
 /** Only a bot that hasn't joined can be called off. */
 export const canCancel = (meeting: Meeting) => meeting.status === "scheduled" || meeting.status === "joining";
 
+/** Whether this call produced anything to read. The write-up itself lives in Notes. */
 export const hasNotes = (meeting: Meeting) =>
-  Boolean(meeting.summary || meeting.actionItems.length || meeting.recordingUrl);
+  meeting.status === "done" || Boolean(meeting.summary || meeting.actionCount > 0);
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -45,13 +46,16 @@ export function whenLabel(meeting: Meeting, now = Date.now()): string {
   return formatDateTime(meeting.startsAt);
 }
 
-/** "45 min · 38 tokens" — what it actually cost, once the call is over. */
-export function costLabel(meeting: Meeting, tokensPerHour: number | null): string {
-  if (meeting.minutes === null) return "";
-  const minutes = `${meeting.minutes} min`;
-  if (!tokensPerHour) return minutes;
-  // Whole minutes, the way the backend bills, and free minutes come off first —
-  // so this is a ceiling, never a promise about what was charged.
-  const tokens = Math.round((meeting.minutes / 60) * tokensPerHour);
-  return tokens > 0 ? `${minutes} · up to ${tokens} tokens` : minutes;
+/**
+ * "45 min · 38 tokens" — what it actually cost, once the call is over.
+ *
+ * The row carries `tokens` outright now, so this states the real charge rather
+ * than deriving one from a rate. Nothing is shown before a call has run.
+ */
+export function costLabel(meeting: Meeting): string {
+  const parts: string[] = [];
+  if (meeting.minutes !== null) parts.push(`${meeting.minutes} min`);
+  if (meeting.tokens) parts.push(`${meeting.tokens} tokens`);
+  else if (meeting.minutes !== null && meeting.tokens === 0) parts.push("free");
+  return parts.join(" · ");
 }

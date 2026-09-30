@@ -19,23 +19,32 @@ export type MeetingStatus =
   | "failed"
   | "cancelled";
 
+/**
+ * A row from `GET /meetings`, confirmed 2026-09-30:
+ * `{id, title, service, status, note, when, minutes, tokens, people, summary, actions}`.
+ * Note the spellings — `service` not `platform`, `when` not `starts_at`,
+ * `people` as a count, and `actions` as a **count**, not a list.
+ */
 export type Meeting = {
   id: string;
   title: string;
   /** The Zoom, Meet or Teams link the bot was pointed at. */
   joinUrl: string;
-  /** "zoom" | "meet" | "teams", when the backend says. */
-  platform: string;
+  /** The backend's own wording: "Google Meet", "Zoom", "Teams". */
+  service: string;
   /** ISO, or "" for a bot sent to join immediately. */
   startsAt: string;
   status: MeetingStatus;
   /** Actual recorded minutes, which is what gets charged — not the booked length. */
   minutes: number | null;
-  attendees: string[];
-  /** The write-up, once the call is transcribed. */
+  /** Tokens actually charged, once the call is over. */
+  tokens: number | null;
+  /** How many were on the call. The API sends a count, not names. */
+  people: number | null;
+  /** A short write-up, when one comes back on the row. The full note goes to `dexi_notes`. */
   summary: string;
-  /** Action items the backend attributed to this user; they also become tasks. */
-  actionItems: string[];
+  /** How many action items became tasks. A count — the text lives in the note. */
+  actionCount: number;
   recordingUrl: string;
   /** Why it failed — a bot that couldn't join, a transcript that didn't arrive. */
   problem: string;

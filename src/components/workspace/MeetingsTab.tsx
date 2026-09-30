@@ -28,7 +28,7 @@ export function MeetingsTab() {
             </p>
           </div>
 
-          <MeetingsView agentName={agent.name} />
+          <MeetingsView agentName={agent.name} notesHref={`/agents/${agent.id}/notes`} />
         </div>
       </div>
     </div>
