@@ -21,17 +21,19 @@ export function ForYouView() {
 
   return (
     <div className="h-full overflow-y-auto">
+      {/* The outer container matches every other tab, so switching doesn't move the page.
+          The reading column is centred inside it — this is read rather than scanned, and
+          left-aligning it in a 1600px shell leaves half the screen empty. */}
       <div className="mx-auto grid w-full max-w-400 gap-5 px-4 pb-16 pt-8 sm:px-6 xl:px-10">
-        <div className="grid gap-1.5">
-          <h2 className="text-2xl font-semibold">For you</h2>
-          <p className="max-w-[62ch] text-sm text-muted">
-            What needs you today, gathered from your records and the tools you&apos;ve connected. Picking an action
-            sends it to {agent.name} in the chat — nothing is changed until you watch it happen.
-          </p>
-        </div>
+        <div className="mx-auto grid w-full max-w-3xl gap-5">
+          <div className="grid gap-1.5">
+            <h2 className="text-2xl font-semibold">For you</h2>
+            <p className="text-sm text-muted">
+              What needs you today, gathered from your records and the tools you&apos;ve connected. Picking an action
+              sends it to {agent.name} in the chat — nothing is changed until you watch it happen.
+            </p>
+          </div>
 
-        {/* The reading column stays narrow inside the tab's container: this is read, not scanned. */}
-        <div className="w-full max-w-3xl">
           <BriefingView onAct={sendToChat} />
         </div>
       </div>
