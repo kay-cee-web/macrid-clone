@@ -80,7 +80,10 @@ export function NoteEditor({
         </div>
       </div>
 
-      {editing ? (
+      {note.isFolder ? (
+        // Nothing creates folders here yet; showing one honestly beats hiding it.
+        <p className="text-sm text-muted">This is a folder. Open a note inside it to read or edit.</p>
+      ) : editing ? (
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useNotes } from "@/hooks/useNotes";
-import { NOTES_PREVIEW } from "@/services/notes";
 import type { Note } from "@/types/note";
 import { NoteEditor } from "./NoteEditor";
 import { NoteList } from "./NoteList";
@@ -34,13 +33,7 @@ export function NotesView() {
       <EmptyState
         icon={<NotebookPen />}
         title="Create your first note"
-        description={
-          NOTES_PREVIEW
-            ? // No banner, but said once where someone decides to start writing:
-              // typing something and losing it without warning is the worse failure.
-              "Write your own, or send the notetaker to a call and its write-up lands here. Notes aren't saved yet — they stay in this tab."
-            : "Write your own, or send the notetaker to a call and its write-up lands here."
-        }
+        description="Write your own, or send the notetaker to a call and its write-up lands here."
         action={<Button onClick={notes.startNew}>Add new note</Button>}
       />
     );
