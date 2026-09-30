@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search, Video } from "lucide-react";
+import { Folder, Pin, Plus, Search, Video } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -72,10 +72,16 @@ export function NoteList({
                   )}
                 >
                   <span className="flex items-center gap-1.5">
-                    {note.source === "meeting" && <Video aria-label="From a call" className="size-3.5 shrink-0 text-muted" />}
+                    {note.isFolder && <Folder aria-label="Folder" className="size-3.5 shrink-0 text-muted" />}
+                    {!note.isFolder && note.source === "meeting" && (
+                      <Video aria-label="From a call" className="size-3.5 shrink-0 text-muted" />
+                    )}
                     <span className="truncate text-sm font-medium text-ink">{note.title}</span>
+                    {note.pinned && <Pin aria-label="Pinned" className="size-3 shrink-0 text-muted" />}
                   </span>
-                  <span className="text-xs text-muted">{timeAgo(note.updatedAt) || "just now"}</span>
+                  <span className="truncate text-xs text-muted">
+                    {note.preview || timeAgo(note.updatedAt) || "just now"}
+                  </span>
                 </button>
               </li>
             ))}

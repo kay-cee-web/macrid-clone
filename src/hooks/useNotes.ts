@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAsync } from "@/hooks/useAsync";
 import { extractApiError } from "@/lib/api/errors";
-import { createNote, deleteNote, fetchNotes, updateNote } from "@/services/notes";
+import { createNote, deleteNote, fetchNote, fetchNotes, updateNote } from "@/services/notes";
 import type { Note, NoteInput } from "@/types/note";
 
 /** A note that exists only on screen until it's saved. */
@@ -12,33 +12,46 @@ const blankNote = (): Note => ({
   id: "",
   title: "",
   body: "",
+  preview: "",
   source: "user",
-  meetingId: "",
-  createdAt: "",
+  isFolder: false,
+  parentId: "",
+  pinned: false,
   updatedAt: "",
 });
 
 /**
  * The notes library: what's in it, which one is open, and the three writes.
  *
- * Selection is deliberately not stored anywhere — a notes list is read
- * front-to-back, and the newest edit is nearly always the one you came for.
+ * Two reads, not one, because a list row carries no body — only `preview`. The
+ * row shows immediately and the full note arrives behind it, so opening one
+ * never blanks the pane it replaces.
  */
 export function useNotes() {
-  const { data, status, error, reload } = useAsync(fetchNotes, [], "Could not load your notes");
+  const list = useAsync(fetchNotes, [], "Could not load your notes");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Note | null>(null);
   const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const notes = useMemo(() => data ?? [], [data]);
+  const notes = useMemo(() => list.data ?? [], [list.data]);
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return notes;
-    return notes.filter((note) => `${note.title} ${note.body}`.toLowerCase().includes(needle));
+    return notes.filter((note) => `${note.title} ${note.preview}`.toLowerCase().includes(needle));
   }, [notes, query]);
 
-  const selected = draft ?? notes.find((note) => note.id === selectedId) ?? shown[0] ?? null;
+  const row = notes.find((note) => note.id === selectedId) ?? shown[0] ?? null;
+  // A folder has nothing to open, and an unsaved draft is already whole.
+  const openId = draft || !row || row.isFolder ? "" : row.id;
+  const open = useAsync(
+    () => (openId ? fetchNote(openId) : Promise.resolve(null)),
+    [openId],
+    "Could not load that note",
+  );
+
+  const loaded = open.data && open.data.id === row?.id ? open.data : null;
+  const selected = draft ?? loaded ?? row;
 
   const startNew = useCallback(() => {
     setDraft(blankNote());
@@ -54,21 +67,19 @@ export function useNotes() {
     async (input: NoteInput) => {
       setSaving(true);
       try {
-        const existingId = selected?.id;
-        const saved = existingId ? await updateNote(existingId, input) : await createNote(input);
-        toast.success(existingId ? "Note saved." : "Note created.");
+        const existing = selected?.id;
+        const saved = existing ? await updateNote(existing, input) : await createNote(input);
+        toast.success(existing ? "Note saved." : "Note created.");
         setDraft(null);
         setSelectedId(saved.id || null);
-        reload();
+        list.reload();
       } catch (err) {
         toast.error(extractApiError(err, "Could not save that note"));
       } finally {
         setSaving(false);
       }
     },
-    // `selected`, not `selected?.id`: the compiler infers the whole object and
-    // refuses to keep a narrower manual dependency.
-    [selected, reload],
+    [selected, list],
   );
 
   const remove = useCallback(
@@ -81,15 +92,32 @@ export function useNotes() {
       try {
         toast.success(await deleteNote(note.id));
         setSelectedId(null);
-        reload();
+        list.reload();
         return true;
       } catch (err) {
         toast.error(extractApiError(err, "Could not delete that note"));
         return false;
       }
     },
-    [reload],
+    [list],
   );
 
-  return { notes, shown, selected, draft, status, error, query, setQuery, saving, startNew, select, save, remove, reload };
+  return {
+    notes,
+    shown,
+    selected,
+    draft,
+    status: list.status,
+    error: list.error,
+    /** True while the open note's body is still coming. */
+    opening: Boolean(openId) && open.status === "loading",
+    query,
+    setQuery,
+    saving,
+    startNew,
+    select,
+    save,
+    remove,
+    reload: list.reload,
+  };
 }
