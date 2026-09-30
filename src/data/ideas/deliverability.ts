@@ -3,8 +3,8 @@ import type { Idea } from "@/types/idea";
 export const DELIVERABILITY: Idea[] = [
   {
     title: "Pre-send list verification",
-    blocked: "an email verification provider",
-    platforms: ["email", "email_verification"],
+    ready: true,
+    platforms: ["email"],
     description: "Before a campaign goes out, verify the list and hold back every invalid, risky or catch-all address.",
   },
   {

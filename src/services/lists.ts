@@ -1,14 +1,14 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { pickList } from "@/lib/api/pick";
-import { newestFirst, normalizeList } from "@/lib/records/normalizeCrm";
+import { newestFirst, normalizeList, uniqueById } from "@/lib/records/normalizeCrm";
 import type { RecordList } from "@/types/records";
 
 /** GET /lists → `{lists: [...]}`. Not paginated. */
 export async function fetchLists(): Promise<RecordList[]> {
   const { data } = await api.get("/lists");
   assertEnvelope(data, "Could not load your lists");
-  return newestFirst(pickList<Record<string, unknown>>(data, "lists").map(normalizeList));
+  return newestFirst(uniqueById(pickList<Record<string, unknown>>(data, "lists").map(normalizeList)));
 }
 
 /**

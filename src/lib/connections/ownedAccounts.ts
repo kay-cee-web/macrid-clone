@@ -3,6 +3,7 @@ import { SIGNS_WITH_KEY } from "@/data/connectors/payments";
 import type { EmailPlatformConnection } from "@/types/emailPlatform";
 import type { PaymentConnection } from "@/types/payment";
 import type { SocialAccount } from "@/types/social";
+import type { WorkToolConnection } from "@/types/workTool";
 import { writer, type State } from "./ownedState";
 
 /**
@@ -65,6 +66,31 @@ export function applyEmailPlatforms(state: State, connections: EmailPlatformConn
  * the ad account that rides along on the same grant is read-only and gets no
  * card. A profile whose token expired needs attention.
  */
+/**
+ * GET /work-tools. One card per tool, standing for its first connection.
+ *
+ * Only a reported `problem` puts a card on Needs attention. A watcher with no
+ * notify channel would also be broken, but the backend rejects that at save
+ * time, and the field we read it from is still a guess — deriving a badge from
+ * it would mark every healthy watcher broken the day the guess is wrong.
+ */
+export function applyWorkTools(state: State, connections: WorkToolConnection[]) {
+  const set = writer(state, "work_tools");
+  for (const connector of CONNECTORS.filter((c) => c.store === "work_tools")) {
+    const first = connections.find((c) => c.provider === connector.key);
+    if (!first) {
+      set(connector.key, { status: "disconnected", recordId: null, detail: "" });
+      continue;
+    }
+    const reports = first.mode === "watch" && first.notifyChannel ? `Reports to ${first.notifyChannel}` : "";
+    set(connector.key, {
+      status: first.problem ? "attention" : "connected",
+      recordId: first.id,
+      detail: first.problem || first.account || reports,
+    });
+  }
+}
+
 export function applySocialAccounts(state: State, accounts: SocialAccount[]) {
   const set = writer(state, "social");
   const profiles = accounts.filter((account) => account.kind === "social");

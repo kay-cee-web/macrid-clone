@@ -41,13 +41,11 @@ export const WORK: Idea[] = [
   },
   {
     title: "New ticket alert",
-    blocked: "a Jira connector",
     platforms: ["jira"],
     description: "When a ticket is assigned to me, send me the details and whatever context you can find on it.",
   },
   {
     title: "PR review reminder",
-    blocked: "a GitHub connector",
     platforms: ["github"],
     description: "When a review assigned to me has sat two hours, remind me with a direct link to it.",
   },

@@ -9,6 +9,7 @@ import { removeAllMailboxes } from "./mailboxes";
 import { deletePaymentConnection } from "./payments";
 import { createMailAccount, createSmsSender, removeAllMailAccounts, removeAllSmsSenders } from "./senders";
 import { disconnectSocialAccount } from "./social";
+import { disconnectWorkTool } from "./workTools";
 
 /**
  * Workspace connections, shared by every agent. Which route speaks for which
@@ -57,6 +58,7 @@ const DELETE_BY_ID: Partial<Record<NonNullable<Connector["store"]>, (id: string,
   payments: deletePaymentConnection,
   email_platforms: disconnectEmailPlatform,
   social: disconnectSocialAccount,
+  work_tools: disconnectWorkTool,
 };
 
 export async function connectApiKey(connector: Connector, values: Record<string, string>, source: Connections["source"]) {

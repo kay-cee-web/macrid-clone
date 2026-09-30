@@ -8,6 +8,7 @@ import { useWorkspaceConnections } from "@/hooks/useWorkspaceSetup";
 import { extractApiError } from "@/lib/api/errors";
 import { refreshSetup } from "@/lib/setup/store";
 import { testPaymentConnection } from "@/services/payments";
+import { checkWorkToolNow } from "@/services/workTools";
 import type { Connections, Connector } from "@/types/connector";
 import { ConnectorDialogs, type Dialog } from "./ConnectorDialogs";
 
@@ -27,6 +28,8 @@ type ConnectorFlows = {
   test: (connector: Connector) => void;
   /** Which list an email platform syncs with. */
   chooseList: (connector: Connector) => void;
+  /** Look at a watched work tool now, without waiting for the next poll. */
+  check: (connector: Connector) => void;
 };
 
 const ConnectorFlowsContext = createContext<ConnectorFlows | null>(null);
@@ -66,26 +69,31 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
       if (connector.auth === "planned") toast.message(`${connector.name} is a work in progress.`);
       else if (connector.auth === "oauth") void oauth.connect(connector);
       else if (connector.store === "mailboxes") setDialog({ kind: "mailbox" });
+      else if (connector.store === "work_tools") setDialog({ kind: "work", connector });
       else setDialog({ kind: connector.store === "payments" ? "payment" : "key", connector });
     },
     disconnect: (connector) => setDialog({ kind: "disconnect", connector }),
     manageMailboxes: () => setDialog({ kind: "mailboxes" }),
     alerts: (connector) => setDialog({ kind: "alerts", connector }),
     chooseList: (connector) => setDialog({ kind: "list", connector }),
-    test: async (connector) => {
-      const id = connections?.state[connector.key]?.recordId ?? null;
-      if (!id) return;
-      setTesting(connector.key);
-      try {
-        toast.success(await testPaymentConnection(id, connector.name));
-      } catch (err) {
-        toast.error(extractApiError(err, `${connector.name} didn't answer`));
-      } finally {
-        setTesting(null);
-        onChanged();
-      }
-    },
+    test: (connector) => run(connector, testPaymentConnection, `${connector.name} didn't answer`),
+    check: (connector) => run(connector, checkWorkToolNow, `Could not check ${connector.name}`),
   };
+
+  /** One row's own route, by record id, with the card spinning while it runs. */
+  async function run(connector: Connector, call: (id: string, name: string) => Promise<string>, fallback: string) {
+    const id = connections?.state[connector.key]?.recordId ?? null;
+    if (!id) return;
+    setTesting(connector.key);
+    try {
+      toast.success(await call(id, connector.name));
+    } catch (err) {
+      toast.error(extractApiError(err, fallback));
+    } finally {
+      setTesting(null);
+      onChanged();
+    }
+  }
 
   return (
     <ConnectorFlowsContext.Provider value={flows}>

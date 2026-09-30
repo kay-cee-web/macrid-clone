@@ -49,7 +49,6 @@ export const SOCIAL: Idea[] = [
   },
   {
     title: "Telegram channel update",
-    blocked: "a way to post to Telegram",
     platforms: ["telegram"],
     description: "When something ships, write the announcement and post it to my Telegram channel.",
   },

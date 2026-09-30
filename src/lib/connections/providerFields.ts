@@ -3,8 +3,8 @@ import type { ConnectorField } from "@/types/connector";
 
 /**
  * Credential fields as a backend `providers` route lists them, shared by
- * /payments/providers and /email-platforms/providers. Neither carries a type,
- * so secret-looking names become password inputs.
+ * /payments/providers, /email-platforms/providers and /work-tools/providers.
+ * None carries a type, so secret-looking names become password inputs.
  */
 type Row = Record<string, unknown>;
 
@@ -15,7 +15,9 @@ export function toFields(value: unknown): ConnectorField[] {
     : Object.entries((value ?? {}) as Row).map(([name, label]) => (typeof label === "object" ? { name, ...(label as Row) } : { name, label }));
   return rows.map((row): ConnectorField => {
     const name = toText(pickField(row, ["name", "key", "field"]));
-    const secret = /secret|key|token|password/i.test(name) && !/client_id|api_url/i.test(name);
+    // A webhook URL is a credential too: Slack's carries the token in the path,
+    // and it posts to the channel for anyone holding it.
+    const secret = /secret|key|token|password|webhook/i.test(name) && !/client_id|api_url/i.test(name);
     return {
       name,
       label: toText(pickField(row, ["label", "title"])) || name.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase()),

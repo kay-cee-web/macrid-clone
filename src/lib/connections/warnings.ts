@@ -1,3 +1,4 @@
+import { modeOf } from "@/data/connectors/workTools";
 import type { Connector } from "@/types/connector";
 
 /** What disconnecting takes away, said before it happens. */
@@ -14,6 +15,11 @@ export function disconnectWarning(connector: Connector, detail: string) {
   }
   if (connector.store === "payments") {
     return `Agents stop seeing ${connector.name} payments and live alerts stop. The webhook link you pasted into ${connector.name} stops working too.`;
+  }
+  if (connector.store === "work_tools") {
+    return modeOf(connector.key) === "speak"
+      ? `Agents stop posting to ${connector.name}${which}. Anything already posted stays where it is.`
+      : `Agents stop watching ${connector.name}${which} and stop telling you what changed there. Nothing inside ${connector.name} is touched.`;
   }
   if (connector.googleService) {
     return `Agents lose ${connector.name} straight away. Your other Google connections keep working.`;

@@ -1,5 +1,5 @@
 import { fetchAllPages } from "@/lib/api/paginate";
-import { newestFirst, normalizeLead } from "@/lib/records/normalizeCrm";
+import { newestFirst, normalizeLead, uniqueById } from "@/lib/records/normalizeCrm";
 import type { Lead } from "@/types/records";
 
 /**
@@ -14,5 +14,5 @@ export async function fetchLeads(filters: { listId?: string } = {}): Promise<{ l
     maxPages: 10,
     fallback: "Could not load leads",
   });
-  return { leads: newestFirst(rows.map(normalizeLead)), truncated };
+  return { leads: newestFirst(uniqueById(rows.map(normalizeLead))), truncated };
 }

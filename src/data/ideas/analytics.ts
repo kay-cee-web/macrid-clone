@@ -32,7 +32,6 @@ export const ANALYTICS: Idea[] = [
   },
   {
     title: "Metric dip alerts",
-    blocked: "Slack",
     platforms: ["slack"],
     description: "Watch my open, reply and conversion rates daily and tell me as soon as one falls out of its usual range.",
   },

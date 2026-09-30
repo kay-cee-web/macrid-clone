@@ -8,7 +8,7 @@ import type { ChannelProvider } from "./channel";
  */
 export type ConnectorCategory =
   | "google" | "microsoft" | "mailbox" | "messaging" | "payments" | "sending" | "prospect" | "email_platform"
-  | "social" | "planned";
+  | "social" | "work" | "planned";
 
 /**
  * oauth     consent popup via the connector's `connect` route
@@ -56,14 +56,14 @@ export type Connector = {
    * The group that owns this connector, when it isn't /connectors or
    * /integrations: platform_apis (Google Places), mail_accounts (SMTP),
    * sms_senders (Twilio), mailboxes (IMAP, for reading mail), payments
-   * (/payments/connections), email_platforms (/email-platforms). That route is
-   * the last word on its status and takes its writes — see
-   * `services/connectionSources.ts`.
+   * (/payments/connections), email_platforms (/email-platforms), work_tools
+   * (/work-tools). That route is the last word on its status and takes its
+   * writes — see `services/connectionSources.ts`.
    *
    * mail_accounts, sms_senders and mailboxes can hold several, so they are
    * added one by one; disconnecting removes them all.
    */
-  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments" | "email_platforms" | "social";
+  store?: "platform_apis" | "mail_accounts" | "sms_senders" | "mailboxes" | "payments" | "email_platforms" | "social" | "work_tools";
   optional?: boolean;
 };
 
