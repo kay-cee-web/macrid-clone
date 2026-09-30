@@ -23,11 +23,11 @@ export const PLATFORMS = {
   jira: { name: "Jira", connectors: ["jira"] },
   github: { name: "GitHub", connectors: ["github"] },
   shopify: { name: "Shopify", connectors: ["shopify"] },
-  bank: { name: "Bank account", connectors: ["bank"] },
   /** The user's own payment accounts, read-only. Any one of them will do; Stripe stands for them on cards. */
   payments: { name: "a payment account", connectors: ["stripe", "paypal", "paystack", "flutterwave", "paddle", "lemonsqueezy"] },
-  image_generation: { name: "Image generation", connectors: ["image_generation"] },
-  email_verification: { name: "Email verification", connectors: ["email_verification"] },
+  // No bank, image generation or email verification: none of the three is a
+  // connection the user makes, so an idea that needs one carries `blocked`
+  // and draws no logo rather than pointing at a card that can't exist.
 } satisfies Record<string, { name: string; connectors: string[] }>;
 
 export type PlatformId = keyof typeof PLATFORMS;

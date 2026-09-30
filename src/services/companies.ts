@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { pickList, toNumber } from "@/lib/api/pick";
-import { newestFirst, normalizeCompany } from "@/lib/records/normalizeCrm";
+import { newestFirst, normalizeCompany, uniqueById } from "@/lib/records/normalizeCrm";
 import type { Company } from "@/types/records";
 
 type Row = Record<string, unknown>;
@@ -32,5 +32,5 @@ export async function fetchCompanies(): Promise<Company[]> {
   } else {
     rows = pickList<Row>(first, "companies");
   }
-  return newestFirst(rows.map(normalizeCompany));
+  return newestFirst(uniqueById(rows.map(normalizeCompany)));
 }

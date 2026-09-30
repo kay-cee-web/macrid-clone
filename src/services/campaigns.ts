@@ -2,7 +2,7 @@ import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { pickList } from "@/lib/api/pick";
-import { newestFirst } from "@/lib/records/normalizeCrm";
+import { newestFirst, uniqueById } from "@/lib/records/normalizeCrm";
 import {
   normalizeEmailCampaign,
   normalizeSmsCampaign,
@@ -17,14 +17,14 @@ type Row = Record<string, unknown>;
 export async function fetchEmailCampaigns(): Promise<EmailCampaign[]> {
   const { data } = await api.get("/email-campaigns");
   assertEnvelope(data, "Could not load email campaigns");
-  return newestFirst(pickList<Row>(data, "campaigns").map(normalizeEmailCampaign));
+  return newestFirst(uniqueById(pickList<Row>(data, "campaigns").map(normalizeEmailCampaign)));
 }
 
 /** GET /sms-campaigns → `{success, data: [...]}`. Not paginated. */
 export async function fetchSmsCampaigns(): Promise<SmsCampaign[]> {
   const { data } = await api.get("/sms-campaigns");
   assertEnvelope(data, "Could not load SMS campaigns");
-  return newestFirst(pickList<Row>(data, "campaigns").map(normalizeSmsCampaign));
+  return newestFirst(uniqueById(pickList<Row>(data, "campaigns").map(normalizeSmsCampaign)));
 }
 
 /** Every text in one SMS campaign, with delivery status and cost. */
@@ -54,5 +54,5 @@ export async function fetchWhatsAppCampaigns(): Promise<WhatsAppCampaign[]> {
     ({ data: body } = await api.get("/whatsapp/campaigns"));
   }
   assertEnvelope(body, "Could not load WhatsApp broadcasts");
-  return newestFirst(pickList<Row>(body, "campaigns").map(normalizeWhatsAppCampaign));
+  return newestFirst(uniqueById(pickList<Row>(body, "campaigns").map(normalizeWhatsAppCampaign)));
 }

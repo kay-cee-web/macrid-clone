@@ -1,4 +1,3 @@
-import { GitPullRequest, Hash, ImagePlus, Landmark, MailCheck, Megaphone, ShoppingBag, Ticket } from "lucide-react";
 import type { Connector } from "@/types/connector";
 
 /**
@@ -13,37 +12,19 @@ export const PLANNED_CONNECTORS: Connector[] = [
   // LinkedIn, X, Instagram and TikTok moved to `social.ts`: the backend has
   // routes for them now, so they have their own section. They stay `planned`
   // there until a consent flow exists to click.
-  {
-    // Posting to a channel the user runs; chatting with an agent is the `telegram_chat` card.
-    key: "telegram_channel", name: "Telegram channel", category: "planned", auth: "planned", Icon: Megaphone, logo: "telegram",
-    description: "Post updates to a Telegram channel you run.",
-  },
-  {
-    key: "slack", name: "Slack", category: "planned", auth: "planned", Icon: Hash, logo: "slack",
-    description: "Post alerts and summaries where your team reads.",
-  },
-  {
-    key: "jira", name: "Jira", category: "planned", auth: "planned", Icon: Ticket, logo: "jira",
-    description: "Hear about tickets assigned to you.",
-  },
-  {
-    key: "github", name: "GitHub", category: "planned", auth: "planned", Icon: GitPullRequest, logo: "github",
-    description: "Get nudged about pull requests to review.",
-  },
-  {
-    key: "shopify", name: "Shopify", category: "planned", auth: "planned", Icon: ShoppingBag, logo: "shopify",
-    description: "Read products, stock and orders.",
-  },
-  {
-    key: "bank", name: "Bank account", category: "planned", auth: "planned", Icon: Landmark,
-    description: "Hear before an account runs low.",
-  },
-  {
-    key: "image_generation", name: "Image generation", category: "planned", auth: "planned", Icon: ImagePlus,
-    description: "Make a campaign's images, not just describe them.",
-  },
-  {
-    key: "email_verification", name: "Email verification", category: "planned", auth: "planned", Icon: MailCheck,
-    description: "Check every address before a campaign goes out.",
-  },
+  //
+  // Slack, Telegram channels, Jira, GitHub and Shopify moved to `workTools.ts`
+  // and went live the same day: their own group, Work tools, with real key
+  // forms. Five connectors with one backend doc are a family, and "Others" said
+  // nothing about what they do.
+  //
+  // So this shelf is empty. It stays for the next connector a workflow needs
+  // before the backend has anything to call.
+  //
+  // A bank and an image tool were here. Neither is a connection the user makes:
+  // there's no bank integration to build against, and images are the agent's
+  // own job. Their workflows stay `blocked`, which reads "Not available"
+  // without promising a card to click. Email verification went too — the
+  // backend verifies addresses itself (`verify_emails`), so there was nothing
+  // to connect.
 ];

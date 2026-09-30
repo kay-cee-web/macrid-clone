@@ -1,5 +1,6 @@
 import { formatDate, formatDateTime } from "@/lib/format";
 import { WORK_AREAS, type WorkArea, type WorkChange } from "@/types/receipt";
+import { uniqueById } from "./normalizeCrm";
 import type { WorkspaceSnapshot } from "./snapshot";
 import { statusLabel } from "./status";
 
@@ -10,11 +11,20 @@ type Describe<T> = {
   deleted: (row: T) => Found;
 };
 
-/** Match rows by id: new ids were created, missing ids deleted, the rest compared. */
+/**
+ * Match rows by id: new ids were created, missing ids deleted, the rest
+ * compared.
+ *
+ * Both sides are folded to one row per id first. The Map already does that to
+ * `before`, so a repeated row on the `after` side would find no partner left
+ * and be announced as a record the agent had just created — a receipt claiming
+ * work nobody did, which is worse than no receipt at all. The services dedupe
+ * too (see `uniqueById`); this makes it true of any snapshot, however read.
+ */
 function diffRows<T extends { id: string }>(before: T[] | undefined, after: T[] | undefined, describe: Describe<T>) {
   if (!before || !after) return [];
   const previous = new Map(before.map((row) => [row.id, row]));
-  const found: Found[] = after.map((row) => {
+  const found: Found[] = uniqueById(after).map((row) => {
     const old = previous.get(row.id);
     previous.delete(row.id);
     return old ? describe.changed(old, row) : describe.created(row);

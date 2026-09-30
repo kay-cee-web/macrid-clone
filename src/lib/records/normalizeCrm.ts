@@ -86,6 +86,26 @@ export function normalizeCompany(row: Row): Company {
   };
 }
 
+/**
+ * One row per id, keeping the first.
+ *
+ * Some list routes join and return each record once per match, so the same row
+ * arrives many times (measured 2026-09-30): **`/deals` sent 30 rows for 6
+ * deals** and **`/companies` 465 rows for 5 companies**. Duplicate ids are
+ * never right for any of these resources — they are React keys and URL
+ * segments — so every list read is folded back to one row per id here rather
+ * than each caller remembering.
+ *
+ * It matters beyond the tables: work receipts diff two Records snapshots, and
+ * duplicates the diff can't pair up are reported as records the agent just
+ * created. That put "24 deals created" under a chat turn that had failed before
+ * the agent did anything.
+ */
+export function uniqueById<T extends { id: string }>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => !seen.has(row.id) && (seen.add(row.id), true));
+}
+
 /** Newest first by created_at, then by id, so what an agent just made is on top. */
 export function newestFirst<T extends { id: string; createdAt: string | null }>(rows: T[]): T[] {
   const time = (row: T) => (row.createdAt ? new Date(row.createdAt).getTime() || 0 : 0);

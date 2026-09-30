@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import { api } from "@/lib/api/client";
 import { assertEnvelope, extractApiError } from "@/lib/api/errors";
-import { applyEmailPlatforms, applyPayments, applySocialAccounts } from "@/lib/connections/ownedAccounts";
+import { applyEmailPlatforms, applyPayments, applySocialAccounts, applyWorkTools } from "@/lib/connections/ownedAccounts";
 import {
   applyGoogleServices, applyMailAccounts, applyMailboxes, applyPlatformRows, applySmsSenders,
 } from "@/lib/connections/ownedState";
@@ -13,6 +13,7 @@ import { fetchMailboxes } from "./mailboxes";
 import { fetchPaymentConnectionsWithWebhooks } from "./payments";
 import { fetchMailAccounts, fetchSmsSenders } from "./senders";
 import { fetchSocialAccounts } from "./social";
+import { fetchWorkTools } from "./workTools";
 
 /**
  * Where a connector's status comes from. The backend keeps each family in its
@@ -50,6 +51,7 @@ const GROUPS: Group[] = [
   // on the Plugins page as a problem rather than being swallowed.
   group("social accounts", fetchSocialAccounts, applySocialAccounts),
   group("payment accounts", fetchPaymentConnectionsWithWebhooks, applyPayments),
+  group("work tools", fetchWorkTools, applyWorkTools),
   group("mailboxes", fetchMailboxes, applyMailboxes),
   group("Google connections", fetchGoogleServices, applyGoogleServices),
   group("sending addresses", fetchMailAccounts, applyMailAccounts),

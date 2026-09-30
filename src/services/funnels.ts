@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { pickList, toNumber } from "@/lib/api/pick";
-import { newestFirst } from "@/lib/records/normalizeCrm";
+import { newestFirst, uniqueById } from "@/lib/records/normalizeCrm";
 import { normalizeFunnel, normalizeFunnelEvent, normalizeFunnelStats } from "@/lib/records/normalizeFunnels";
 import type { Funnel, FunnelEvent, FunnelStats } from "@/types/funnels";
 
@@ -11,7 +11,7 @@ type Row = Record<string, unknown>;
 export async function fetchFunnels(): Promise<Funnel[]> {
   const { data } = await api.get("/funnel-campaigns");
   assertEnvelope(data, "Could not load your funnels");
-  return newestFirst(pickList<Row>(data, "campaigns").map(normalizeFunnel));
+  return newestFirst(uniqueById(pickList<Row>(data, "campaigns").map(normalizeFunnel)));
 }
 
 /** Totals for one funnel, by slug. */

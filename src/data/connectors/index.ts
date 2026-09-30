@@ -8,6 +8,7 @@ import { MESSAGING_CONNECTORS } from "./messaging";
 import { PAYMENT_CONNECTORS } from "./payments";
 import { PLANNED_CONNECTORS } from "./planned";
 import { SOCIAL_CONNECTORS } from "./social";
+import { WORK_TOOL_CONNECTORS } from "./workTools";
 
 /**
  * Workspace connectors (same catalogue and routes as Macrid's lib/connectors.js).
@@ -24,6 +25,7 @@ export const CONNECTOR_CATEGORIES: { key: ConnectorCategory; label: string; blur
   { key: "prospect", label: "Prospect sources", blurb: "Where Dexisphere looks for businesses worth contacting." },
   { key: "email_platform", label: "Email platforms", blurb: "Keep a list you already own in step with your pipeline." },
   { key: "social", label: "Social", blurb: "An agent drafts the post; you approve it before anything goes public." },
+  { key: "work", label: "Work tools", blurb: "Post where your team reads, and hear what changed without opening anything." },
   { key: "planned", label: "Others", blurb: "Workflows ask for these. The routes are still being built." },
 ];
 
@@ -96,6 +98,7 @@ export const CONNECTORS: Connector[] = [
   },
   ...EMAIL_PLATFORM_CONNECTORS,
   ...SOCIAL_CONNECTORS,
+  ...WORK_TOOL_CONNECTORS,
   ...PLANNED_CONNECTORS,
 ];
 

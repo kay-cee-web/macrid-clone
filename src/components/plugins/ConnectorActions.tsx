@@ -9,6 +9,7 @@ import type { Connector } from "@/types/connector";
 import { useConnectorFlows } from "./ConnectorFlows";
 import { EmailPlatformActions } from "./EmailPlatformActions";
 import { PaymentActions } from "./PaymentActions";
+import { WorkToolActions } from "./WorkToolActions";
 
 function ManageLink({ connector, children, variant = "ghost" }: {
   connector: Connector;
@@ -74,6 +75,7 @@ export function ConnectorActions({ connector, compact = false }: { connector: Co
     // "Needs attention" here usually means no list chosen yet, not a broken key,
     // so it offers the picker rather than Reconnect.
     if (connector.store === "email_platforms") return <EmailPlatformActions connector={connector} />;
+    if (connector.store === "work_tools") return <WorkToolActions connector={connector} />;
   }
 
   if (!connected && !broken) {
