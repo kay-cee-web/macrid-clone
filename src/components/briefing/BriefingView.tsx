@@ -22,7 +22,14 @@ import { BriefingToday } from "./BriefingToday";
  * that looks like it works and doesn't costs exactly the trust this screen
  * exists to earn.
  */
-export function BriefingView({ showGreeting = false }: { showGreeting?: boolean }) {
+export function BriefingView({
+  onAct,
+  showGreeting = false,
+}: {
+  /** Hands one sentence to the agent. The caller decides which agent and where it lands. */
+  onAct: (instruction: string) => void;
+  showGreeting?: boolean;
+}) {
   const { data, status, error, refreshing, reload } = useAsync(() => fetchBriefing(), [], "Could not load your briefing");
 
   if (status === "error") {
@@ -59,8 +66,8 @@ export function BriefingView({ showGreeting = false }: { showGreeting?: boolean 
 
       <BriefingPulse pulse={data.pulse} />
 
-      <BriefingNeeds needs={data.needs} more={data.needsMore} />
-      <BriefingToday today={data.today} />
+      <BriefingNeeds needs={data.needs} more={data.needsMore} onAct={onAct} />
+      <BriefingToday today={data.today} onAct={onAct} />
       <BriefingKnow know={data.know} />
 
       <div className="flex items-center gap-3 text-xs text-muted">

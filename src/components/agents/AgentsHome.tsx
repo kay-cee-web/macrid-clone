@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { AnnouncementPill } from "@/components/ui/AnnouncementPill";
 import { buttonStyles } from "@/components/ui/button-styles";
-import { BriefingView } from "@/components/briefing/BriefingView";
 import { TokenBalance } from "@/components/workspace/TokenBalance";
 import { ComposerWithAttachments } from "@/components/chat/ComposerWithAttachments";
 import { SuggestionChips } from "@/components/chat/SuggestionChips";
@@ -70,17 +69,6 @@ export function AgentsHome() {
           />
 
           <SuggestionChips variant="pills" onPick={startNow} disabled={creating} />
-        </section>
-
-        {/*
-          What needs them today, before the catalogue of things they could start.
-          The composer waits for the user to know what they want; this is the one
-          place the app opens with an answer instead of a prompt. It keeps the
-          hero's reading column, because it is read rather than scanned, and it
-          carries no greeting of its own — the hero above already greets.
-        */}
-        <section className="mx-auto w-full max-w-3xl">
-          <BriefingView />
         </section>
 
         {/* Two rows is enough to start from; the whole catalogue lives on Workbench → Workflows. */}

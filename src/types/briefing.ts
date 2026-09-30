@@ -17,9 +17,12 @@ export type BriefingNeed = {
   id: string;
   /** Where it came from, shown as a pill: "Inbox", "Tasks", "Deals", "Jira". */
   source: string;
-  /** What it is. Decides where the item's link goes — see `lib/briefing/links.ts`. */
+  /**
+   * What it is: `task`, `deal`, `reply`, `watch`. Decides what the agent can be
+   * asked to do about it — see `lib/briefing/instructions.ts`.
+   */
   kind: string;
-  /** The record's own id. A Laravel number, kept as a string for URLs and keys. */
+  /** The record's own id. A Laravel number, kept as a string; it names the row for the agent. */
   ref: string;
   title: string;
   body: string;

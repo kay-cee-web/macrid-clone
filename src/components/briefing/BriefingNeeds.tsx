@@ -13,7 +13,15 @@ import { NeedCard } from "./NeedCard";
  * every morning is justifying itself rather than reading the data, so this says
  * so plainly instead of apologising for having nothing.
  */
-export function BriefingNeeds({ needs, more }: { needs: BriefingNeed[]; more: number }) {
+export function BriefingNeeds({
+  needs,
+  more,
+  onAct,
+}: {
+  needs: BriefingNeed[];
+  more: number;
+  onAct: (instruction: string) => void;
+}) {
   if (!needs.length) {
     return (
       <BriefingSection title="Needs you" aside="all clear">
@@ -30,7 +38,7 @@ export function BriefingNeeds({ needs, more }: { needs: BriefingNeed[]; more: nu
     <BriefingSection title="Needs you" aside={needs.length === 1 ? "1 thing" : `${needs.length} things`}>
       <div className="grid gap-2.5">
         {needs.map((need) => (
-          <NeedCard key={need.id} need={need} />
+          <NeedCard key={need.id} need={need} onAct={onAct} />
         ))}
       </div>
       {more > 0 && (
