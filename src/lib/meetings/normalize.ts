@@ -1,16 +1,20 @@
-import { pickField, toMaybeNumber, toText } from "@/lib/api/pick";
+import { pickField, toMaybeNumber, toNumber, toText } from "@/lib/api/pick";
 import type { Meeting, MeetingAllowance, MeetingStatus } from "@/types/meeting";
 
 /**
  * Readers for the /meetings routes.
  *
- * **Nothing here is confirmed.** The routes answered 404 on 2026-09-30 — the
- * migration is dated the same day and hasn't been run — and the backend doc
- * says outright that "field names are a guess in places" for `duration`,
- * `recording_url` and the transcript shape. So every field is read through a
- * list of plausible names and anything missing degrades to empty rather than
- * throwing. Check this against the first real row and delete the spellings
- * that turn out to be wrong.
+ * **Row shape confirmed 2026-09-30** against the first real rows:
+ * `{id, title, service, status, note, when, minutes, tokens, people, summary, actions}`.
+ *
+ * Four of those are not what the doc's prose implied, and each one was a bug
+ * until the first row arrived: it is `service` not `platform`, `when` not
+ * `starts_at`, `people` is a **count** rather than names, and `actions` is a
+ * **count** too — reading it as a list put a literal "0" on screen as if it
+ * were an action item. `note` is the failure reason on a failed row.
+ *
+ * The alternative spellings stay as fallbacks, but the first name in each list
+ * is the confirmed one.
  */
 type Row = Record<string, unknown>;
 
@@ -31,32 +35,29 @@ function toStatus(value: unknown, problem: string): MeetingStatus {
   return problem ? "failed" : "scheduled";
 }
 
-const toStrings = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value
-      .map((row) => (typeof row === "string" ? row : toText(pickField(row as Row, ["name", "text", "title", "email"]))))
-      .filter(Boolean);
-  }
-  const text = toText(value);
-  return text ? text.split(/\s*[\n,;]\s*/).filter(Boolean) : [];
-};
-
 export function toMeeting(row: Row): Meeting {
-  const problem = toText(pickField(row, ["last_error", "error", "problem", "failure_reason"]));
+  const status = toText(pickField(row, ["status", "state"])).toLowerCase();
+  // `note` carries the failure reason on a failed row — the first real rows came
+  // back with a Laravel routing error in it. On a row that worked it is a short
+  // write-up, so it only becomes `problem` when the meeting actually failed.
+  const note = toText(pickField(row, ["note", "last_error", "error", "problem", "failure_reason"]));
+  const failed = status === "failed" || status === "error";
   return {
     id: toText(row.id),
     title: toText(pickField(row, ["title", "name", "subject", "topic"])) || "Untitled meeting",
-    joinUrl: toText(pickField(row, ["join_url", "joinUrl", "meeting_url", "url", "link"])),
-    platform: toText(pickField(row, ["platform", "provider_platform", "source"])).toLowerCase(),
-    startsAt: toText(pickField(row, ["starts_at", "start_at", "scheduled_at", "start_time", "startsAt"])),
-    status: toStatus(pickField(row, ["status", "state"]), problem),
+    joinUrl: toText(pickField(row, ["meeting_url", "join_url", "joinUrl", "url", "link"])),
+    service: toText(pickField(row, ["service", "platform", "provider_platform"])),
+    startsAt: toText(pickField(row, ["when", "starts_at", "start_at", "scheduled_at", "startsAt"])),
+    status: toStatus(pickField(row, ["status", "state"]), failed ? note : ""),
     // Charged on what was actually recorded, so this is the number that costs money.
-    minutes: toMaybeNumber(pickField(row, ["duration_minutes", "minutes", "duration", "recorded_minutes"])),
-    attendees: toStrings(pickField(row, ["attendees", "participants", "people", "speakers"])),
-    summary: toText(pickField(row, ["summary", "notes", "note", "write_up"])),
-    actionItems: toStrings(pickField(row, ["action_items", "actions", "actionItems", "tasks"])),
+    minutes: toMaybeNumber(pickField(row, ["minutes", "duration_minutes", "duration", "recorded_minutes"])),
+    tokens: toMaybeNumber(pickField(row, ["tokens", "tokens_charged", "charged"])),
+    people: toMaybeNumber(pickField(row, ["people", "attendees", "participants", "attendee_count"])),
+    summary: failed ? "" : toText(pickField(row, ["summary", "write_up"])) || note,
+    // A **count**, not a list — the items themselves become tasks and live in the note.
+    actionCount: toNumber(pickField(row, ["actions", "action_items", "actionCount"])),
     recordingUrl: toText(pickField(row, ["recording_url", "recordingUrl", "audio_url", "video_url"])),
-    problem,
+    problem: failed ? note : "",
   };
 }
 

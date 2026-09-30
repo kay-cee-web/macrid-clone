@@ -19,7 +19,7 @@ import { MeetingRow } from "./MeetingRow";
 import { SendNotetakerModal } from "./SendNotetakerModal";
 
 /** Meetings the notetaker has been sent to, and the two ways to send it. */
-export function MeetingsView({ agentName }: { agentName: string }) {
+export function MeetingsView({ agentName, notesHref }: { agentName: string; notesHref: string }) {
   // Polls itself while a call is live, so a row never sits on "Scheduled" after the bot has joined.
   const { data, status, error, refreshing, reload } = useMeetings();
   const [sending, setSending] = useState(false);
@@ -98,7 +98,7 @@ export function MeetingsView({ agentName }: { agentName: string }) {
             <MeetingRow
               key={meeting.id}
               meeting={meeting}
-              tokensPerHour={allowance?.tokensPerHour ?? null}
+              notesHref={notesHref}
               onCancel={setToCancel}
               cancelling={false}
             />
