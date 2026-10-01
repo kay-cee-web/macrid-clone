@@ -24,15 +24,18 @@ const blankNote = (): Note => ({
  * The notes library: what's in it, which one is open, and the three writes.
  *
  * Two reads, not one, because a list row carries no body — only `preview`. The
- * row shows immediately and the full note arrives behind it, so opening one
- * never blanks the pane it replaces.
+ * editor waits for the second one (`opening`) rather than mounting on a bodyless
+ * row, which would seed it empty and then autosave that over the real note.
  */
 export function useNotes() {
   const list = useAsync(fetchNotes, [], "Could not load your notes");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Note | null>(null);
+  // The editor's `key`. It moves only when a different note is opened — never
+  // when a draft is saved — so a note isn't remounted, and the caret lost, the
+  // moment the first autosave gives it an id.
+  const [openKey, setOpenKey] = useState("first");
   const [query, setQuery] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const notes = useMemo(() => list.data ?? [], [list.data]);
   const shown = useMemo(() => {
@@ -56,27 +59,31 @@ export function useNotes() {
   const startNew = useCallback(() => {
     setDraft(blankNote());
     setSelectedId(null);
+    setOpenKey(`new-${Date.now()}`);
   }, []);
 
   const select = useCallback((note: Note) => {
     setDraft(null);
     setSelectedId(note.id);
+    setOpenKey(note.id);
   }, []);
 
   const save = useCallback(
     async (input: NoteInput) => {
-      setSaving(true);
+      const existing = selected?.id;
       try {
-        const existing = selected?.id;
-        const saved = existing ? await updateNote(existing, input) : await createNote(input);
-        toast.success(existing ? "Note saved." : "Note created.");
-        setDraft(null);
-        setSelectedId(saved.id || null);
+        // The open note is the base, so echoing the save back can't blank the
+        // fields a PUT doesn't return — its source, its folder, its pin.
+        const saved = existing ? await updateNote(existing, input, selected ?? undefined) : await createNote(input);
+        // Hold the saved note as the open one: it carries the id and the body
+        // just written, so a freshly created note needs no second read.
+        setDraft(saved);
+        setSelectedId(saved.id);
         list.reload();
       } catch (err) {
         toast.error(extractApiError(err, "Could not save that note"));
-      } finally {
-        setSaving(false);
+        // Rethrown so the editor can say it isn't saved rather than look saved.
+        throw err;
       }
     },
     [selected, list],
@@ -87,11 +94,14 @@ export function useNotes() {
       // An unsaved draft has nothing on the server to delete.
       if (!note.id) {
         setDraft(null);
+        setOpenKey(`closed-${Date.now()}`);
         return true;
       }
       try {
         toast.success(await deleteNote(note.id));
+        setDraft(null);
         setSelectedId(null);
+        setOpenKey(`closed-${Date.now()}`);
         list.reload();
         return true;
       } catch (err) {
@@ -109,11 +119,12 @@ export function useNotes() {
     draft,
     status: list.status,
     error: list.error,
-    /** True while the open note's body is still coming. */
+    /** True while the open note's body is still coming; the editor waits for it. */
     opening: Boolean(openId) && open.status === "loading",
+    /** Stable per open note — the editor's `key`. */
+    openKey,
     query,
     setQuery,
-    saving,
     startNew,
     select,
     save,

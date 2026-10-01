@@ -2,6 +2,7 @@ import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
+import { remarkNoteColor } from "@/lib/notes/remarkNoteColor";
 import { cn } from "@/lib/cn";
 
 /** Element styles for agent replies, all from theme tokens. */
@@ -18,8 +19,29 @@ const components: Components = {
         {children}
       </a>
     ),
-  ul: (props) => <ul className="my-2 list-disc space-y-1 pl-5 marker:text-faint" {...props} />,
-  ol: (props) => <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-faint" {...props} />,
+  // The incoming className is merged, not overwritten: remark-gfm marks a list
+  // holding a checkbox `contains-task-list`, and spreading that over ours used
+  // to strip the bullets off every other item in it.
+  ul: ({ className, ...props }) => (
+    <ul
+      className={cn("my-2 list-disc space-y-1 pl-5 marker:text-faint [&_.task-list-item]:list-none", className)}
+      {...props}
+    />
+  ),
+  ol: ({ className, ...props }) => (
+    <ol className={cn("my-2 list-decimal space-y-1 pl-5 marker:text-faint", className)} {...props} />
+  ),
+  // Task-list checkboxes, which GFM renders disabled.
+  input: ({ className, ...props }) => (
+    <input className={cn("mr-1.5 size-3.5 accent-accent", className)} {...props} />
+  ),
+  // A colour a note was written in, carried as data by `remarkNoteColor`. It is
+  // the author's own choice, stored in the note, so it is set rather than mapped
+  // onto a theme token.
+  span: ({ children, ...props }) => {
+    const color = (props as Record<string, unknown>)["data-color"];
+    return <span style={typeof color === "string" ? { color } : undefined}>{children}</span>;
+  },
   h1: (props) => <h3 className="mb-2 mt-4 text-lg font-semibold first:mt-0" {...props} />,
   h2: (props) => <h3 className="mb-2 mt-4 text-base font-semibold first:mt-0" {...props} />,
   h3: (props) => <h4 className="mb-1.5 mt-3 font-sans text-base font-semibold first:mt-0" {...props} />,
@@ -50,7 +72,7 @@ const components: Components = {
 export function Markdown({ children, className }: { children: string; className?: string }) {
   return (
     <div className={cn("min-w-0 text-sm leading-relaxed text-ink [overflow-wrap:anywhere]", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkNoteColor]} components={components}>
         {children}
       </ReactMarkdown>
     </div>

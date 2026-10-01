@@ -1,4 +1,5 @@
 import { pickField, toBool, toText } from "@/lib/api/pick";
+import { inlineToText } from "./inline";
 import type { Note, NoteSource } from "@/types/note";
 
 /**
@@ -19,17 +20,19 @@ function toSource(value: unknown): NoteSource {
 
 /** The first line of the body, for a note saved without a title. */
 function titleFrom(text: string): string {
-  const first = text.split("\n").map((line) => line.replace(/^#+\s*/, "").trim()).find(Boolean);
+  const first = text.split("\n").map((line) => line.trim()).find(Boolean);
   if (!first) return "Untitled note";
   return first.length > 60 ? `${first.slice(0, 60)}…` : first;
 }
 
 export function toNote(row: Row): Note {
   const body = toText(pickField(row, ["content", "body", "text"]));
-  const preview = toText(pickField(row, ["preview", "excerpt", "snippet"]));
+  // The wire carries raw markdown. A row and a derived title are read, not
+  // written in, so the marks come off before either is shown.
+  const preview = inlineToText(toText(pickField(row, ["preview", "excerpt", "snippet"])));
   return {
     id: toText(row.id),
-    title: toText(pickField(row, ["title", "name"])) || titleFrom(body || preview),
+    title: toText(pickField(row, ["title", "name"])) || titleFrom(inlineToText(body) || preview),
     body,
     preview,
     source: toSource(pickField(row, ["source", "origin"])),

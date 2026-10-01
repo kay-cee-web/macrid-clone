@@ -6,6 +6,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useNotes } from "@/hooks/useNotes";
 import type { Note } from "@/types/note";
 import { NoteEditor } from "./NoteEditor";
@@ -41,26 +42,32 @@ export function NotesView() {
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+      <div className="grid gap-4 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
         <NoteList
           notes={notes.shown}
           loading={notes.status === "loading"}
-          selectedId={notes.draft ? "" : (notes.selected?.id ?? null)}
+          selectedId={notes.selected?.id ?? null}
           query={notes.query}
           onQuery={notes.setQuery}
           onSelect={notes.select}
           onNew={notes.startNew}
         />
 
-        {notes.selected ? (
-          // Remount per note, so the editor's draft is seeded fresh instead of
-          // syncing props into state in an effect.
+        {notes.opening ? (
+          // The body arrives in a second read, and the editor must not mount on
+          // a bodyless list row — it would seed empty and autosave that back.
+          <div className="grid gap-3 pt-1">
+            <Skeleton className="h-9 w-2/3 rounded-xl" />
+            <Skeleton className="h-4 w-full rounded-lg" />
+            <Skeleton className="h-4 w-5/6 rounded-lg" />
+          </div>
+        ) : notes.selected ? (
           <NoteEditor
-            key={notes.selected.id || "draft"}
+            key={notes.openKey}
             note={notes.selected}
-            saving={notes.saving}
             onSave={notes.save}
             onDelete={setToDelete}
+            onNewNote={notes.startNew}
           />
         ) : (
           <p className="self-start text-sm text-muted">Pick a note, or start a new one.</p>
