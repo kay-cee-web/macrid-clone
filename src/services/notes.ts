@@ -48,26 +48,29 @@ export async function createNote(input: NoteInput): Promise<Note> {
   const { data } = await api.post(BASE, { title: input.title, content: input.body });
   assertEnvelope(data, "Could not create that note");
   const created = toNote(pickOne<Row>(data, "note"));
-  if (!input.body.trim()) return created;
-  await updateNote(created.id, input);
-  return { ...created, title: input.title, body: input.body };
+  if (!input.body.trim()) return { ...created, updatedAt: created.updatedAt || new Date().toISOString() };
+  return updateNote(created.id, input, created);
 }
 
-export async function updateNote(id: string, input: NoteInput): Promise<Note> {
+/**
+ * PUT answers with a message, not the row, so the saved values are echoed back
+ * rather than read again — this runs on every pause in typing, and a second GET
+ * per keystroke-run would buy nothing the caller doesn't already hold.
+ */
+export async function updateNote(id: string, input: NoteInput, base?: Note): Promise<Note> {
   const { data } = await api.put(`${BASE}/${id}`, { title: input.title, content: input.body });
   assertEnvelope(data, "Could not save that note");
-  // PUT answers with a message, not the row, so the saved values are echoed back.
-  return fetchNote(id).catch(() => ({
+  return {
     id,
     title: input.title,
     body: input.body,
-    preview: input.body,
-    source: "user" as const,
-    isFolder: false,
-    parentId: "",
-    pinned: false,
+    preview: input.body.slice(0, 160),
+    source: base?.source ?? "user",
+    isFolder: base?.isFolder ?? false,
+    parentId: base?.parentId ?? "",
+    pinned: base?.pinned ?? false,
     updatedAt: new Date().toISOString(),
-  }));
+  };
 }
 
 export async function deleteNote(id: string): Promise<string> {
