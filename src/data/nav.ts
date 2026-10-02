@@ -1,4 +1,4 @@
-import { Cpu, Database, House, LayoutGrid, NotebookPen, Settings, Video, type LucideIcon } from "lucide-react";
+import { Cpu, Database, House, LayoutGrid, NotebookPen, Settings, Sunrise, Video, type LucideIcon } from "lucide-react";
 
 export type NavItem = {
   href: string;
@@ -13,9 +13,10 @@ export const MAIN_NAV: NavItem[] = [
   { href: "/", label: "Home", Icon: House },
   { href: "/agents/all", label: "Agent hub", Icon: LayoutGrid },
   { href: "/agents/workbench", label: "Workbench", Icon: Cpu, matchPrefix: true },
-  // Both are account-level, not per-agent: `/meetings` and `/notes` carry no
-  // agent id, and a call's write-up belongs to the workspace, not to whichever
-  // agent happened to be open when the bot was sent.
+  // These three are account-level, not per-agent: they carry no agent id, and
+  // what they show — the day's briefing, a call's write-up, a note — belongs to
+  // the workspace rather than to whichever agent happened to be open.
+  { href: "/briefing", label: "Briefing", Icon: Sunrise, matchPrefix: true },
   { href: "/meetings", label: "Meetings", Icon: Video, matchPrefix: true },
   { href: "/notes", label: "Notes", Icon: NotebookPen, matchPrefix: true },
   { href: "/records", label: "Records", Icon: Database, matchPrefix: true },

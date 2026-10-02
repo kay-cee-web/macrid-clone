@@ -13,7 +13,7 @@ import { BriefingPulse } from "./BriefingPulse";
 import { BriefingToday } from "./BriefingToday";
 
 /**
- * "For you" — what needs the user today, or that nothing does.
+ * The briefing — what needs the user today, or that nothing does.
  *
  * Read-only on purpose. Everything here is gathered and ranked server-side in
  * plain SQL, so the numbers are the account's own and none of them can be

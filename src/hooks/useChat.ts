@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { mergeAgentLocally } from "@/lib/agents/actions";
 import { isUnusedCopy, markUsed } from "@/lib/agents/fresh";
+import { recordAgentUse } from "@/lib/agents/lastUsed";
 import { extractApiError } from "@/lib/api/errors";
 import { failureMessage, newMessageId, replyMessage, userMessage, type ThreadMessage } from "@/lib/chat/conversation";import { changesSince, snapshotBeforeTurn } from "@/lib/records/receipts";
 import { setTokenBalance } from "@/lib/tokens/balance";
@@ -61,6 +62,10 @@ export function useChat(agentId: string) {
       setMessages((list) => [...list, userMessage(message, images)]);
       setSending(true);
       markUsed(agentId);
+      // The backend doesn't record this — a chat turn leaves `agents.updated_at`
+      // untouched — so the browser does, for anything that needs the agent you
+      // actually work in rather than the one made most recently.
+      recordAgentUse(agentId);
       const before = await snapshotBeforeTurn();
       const replyId = newMessageId();
       // Even a failed turn may have done some work before it broke, so both get a receipt.

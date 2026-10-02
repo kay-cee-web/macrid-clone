@@ -1,5 +1,5 @@
 /**
- * "For you" — the daily briefing (backend doc + routes live 2026-09-30).
+ * The daily briefing (backend doc + routes live 2026-09-30).
  *
  * The point is not to gather everything, it's to refuse to show most of it: one
  * loud section capped at six items, ranked by what goes wrong if it's ignored
