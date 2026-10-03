@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { NotesView } from "@/components/notes/NotesView";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = { title: "Notes" };
+export const metadata: Metadata = pageMetadata({
+  title: "Notes",
+  description: "Write-ups from calls the notetaker sat in on, and notes you write yourself.",
+  path: "/notes",
+});
 
 export default function NotesPage() {
   return (

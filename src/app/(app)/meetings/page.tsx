@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { MeetingsView } from "@/components/meetings/MeetingsView";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = { title: "Meetings" };
+export const metadata: Metadata = pageMetadata({
+  title: "Meetings",
+  description: "Send a notetaker to a call to record, transcribe and write up what was decided.",
+  path: "/meetings",
+});
 
 /**
  * A workspace section, not an agent's tab: `/meetings` carries no agent id, and

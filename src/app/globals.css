@@ -57,6 +57,7 @@
   --color-logo-google-green: var(--logo-google-green);
   --color-logo-google-yellow: var(--logo-google-yellow);
   --color-logo-google-red: var(--logo-google-red);
+  --color-logo-facebook: var(--logo-facebook);
 }
 
 /* The logo gradient, as a fill and as clipped text. */

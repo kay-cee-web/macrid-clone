@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { extractApiError } from "@/lib/api/errors";
+import { openCenteredPopup } from "@/lib/ui/popup";
 import { fetchOAuthUrl } from "@/services/connections";
 import type { Connector } from "@/types/connector";
 
@@ -18,8 +19,6 @@ import type { Connector } from "@/types/connector";
  * backend's reason is ever shown.
  */
 const MESSAGE_SOURCES = ["dexisphere-connector", "macrid-connector"];
-const WIDTH = 560;
-const HEIGHT = 680;
 
 type Flight = { key: string; popup: Window; timer?: ReturnType<typeof setInterval> } | null;
 
@@ -60,9 +59,7 @@ export function useOAuthPopup(onFinished: (result: { key: string; ok: boolean; m
   const connect = useCallback(
     async (connector: Connector) => {
       if (flight.current) return;
-      const left = Math.max(0, (window.screen.width - WIDTH) / 2);
-      const top = Math.max(0, (window.screen.height - HEIGHT) / 2);
-      const popup = window.open("", "macrid-connector", `width=${WIDTH},height=${HEIGHT},left=${left},top=${top}`);
+      const popup = openCenteredPopup("macrid-connector");
       if (!popup) return void toast.error("Allow pop-ups for this site, then try again.");
 
       flight.current = { key: connector.key, popup };

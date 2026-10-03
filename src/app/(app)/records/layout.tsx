@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { RecordsHeader } from "@/components/records/RecordsHeader";
+import { SITE } from "@/lib/seo/site";
 
-export const metadata: Metadata = { title: { template: "%s · Records", default: "Records" } };
+/** A nested template replaces the root one, so it carries the brand itself. */
+export const metadata: Metadata = { title: { template: `%s · Records · ${SITE.name}`, default: "Records" } };
 
 export default function RecordsLayout({ children }: LayoutProps<"/records">) {
   return (
