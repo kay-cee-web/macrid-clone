@@ -28,6 +28,23 @@ export async function fetchUser(): Promise<User> {
   return (data?.user ?? data?.data ?? data) as User;
 }
 
+/* ── Social sign-in (Google, Facebook) ──────────────────────────────────── */
+
+export type SocialProvider = "google" | "facebook";
+
+/**
+ * The consent link for the popup. One route signs in and signs up: a new
+ * address gets an account, an existing one (password or social) is linked.
+ * The callback page posts the token back; see `useSocialSignIn`.
+ */
+export async function fetchSocialAuthUrl(provider: SocialProvider): Promise<string> {
+  const { data } = await api.get(`/auth/${provider}/redirect`);
+  assertEnvelope(data, "Could not start sign-in");
+  const url = data?.auth_url;
+  if (typeof url !== "string" || !url) throw new Error("No sign-in link came back. Try again.");
+  return url;
+}
+
 /** Best effort: the local session is cleared whether or not this succeeds. */
 export async function logout() {
   await api.post("/logout").catch(() => undefined);

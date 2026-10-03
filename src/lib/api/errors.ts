@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 
 type Envelope = {
-  status?: boolean;
+  status?: boolean | string;
   success?: boolean;
   message?: unknown;
   error?: unknown;
@@ -62,12 +62,14 @@ export function extractApiError(err: unknown, fallback: string): string {
 export const isTokenExhausted = (text: string) => /run out of token/i.test(text);
 
 /**
- * This API can answer a failure inside a 200: `{ status: false, errors }`.
+ * This API can answer a failure inside a 200: `{ status: false, errors }`, or
+ * `{ status: "error" }` on the social sign-in routes.
  * Throws so callers handle it like any other failed request.
  */
 export function assertEnvelope<T>(data: T, fallback: string): T {
   const envelope = data as Envelope;
-  if (isRecord(envelope) && (envelope.status === false || envelope.success === false)) {
+  const failed = envelope?.status === false || envelope?.status === "error" || envelope?.success === false;
+  if (isRecord(envelope) && failed) {
     throw new Error(
       firstFieldError(envelope.errors) || nonEmpty(envelope.message) || fallback,
     );

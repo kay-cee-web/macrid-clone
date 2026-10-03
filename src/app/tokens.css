@@ -42,6 +42,7 @@
   --logo-google-green: #34a853;
   --logo-google-yellow: #fbbc05;
   --logo-google-red: #ea4335;
+  --logo-facebook: #0866ff;
   /* Tapotik's hero glow; the same in both themes, so dark doesn't redefine it. */
   --aurora:
     radial-gradient(ellipse 40% 50% at 30% 40%, rgb(91 91 247 / 0.5), transparent 70%),

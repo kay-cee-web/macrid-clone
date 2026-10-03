@@ -1,20 +1,22 @@
 "use client";
 
-import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { GitHubMark, GoogleMark } from "./SocialMarks";
+import { useSocialSignIn } from "@/hooks/useSocialSignIn";
+import { FacebookMark, GoogleMark } from "./SocialMarks";
 
 const PROVIDERS = [
   { id: "google", name: "Google", Mark: GoogleMark },
-  { id: "github", name: "GitHub", Mark: GitHubMark },
+  { id: "facebook", name: "Facebook", Mark: FacebookMark },
 ] as const;
 
 /**
- * Google and GitHub buttons above the email form. There is no social sign-in on
- * the backend yet (only `POST /login` and `POST /register`), so a click says so
- * rather than opening a flow that can't finish.
+ * Google and Facebook above the email form, on both Login and Register: the
+ * backend's `/auth/{provider}` flow signs in and signs up in one go, so the
+ * buttons are the same on both.
  */
 export function SocialAuth() {
+  const { start, pending } = useSocialSignIn();
+
   return (
     <div className="mb-6 grid gap-5">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -25,12 +27,10 @@ export function SocialAuth() {
             variant="secondary"
             size="lg"
             block
+            loading={pending === id}
+            disabled={pending !== null && pending !== id}
             icon={<Mark className="size-4.5 shrink-0" />}
-            onClick={() =>
-              toast.message(`${name} sign-in is coming soon.`, {
-                description: "Use your email and password for now.",
-              })
-            }
+            onClick={() => start(id)}
           >
             {name}
           </Button>
