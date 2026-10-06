@@ -1,85 +1,41 @@
-// Regenerates the share card and the opaque app icons from the real logo files.
+// Regenerates the link-preview image and the opaque app icons.
 //   node scripts/brand-images.mjs
-// Writes into public/image/: share-card.jpg (1200x630 baseline JPEG — the format
-// every link scraper accepts, WhatsApp included; `SHARE_IMAGE` in
-// src/lib/seo/site.ts points at it), apple-touch-icon.png and
-// dexisphere-icon192.png. Fonts are fetched from Google Fonts as TTF (Satori
-// can't read woff2), so this needs a network connection.
-import { readFile, writeFile } from "node:fs/promises";
+// Writes into public/image/:
+// - share-preview.jpg: public/image.png (the app screenshot) as a 1200x600
+//   baseline JPEG. The source is ~560 KB of PNG; WhatsApp drops images much
+//   over 300 KB, and every scraper takes JPEG. `SHARE_IMAGE` in
+//   src/lib/seo/site.ts points at it. 2:1 is the screenshot's own shape and X's
+//   large-card ratio; Facebook and LinkedIn trim ~15px a side to reach 1.91:1.
+// - apple-touch-icon.png and dexisphere-icon192.png.
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ImageResponse } from "next/og.js";
 import sharp from "sharp";
 
 const ROOT = join(import.meta.dirname, "..");
 const at = (...parts) => join(ROOT, ...parts);
 
-// Brand tokens from src/app/tokens.css (dark theme).
-const NIGHT = "#070b1c";
-const INK = "#f5f6fc";
-const MUTED = "#9ba3bb";
-const FROM = "#5b5bf7";
-const TO = "#00c7ac";
-const DOMAIN = "app.dexisphere.com";
+const SOURCE = "public/image.png";
+const PREVIEW = { width: 1200, height: 600, maxBytes: 300 * 1024 };
 
-async function googleFont(family, weight) {
-  // A non-browser user agent gets one whole TTF instead of woff2 subsets.
-  const css = await fetch(`https://fonts.googleapis.com/css2?family=${family}:wght@${weight}`).then((r) => r.text());
-  const url = css.match(/src: url\((.+?)\) format\('(truetype|opentype)'\)/)?.[1];
-  if (!url) throw new Error(`No TTF for ${family} ${weight}`);
-  return fetch(url).then((r) => r.arrayBuffer());
-}
-
-const el = (type, style, children) => ({ type, props: { style: { display: "flex", ...style }, children } });
-const dataUri = async (path) => `data:image/png;base64,${(await readFile(at(path))).toString("base64")}`;
-
-async function card() {
-  const [display, sans, sansMedium] = await Promise.all([
-    googleFont("Bricolage+Grotesque", 700),
-    googleFont("Geist", 400),
-    googleFont("Geist", 500),
-  ]);
-  const wordmark = await dataUri("public/image/dexisphere-logo-white.png");
-  const chip = (label) =>
-    el("div", { padding: "10px 20px", borderRadius: 999, border: "1.5px solid rgba(245,246,252,0.18)", background: "rgba(245,246,252,0.05)", fontSize: 22, fontWeight: 500, color: INK }, label);
-
-  const tree = el(
-    "div",
-    {
-      width: "100%", height: "100%", flexDirection: "column", justifyContent: "space-between", padding: "56px 72px 60px",
-      fontFamily: "Geist", color: INK, backgroundColor: NIGHT,
-      backgroundImage: `radial-gradient(ellipse 60% 70% at 8% 0%, rgba(91,91,247,0.42), transparent 70%), radial-gradient(ellipse 50% 60% at 100% 100%, rgba(0,199,172,0.26), transparent 70%)`,
-    },
-    [
-      { type: "img", props: { src: wordmark, width: 216, height: 72, style: { marginLeft: -12 } } },
-      el("div", { flexDirection: "column", gap: 26 }, [
-        el("div", { flexDirection: "column", fontFamily: "Bricolage", fontSize: 92, lineHeight: 1.02, letterSpacing: -2.5 }, [
-          el("div", {}, "Your agent works."),
-          el("div", { alignSelf: "flex-start", backgroundImage: `linear-gradient(90deg, ${FROM}, ${TO})`, backgroundClip: "text", color: "transparent" }, "You don't have to."),
-        ]),
-        el("div", { fontSize: 32, lineHeight: 1.35, color: MUTED, maxWidth: 900 }, "Tell an agent the job. It does the work and shows you a receipt for every change."),
-      ]),
-      el("div", { flexDirection: "column", gap: 30 }, [
-        el("div", { alignItems: "center", justifyContent: "space-between" }, [
-          el("div", { gap: 12 }, ["Prospecting", "Outreach", "CRM", "Records"].map(chip)),
-          el("div", { fontSize: 26, fontWeight: 500, color: MUTED }, DOMAIN),
-        ]),
-        el("div", { height: 6, borderRadius: 3, backgroundImage: `linear-gradient(90deg, ${FROM}, ${TO})` }, []),
-      ]),
-    ],
-  );
-
-  const png = await new ImageResponse(tree, {
-    width: 1200,
-    height: 630,
-    fonts: [
-      { name: "Bricolage", data: display, weight: 700 },
-      { name: "Geist", data: sans, weight: 400 },
-      { name: "Geist", data: sansMedium, weight: 500 },
-    ],
-  }).arrayBuffer();
-  const jpg = await sharp(Buffer.from(png)).flatten({ background: NIGHT }).jpeg({ quality: 88, chromaSubsampling: "4:4:4" }).toBuffer();
-  await writeFile(at("public/image/share-card.jpg"), jpg);
-  console.log(`share card: ${Math.round(jpg.length / 1024)} KB`);
+async function preview() {
+  const { width, height } = await sharp(at(SOURCE)).metadata();
+  // The capture's top two rows hold a faint browser edge.
+  const image = sharp(at(SOURCE))
+    .extract({ left: 0, top: 2, width, height: height - 2 })
+    .flatten({ background: "#ffffff" })
+    .resize(PREVIEW.width, PREVIEW.height, { fit: "cover", position: "top", kernel: "lanczos3" })
+    .sharpen({ sigma: 0.5 });
+  // Highest quality that stays under the WhatsApp ceiling. Baseline, not
+  // mozjpeg (which forces progressive); 4:4:4 keeps the UI text crisp.
+  for (const quality of [88, 84, 80, 76, 72]) {
+    const options = { quality, chromaSubsampling: "4:4:4", trellisQuantisation: true, optimiseCoding: true };
+    const jpg = await image.clone().jpeg(options).toBuffer();
+    if (jpg.length <= PREVIEW.maxBytes) {
+      await writeFile(at("public/image/share-preview.jpg"), jpg);
+      return console.log(`share preview: ${PREVIEW.width}x${PREVIEW.height}, q${quality}, ${Math.round(jpg.length / 1024)} KB`);
+    }
+  }
+  throw new Error("share preview stays over 300 KB even at q72");
 }
 
 /** Home-screen icons can't be transparent (iOS fills the gaps with black), so the mark sits on white. */
@@ -91,6 +47,6 @@ async function icon(size, out) {
     .toFile(at(out));
 }
 
-await card();
+await preview();
 await icon(180, "public/image/apple-touch-icon.png");
 await icon(192, "public/image/dexisphere-icon192.png");

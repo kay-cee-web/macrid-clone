@@ -36,16 +36,17 @@ export const NOINDEX: Metadata["robots"] = { index: false, follow: false };
 export const INDEX: Metadata["robots"] = { index: true, follow: true };
 
 /**
- * The link-preview card, made by `scripts/brand-images.mjs`. Not the
+ * The link-preview image: `public/image.png` optimised for WhatsApp by
+ * `scripts/brand-images.mjs` (rerun it after replacing the screenshot). Not the
  * `opengraph-image` file convention: a segment that sets its own `openGraph`
  * drops the root's file-based image, so every page re-includes this instead.
  */
 export const SHARE_IMAGE = {
-  url: "/image/share-card.jpg",
+  url: "/image/share-preview.jpg",
   width: 1200,
-  height: 630,
+  height: 600,
   type: "image/jpeg",
-  alt: "Dexisphere Agents: Your agent works. You don't have to.",
+  alt: "The Dexisphere Agents home screen: describe a task to hand off, or start from a standing task.",
 };
 
 export const SHARED_OPEN_GRAPH = {
