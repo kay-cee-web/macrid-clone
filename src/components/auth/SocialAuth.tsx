@@ -18,7 +18,7 @@ export function SocialAuth() {
   const { start, pending } = useSocialSignIn();
 
   return (
-    <div className="mb-6 grid gap-5">
+    <div className="mb-5 grid gap-4">
       <div className="grid gap-3 sm:grid-cols-2">
         {PROVIDERS.map(({ id, name, Mark }) => (
           <Button

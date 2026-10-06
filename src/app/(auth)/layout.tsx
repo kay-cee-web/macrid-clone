@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { AuthBackdrop } from "@/components/auth/AuthBackdrop";
 import { AuthShowcase } from "@/components/auth/AuthShowcase";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -7,10 +8,11 @@ import { dexisphereSiteLink } from "@/lib/config";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="relative isolate grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <AuthBackdrop />
       <AuthShowcase />
-      {/* Header and footer are the same height, so the card sits on the viewport's midline. */}
-      <div className="flex flex-col px-4 py-6 sm:px-10">
+      {/* Frosted glass over the artwork, as on Tapotik's form side: the colour shows, the grid blurs out. */}
+      <div className="flex flex-col bg-ground/60 px-4 py-5 backdrop-blur-2xl sm:px-10">
         <header className="flex h-10 shrink-0 items-center justify-between gap-4">
           {/* The logo lives on the artwork, which is hidden on small screens. */}
           <Link href="/login" aria-label="Dexisphere Agents" className="lg:hidden">
@@ -25,12 +27,9 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           </a>
           <ThemeToggle />
         </header>
-        <main className="flex flex-1 items-center justify-center py-10">
-          <div className="grid w-full max-w-[440px] gap-6">{children}</div>
+        <main className="flex flex-1 items-center justify-center py-6">
+          <div className="grid w-full max-w-[450px] gap-5">{children}</div>
         </main>
-        <footer className="flex h-10 shrink-0 items-center justify-center text-xs text-faint">
-          © {new Date().getFullYear()} Dexisphere
-        </footer>
       </div>
     </div>
   );

@@ -75,7 +75,7 @@ export function VerifyEmailForm() {
               {error}
             </p>
           )}
-          <Button type="submit" size="lg" block loading={submitting}>
+          <Button type="submit" variant="cta" size="lg" block loading={submitting} className="h-12">
             Verify email
           </Button>
           <ResendCode send={() => resendVerification(account.email)} />

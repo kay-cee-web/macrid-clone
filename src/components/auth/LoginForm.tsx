@@ -2,8 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { Lock, Mail } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { PasswordField, TextField } from "@/components/ui/TextField";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "@/hooks/useForm";
@@ -16,7 +17,7 @@ import { SocialAuth } from "./SocialAuth";
 export function LoginForm() {
   const { signIn } = useAuth();
   const [submitting, setSubmitting] = useState(false);
-  const form = useForm({ email: "", password: "" });
+  const form = useForm({ email: "", password: "", remember: true });
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -26,7 +27,7 @@ export function LoginForm() {
     setSubmitting(true);
     try {
       const token = await login({ email: form.values.email.trim(), password: form.values.password });
-      await signIn(token);
+      await signIn(token, { remember: form.values.remember });
     } catch (err) {
       reportFormError(err, { fallback: "Could not sign in", setErrors: form.setErrors });
       setSubmitting(false);
@@ -44,14 +45,13 @@ export function LoginForm() {
             type="email"
             autoComplete="email"
             placeholder="you@company.com"
-            leading={<Mail />}
             {...form.bind("email")}
           />
           <PasswordField
             id="password"
             label="Password"
             autoComplete="current-password"
-            leading={<Lock />}
+            placeholder="••••••••"
             aside={
               <Link href="/forgot-password" className="text-xs font-medium text-accent hover:underline">
                 Forgot password?
@@ -59,7 +59,8 @@ export function LoginForm() {
             }
             {...form.bind("password")}
           />
-          <Button type="submit" size="lg" block loading={submitting} className="mt-2">
+          <Checkbox id="remember" label="Remember me on this device" {...form.bind("remember")} />
+          <Button type="submit" variant="cta" size="lg" block loading={submitting} className="mt-2 h-12">
             Sign in
           </Button>
         </form>

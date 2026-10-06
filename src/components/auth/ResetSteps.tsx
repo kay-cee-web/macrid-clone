@@ -47,7 +47,7 @@ export function ResetEmailStep({ onSent }: { onSent: (email: string) => void }) 
   return (
     <form noValidate onSubmit={onSubmit} className="grid gap-4">
       <TextField id="email" label="Email" type="email" autoComplete="email" leading={<Mail />} {...form.bind("email")} />
-      <Button type="submit" size="lg" block loading={busy}>
+      <Button type="submit" variant="cta" size="lg" block loading={busy} className="h-12">
         Send code
       </Button>
     </form>
@@ -84,7 +84,7 @@ export function ResetCodeStep({ email, onVerified }: { email: string; onVerified
         onComplete={submit}
       />
       {error && <p role="alert" className="text-xs text-bad">{error}</p>}
-      <Button type="submit" size="lg" block loading={busy}>
+      <Button type="submit" variant="cta" size="lg" block loading={busy} className="h-12">
         Continue
       </Button>
       <ResendCode startCoolingDown send={() => requestPasswordReset(email)} />
@@ -117,7 +117,7 @@ export function ResetPasswordStep({ email, code, onDone }: { email: string; code
     <form noValidate onSubmit={onSubmit} className="grid gap-4">
       <PasswordField id="password" label="New password" autoComplete="new-password" {...form.bind("password")} />
       <PasswordField id="confirm" label="Confirm new password" autoComplete="new-password" {...form.bind("confirm")} />
-      <Button type="submit" size="lg" block loading={busy}>
+      <Button type="submit" variant="cta" size="lg" block loading={busy} className="h-12">
         Update password
       </Button>
     </form>
