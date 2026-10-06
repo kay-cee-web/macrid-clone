@@ -12,12 +12,15 @@ type AuthCardProps = {
 /** The floating panel every auth screen sits in. */
 export function AuthCard({ icon: Icon, title, description, children }: AuthCardProps) {
   return (
-    <section className="rounded-[20px] border border-line bg-surface p-6 shadow-lift sm:p-8">
-      <span aria-hidden className="inline-flex size-11 items-center justify-center rounded-[14px] bg-accent-soft text-accent">
-        <Icon className="size-5" />
+    <section className="rounded-3xl border border-line bg-surface/90 p-6 shadow-lift backdrop-blur-md sm:p-8">
+      <span
+        aria-hidden
+        className="inline-flex size-11 items-center justify-center rounded-full border border-accent/25 bg-accent-soft text-accent"
+      >
+        <Icon className="size-4.5" />
       </span>
-      <div className="mb-7 mt-5 grid gap-2">
-        <h1 className="text-2xl font-semibold leading-[1.1] sm:text-3xl">{title}</h1>
+      <div className="mb-6 mt-4 grid gap-1">
+        <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
         {description && <p className="text-sm text-muted">{description}</p>}
       </div>
       {children}

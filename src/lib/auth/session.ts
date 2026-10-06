@@ -6,22 +6,29 @@ const AUTH_PATHS = ["/login", "/register", "/logout", "/email-verify", "/forgot-
 
 export const DEFAULT_AFTER_LOGIN = "/";
 
-function safeStorage(): Storage | null {
+function safeStorage(kind: "local" | "session" = "local"): Storage | null {
   try {
-    return typeof window === "undefined" ? null : window.localStorage;
+    if (typeof window === "undefined") return null;
+    return kind === "local" ? window.localStorage : window.sessionStorage;
   } catch {
     return null;
   }
 }
 
-export const getToken = () => safeStorage()?.getItem(TOKEN_KEY) ?? null;
+/** A remembered token lives in localStorage; otherwise sessionStorage, which the browser drops on close. */
+export const getToken = () =>
+  safeStorage()?.getItem(TOKEN_KEY) ?? safeStorage("session")?.getItem(TOKEN_KEY) ?? null;
 
-export const setToken = (token: string) => safeStorage()?.setItem(TOKEN_KEY, token);
+export function setToken(token: string, remember = true) {
+  safeStorage(remember ? "session" : "local")?.removeItem(TOKEN_KEY);
+  safeStorage(remember ? "local" : "session")?.setItem(TOKEN_KEY, token);
+}
 
 export function clearSession() {
   const storage = safeStorage();
   storage?.removeItem(TOKEN_KEY);
   storage?.removeItem(REDIRECT_KEY);
+  safeStorage("session")?.removeItem(TOKEN_KEY);
 }
 
 export function rememberRedirect(path: string) {

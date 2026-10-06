@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "cta" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
@@ -9,6 +9,8 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-accent text-accent-ink hover:bg-accent-hover",
+  /** The gradient pill that ends a form, as on Tapotik's sign-in. */
+  cta: "rounded-full bg-cta text-accent-ink shadow-glow transition-[filter] hover:brightness-110",
   secondary: "border border-line bg-surface text-ink hover:bg-raised",
   ghost: "text-muted hover:bg-raised hover:text-ink",
   danger: "bg-bad-soft text-bad hover:brightness-95",

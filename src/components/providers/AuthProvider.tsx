@@ -66,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Routing after sign-in is AuthGate's job, so there is exactly one redirect.
   const signIn = useCallback<AuthContextValue["signIn"]>(
-    async (token) => {
-      setToken(token);
+    async (token, options) => {
+      setToken(token, options?.remember ?? true);
       return refreshUser();
     },
     [refreshUser],

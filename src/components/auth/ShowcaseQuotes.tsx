@@ -21,7 +21,7 @@ export function ShowcaseQuotes() {
   }, [index]);
 
   return (
-    <figure className="grid min-h-64 w-full max-w-lg content-start gap-5 rounded-[20px] border border-line/70 bg-surface/70 p-6 shadow-float backdrop-blur-md">
+    <figure className="grid min-h-60 w-full max-w-md content-start gap-4 rounded-[20px] border border-line/70 bg-surface/75 p-7 shadow-lift backdrop-blur-md">
       <div className="flex items-center gap-2">
         <Eyebrow>Example run</Eyebrow>
         <Pill tone={run.tone} dot className="ml-auto">
@@ -29,7 +29,7 @@ export function ShowcaseQuotes() {
         </Pill>
       </div>
 
-      <blockquote key={index} className="animate-fade-in text-lg leading-relaxed text-ink">
+      <blockquote key={index} className="animate-fade-in text-[15px] leading-relaxed text-ink">
         “{run.quote}”
       </blockquote>
 

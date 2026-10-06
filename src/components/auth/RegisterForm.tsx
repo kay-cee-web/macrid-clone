@@ -14,10 +14,13 @@ import { dexisphereSiteLink } from "@/lib/config";
 import { email, minLength, password, required } from "@/lib/validation";
 import { register } from "@/services/auth";
 import { AuthCard, AuthSwitch } from "./AuthCard";
+import { PasswordStrength } from "./PasswordStrength";
 import { SocialAuth } from "./SocialAuth";
 
-const INITIAL = { name: "", email: "", licence: "", password: "", confirm: "", accept: false };
+const INITIAL = { name: "", email: "", licence: "", password: "", accept: false };
 type FieldName = keyof typeof INITIAL;
+
+const LEGAL_LINK = "font-medium text-accent hover:underline";
 
 export function RegisterForm() {
   const { signIn } = useAuth();
@@ -29,20 +32,21 @@ export function RegisterForm() {
     const valid = form.validate({
       name: (v) => required("Enter your name.")(v) ?? minLength(2, "Use at least 2 characters.")(v),
       email,
+      licence: required("Enter your licence code."),
       password,
-      confirm: (v, all) => (!v ? "Confirm your password." : v !== all.password ? "Passwords don't match." : undefined),
-      accept: required("Accept the privacy policy to continue."),
+      accept: required("Accept the terms and privacy policy to continue."),
     });
     if (!valid) return;
 
     setSubmitting(true);
     try {
       const { values } = form;
+      // One password field, as on Tapotik; the show toggle stands in for typing it twice.
       const token = await register({
         name: values.name.trim(),
         email: values.email.trim(),
         password: values.password,
-        password_confirmation: values.confirm,
+        password_confirmation: values.password,
         licensecode: values.licence.trim(),
       });
       toast.success("Account created. Check your inbox for a 6-digit code.");
@@ -51,7 +55,7 @@ export function RegisterForm() {
       reportFormError<FieldName>(err, {
         fallback: "Could not create your account",
         setErrors: form.setErrors,
-        fields: { licensecode: "licence", password_confirmation: "confirm" },
+        fields: { licensecode: "licence", password_confirmation: "password" },
       });
       setSubmitting(false);
     }
@@ -59,11 +63,7 @@ export function RegisterForm() {
 
   return (
     <>
-      <AuthCard
-        icon={Sparkles}
-        title="Create your account"
-        description="Set up agents that run Dexisphere for you."
-      >
+      <AuthCard icon={Sparkles} title="Create your account" description="Use the licence code from your plan.">
         <SocialAuth />
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <TextField id="name" label="Full name" autoComplete="name" placeholder="Alex Kim" {...form.bind("name")} />
@@ -75,37 +75,39 @@ export function RegisterForm() {
             placeholder="you@company.com"
             {...form.bind("email")}
           />
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="new-password"
+            placeholder="Create a strong password"
+            {...form.bind("password")}
+          />
+          <PasswordStrength value={form.values.password} />
           <TextField
             id="licence"
             label="Licence code"
-            hint="Optional. Only if you were given one."
+            placeholder="From your plan purchase"
             autoComplete="off"
             className="font-mono"
             {...form.bind("licence")}
           />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <PasswordField id="password" label="Password" autoComplete="new-password" {...form.bind("password")} />
-            <PasswordField id="confirm" label="Confirm" autoComplete="new-password" {...form.bind("confirm")} />
-          </div>
           <Checkbox
             id="accept"
             label={
               <>
                 I agree to the{" "}
-                <a
-                  href={dexisphereSiteLink("/privacy-policy")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-accent hover:underline"
-                >
-                  privacy policy
+                <a href={dexisphereSiteLink("/terms")} target="_blank" rel="noreferrer" className={LEGAL_LINK}>
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href={dexisphereSiteLink("/privacy")} target="_blank" rel="noreferrer" className={LEGAL_LINK}>
+                  Privacy Policy
                 </a>
-                .
               </>
             }
             {...form.bind("accept")}
           />
-          <Button type="submit" size="lg" block loading={submitting} className="mt-2">
+          <Button type="submit" variant="cta" size="lg" block loading={submitting} className="h-12">
             Create account
           </Button>
         </form>
