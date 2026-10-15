@@ -8,6 +8,7 @@ import { blockEditing } from "@/lib/notes/editing";
 import type { Block, BlockType } from "@/types/noteBlock";
 import { BlockBody } from "./BlockBody";
 import { BlockRow } from "./BlockRow";
+import { ReactionMargin } from "./ReactionMargin";
 import { SelectionToolbar } from "./SelectionToolbar";
 import { SlashMenu } from "./SlashMenu";
 
@@ -77,6 +78,8 @@ export function BlockEditor({
             onKeyDown={edit.keys(block, index)}
             onSelect={highlight.read(block.id)}
           />
+
+          {block.type !== "code" && <ReactionMargin blockId={block.id} text={block.text} />}
 
           {slash.menu?.blockId === block.id && (
             <SlashMenu options={slash.options} active={slash.menu.active} onPick={edit.pick} />

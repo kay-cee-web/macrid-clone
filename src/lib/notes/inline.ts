@@ -5,15 +5,21 @@
  * the block's text stays markdown everywhere outside the one contenteditable
  * element that draws it.
  *
- * Colour is the single exception. Markdown has no way to say it, so it is kept
- * as the HTML every markdown writer uses for it — a span with a colour — and
- * read back out again here.
+ * Colour and underline are the exceptions. Markdown has no way to say either,
+ * so each is kept as the HTML every markdown writer uses for it — a span with a
+ * colour, a `<u>` — and read back out again here.
  */
 const COLOR_SPAN = /&lt;span style="color:(#[0-9a-fA-F]{3,8})"&gt;([\s\S]*?)&lt;\/span&gt;/g;
+const UNDERLINE = /&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g;
+/** A reacted run (`lib/notes/reactions.ts`). */
+const REACTED = /&lt;mark data-r="([^"<>&]*)"&gt;([\s\S]*?)&lt;\/mark&gt;/g;
 
 export function inlineToHtml(text: string): string {
   return escapeHtml(text)
+    .replace(/`([^`\n]+)`/g, "<code>$1</code>")
     .replace(COLOR_SPAN, '<span style="color:$1">$2</span>')
+    .replace(UNDERLINE, "<u>$1</u>")
+    .replace(REACTED, '<mark data-r="$1">$2</mark>')
     .replace(/\[([^\]]*)\]\(([^)\s]*)\)/g, '<a href="$2">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
@@ -33,6 +39,7 @@ const WRAPS: Record<string, string> = {
   S: "~~",
   STRIKE: "~~",
   DEL: "~~",
+  CODE: "`",
 };
 
 function fromNode(node: Node): string {
@@ -47,6 +54,9 @@ function fromNode(node: Node): string {
   const inner = Array.from(element.childNodes).map(fromNode).join("");
   if (!inner) return "";
   if (element.tagName === "A") return `[${inner}](${element.getAttribute("href") ?? ""})`;
+  if (element.tagName === "U") return `<u>${inner}</u>`;
+  // A pasted `<mark>` with no reactions is just its text.
+  if (element.tagName === "MARK") return element.dataset.r ? `<mark data-r="${element.dataset.r}">${inner}</mark>` : inner;
 
   // Our own marks arrive as tags; pasted text can arrive as styles instead.
   const marked = WRAPS[element.tagName]
@@ -61,7 +71,8 @@ function styled(element: HTMLElement, inner: string): string {
   const { fontWeight, fontStyle, textDecorationLine } = element.style;
   const bold = /^(bold|[6-9]00)$/.test(fontWeight) ? `**${inner}**` : inner;
   const italic = fontStyle === "italic" ? `*${bold}*` : bold;
-  return textDecorationLine.includes("line-through") ? `~~${italic}~~` : italic;
+  const struck = textDecorationLine.includes("line-through") ? `~~${italic}~~` : italic;
+  return textDecorationLine.includes("underline") ? `<u>${struck}</u>` : struck;
 }
 
 /**
@@ -81,6 +92,7 @@ export function htmlToInline(root: HTMLElement): string {
 export function inlineToText(text: string): string {
   return text
     .replace(/<span style="color:#[0-9a-fA-F]{3,8}">([\s\S]*?)<\/span>/g, "$1")
+    .replace(/<\/?u>|<mark data-r="[^"]*">|<\/mark>/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/```/g, "")
     .replace(/^#{1,6}\s+/gm, "")

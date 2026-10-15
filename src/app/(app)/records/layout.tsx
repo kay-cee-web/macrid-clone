@@ -7,9 +7,9 @@ export const metadata: Metadata = { title: { template: `%s · Records · ${SITE.
 
 export default function RecordsLayout({ children }: LayoutProps<"/records">) {
   return (
-    <>
+    <div className="mx-auto grid w-full max-w-400 gap-8 px-4 pb-20 pt-10 sm:px-8 xl:px-14">
       <RecordsHeader />
-      <div className="mx-auto w-full max-w-6xl px-4 pb-20 pt-6 sm:px-8">{children}</div>
-    </>
+      <div className="min-w-0">{children}</div>
+    </div>
   );
 }

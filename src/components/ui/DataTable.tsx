@@ -32,10 +32,10 @@ export function DataTable<T>({ label, columns, rows, rowKey, rowHref, skeletonRo
   const hideNarrow = (wide?: boolean) => wide && "hidden md:table-cell";
 
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-line bg-surface">
+    <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
       <table aria-label={label} className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-line">
+          <tr className="border-b border-line bg-raised/50">
             {columns.map((column) => (
               <th
                 key={column.key}

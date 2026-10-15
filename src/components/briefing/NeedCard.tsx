@@ -27,7 +27,7 @@ export function NeedCard({ need, onAct }: { need: BriefingNeed; onAct: (instruct
   const actionable = canChange(need);
 
   return (
-    <article className="grid gap-2 rounded-[14px] border border-line border-l-2 border-l-bad bg-surface p-4">
+    <article className="flex flex-col gap-2 rounded-[14px] border border-line border-l-2 border-l-bad bg-surface p-4">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {need.source && <Pill>{need.source}</Pill>}
         {/* Why it is here *today*. Never dropped — without it the user has to work out the urgency themselves. */}
@@ -37,7 +37,8 @@ export function NeedCard({ need, onAct }: { need: BriefingNeed; onAct: (instruct
       <h3 className="text-[15px] font-semibold leading-snug tracking-tight text-ink">{need.title}</h3>
       {need.body && <p className="text-sm leading-relaxed text-muted">{need.body}</p>}
 
-      <div className="mt-1 flex flex-wrap gap-2">
+      {/* Pinned to the bottom, so cards side by side line their buttons up. */}
+      <div className="mt-auto flex flex-wrap gap-2 pt-1">
         {canDraft(need) && (
           <Button size="sm" onClick={() => onAct(draftInstruction(need))}>
             Draft a reply

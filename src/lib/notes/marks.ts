@@ -20,10 +20,35 @@ function run(command: string, value?: string, css = false) {
   document.execCommand(command, false, value);
 }
 
-export type Mark = "bold" | "italic" | "strikeThrough";
+export type Mark = "bold" | "italic" | "underline" | "strikeThrough";
 
 export function applyMark(mark: Mark) {
   run(mark);
+}
+
+/**
+ * Inline code, on or off. There is no `execCommand` for it, so the run is
+ * wrapped in a `<code>` by hand — or, when the selection is already inside one,
+ * the `<code>` is unwrapped — and the block is told its DOM changed.
+ */
+export function toggleInlineCode() {
+  const selection = window.getSelection();
+  if (!selection?.rangeCount) return;
+  const range = selection.getRangeAt(0);
+  const field = fieldOf(range.commonAncestorContainer);
+  if (!field) return;
+
+  const start = range.startContainer;
+  const inside = (start instanceof Element ? start : start.parentElement)?.closest("code");
+  if (inside && field.contains(inside)) {
+    inside.replaceWith(...Array.from(inside.childNodes));
+  } else if (!range.collapsed) {
+    const code = document.createElement("code");
+    code.textContent = range.toString();
+    range.deleteContents();
+    range.insertNode(code);
+  }
+  announceInput(field);
 }
 
 export function applyLink(href: string) {

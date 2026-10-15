@@ -73,19 +73,6 @@ export type EmailCampaign = {
   createdAt: string | null;
 };
 
-export type Company = {
-  id: string;
-  name: string;
-  domain: string;
-  email: string;
-  industry: string;
-  /** PROSPECT | CLIENT | PARTNER, or a free type. */
-  type: string;
-  location: string;
-  owner: string;
-  createdAt: string | null;
-};
-
 export type WhatsAppCampaign = {
   id: string;
   name: string;
