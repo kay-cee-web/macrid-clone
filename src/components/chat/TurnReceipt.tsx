@@ -29,18 +29,29 @@ export function TurnReceipt({ changes, className }: { changes: WorkChange[]; cla
       className={className}
     >
       <ul className="divide-y divide-line">
-        {shown.map((change, index) => (
-          <li key={`${change.href}-${index}`}>
-            <Link
-              href={change.href}
-              className="group/row flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors hover:bg-raised focus-visible:bg-raised"
-            >
+        {shown.map((change, index) => {
+          const line = (
+            <>
               <span className="hidden w-[4.75rem] shrink-0 font-mono sm:inline text-xs uppercase tracking-[0.06em] text-muted">{change.area}</span>
               <span className="min-w-0 flex-1 truncate" title={change.text}>{change.text}</span>
-              <ArrowUpRight className="size-3.5 shrink-0 text-faint transition-colors group-hover/row:text-accent" />
-            </Link>
-          </li>
-        ))}
+            </>
+          );
+          return (
+            <li key={`${change.area}-${index}`}>
+              {change.href ? (
+                <Link
+                  href={change.href}
+                  className="group/row flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors hover:bg-raised focus-visible:bg-raised"
+                >
+                  {line}
+                  <ArrowUpRight className="size-3.5 shrink-0 text-faint transition-colors group-hover/row:text-accent" />
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-ink">{line}</div>
+              )}
+            </li>
+          );
+        })}
       </ul>
       {hidden > 0 && (
         <button

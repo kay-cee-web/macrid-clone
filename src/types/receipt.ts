@@ -6,8 +6,8 @@ export type WorkArea = (typeof WORK_AREAS)[number];
 export type WorkChange = {
   area: WorkArea;
   text: string;
-  /** The Records page that shows it. */
-  href: string;
+  /** The Records page that shows it; none for deals, which Records doesn't list. */
+  href?: string;
   /** How much it adds to the area's stat (leads count one by one). */
   count: number;
 };

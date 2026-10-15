@@ -118,6 +118,8 @@ export function BlockText({ blockId, value, plain, className, ...on }: BlockText
         "before:pointer-events-none before:absolute before:text-faint",
         "data-empty:focus:before:content-[attr(data-placeholder)]",
         "[&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2",
+        "[&_mark]:rounded-sm [&_mark]:bg-warn-soft [&_mark]:text-inherit [&_mark]:transition-shadow [&_mark[data-active]]:ring-2 [&_mark[data-active]]:ring-warn",
+        "[&_u]:underline-offset-2[&_code]:rounded-[5px] [&_code]:bg-raised [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:ring-1 [&_code]:ring-inset [&_code]:ring-line",
         className,
       )}
     />

@@ -36,7 +36,8 @@ export function BriefingNeeds({
 
   return (
     <BriefingSection title="Needs you" aside={needs.length === 1 ? "1 thing" : `${needs.length} things`}>
-      <div className="grid gap-2.5">
+      {/* Cards, not full-width rows: on a wide screen a lone row stretches into a banner. */}
+      <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
         {needs.map((need) => (
           <NeedCard key={need.id} need={need} onAct={onAct} />
         ))}

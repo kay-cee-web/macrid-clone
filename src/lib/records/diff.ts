@@ -33,7 +33,7 @@ function diffRows<T extends { id: string }>(before: T[] | undefined, after: T[] 
   return found.flat().filter((change): change is WorkChange => Boolean(change));
 }
 
-const change = (area: WorkArea, text: string, href: string, count = 1): WorkChange => ({ area, text, href, count });
+const change = (area: WorkArea, text: string, href?: string, count = 1): WorkChange => ({ area, text, href, count });
 const quoted = (name: string) => `"${name || "Untitled"}"`;
 const leads = (n: number) => `${n} lead${n === 1 ? "" : "s"}`;
 const status = (value: string) => statusLabel(value).toLowerCase();
@@ -63,14 +63,14 @@ export function diffSnapshots(before: WorkspaceSnapshot, after: WorkspaceSnapsho
       deleted: (l) => change("Lists", `Deleted list ${quoted(l.name)}`, "/records/lists"),
     }),
     ...diffRows(before.deals, after.deals, {
-      created: (d) => change("Deals", `Created deal ${quoted(d.name)}${d.stage ? ` in ${d.stage}` : ""}`, "/records/deals"),
+      created: (d) => change("Deals", `Created deal ${quoted(d.name)}${d.stage ? ` in ${d.stage}` : ""}`),
       changed: (a, b) =>
         a.stage !== b.stage
-          ? change("Deals", `Moved ${quoted(b.name)} from ${a.stage || "no stage"} to ${b.stage || "no stage"}`, "/records/deals")
+          ? change("Deals", `Moved ${quoted(b.name)} from ${a.stage || "no stage"} to ${b.stage || "no stage"}`)
           : a.amount !== b.amount || a.closeDate !== b.closeDate
-            ? change("Deals", `Updated ${quoted(b.name)}`, "/records/deals")
+            ? change("Deals", `Updated ${quoted(b.name)}`)
             : null,
-      deleted: (d) => change("Deals", `Deleted deal ${quoted(d.name)}`, "/records/deals"),
+      deleted: (d) => change("Deals", `Deleted deal ${quoted(d.name)}`),
     }),
     ...diffRows(before.tasks, after.tasks, {
       created: (t) => change("Tasks", `Created task ${quoted(t.name)}${t.endDate ? `, due ${formatDate(t.endDate)}` : ""}`, "/records/tasks"),

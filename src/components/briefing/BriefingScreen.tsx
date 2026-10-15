@@ -41,13 +41,12 @@ export function BriefingScreen() {
 
   return (
     <div className="h-full overflow-y-auto">
-      {/* The reading column is centred inside the usual shell — this is read
-          rather than scanned, and left-aligning it leaves half the screen empty. */}
-      <div className="mx-auto grid w-full max-w-400 gap-5 px-4 pb-16 pt-8 sm:px-6 xl:px-10">
-        <div className="mx-auto grid w-full max-w-3xl gap-5">
+      {/* Full width, the same shell as the Workbench and the Agent hub. */}
+      <div className="mx-auto grid w-full max-w-400 gap-8 px-4 pb-20 pt-10 sm:px-8 xl:px-14">
+        <div className="grid w-full gap-5">
           <div className="grid gap-1.5">
             <h1 className="text-2xl font-semibold">Briefing</h1>
-            <p className="text-sm text-muted">
+            <p className="max-w-[62ch] text-sm text-muted">
               What needs you today, gathered from your records and the tools you&apos;ve connected. Nothing is changed
               until you watch it happen.
             </p>
