@@ -4,7 +4,6 @@ import type { Idea, IdeaCategory } from "@/types/idea";
 import { ANALYTICS } from "./analytics";
 import { CORPORATE } from "./corporate";
 import { CREATIVE } from "./creative";
-import { CRM } from "./crm";
 import { DELIVERABILITY } from "./deliverability";
 import { EDUCATION } from "./education";
 import { FUNNELS } from "./funnels";
@@ -18,7 +17,7 @@ import { SOCIAL } from "./social";
 import { WORK } from "./work";
 
 /**
- * The first six cover a Macrid product area each, in sidebar order; the rest is
+ * The first five cover a Macrid product area each, in sidebar order; the rest is
  * the work around them, and Reminders is standing personal routines.
  * **Every category carries at least eight workflows**, so no filter looks bare.
  */
@@ -26,7 +25,6 @@ export const CATEGORIES: IdeaCategory[] = [
   "Lead sourcing",
   "Page building",
   "Message sending",
-  "Pipeline handling",
   "Deliverability",
   "Analytics",
   "Creative",
@@ -44,7 +42,6 @@ export const IDEAS: Record<IdeaCategory, Idea[]> = {
   "Lead sourcing": PROSPECTING,
   "Page building": FUNNELS,
   "Message sending": OUTREACH,
-  "Pipeline handling": CRM,
   Deliverability: DELIVERABILITY,
   Analytics: ANALYTICS,
   Creative: CREATIVE,

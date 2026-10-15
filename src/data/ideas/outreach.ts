@@ -61,4 +61,14 @@ export const OUTREACH: Idea[] = [
     platforms: ["inbox"],
     description: "As replies land, sort them (interested, not now, wrong person, unsubscribe) and put a draft response under each.",
   },
+  {
+    title: "Warm reply to deal",
+    platforms: ["inbox"],
+    description: "When a prospect replies with interest, create the deal, set its stage, and put the follow-up task on my calendar.",
+  },
+  {
+    title: "No-show follow-up",
+    platforms: ["email"],
+    description: "When someone misses a booked call, mark it, draft the note offering a new time, and set the reminder.",
+  },
 ];

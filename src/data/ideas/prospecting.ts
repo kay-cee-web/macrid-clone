@@ -42,4 +42,20 @@ export const PROSPECTING: Idea[] = [
     platforms: ["google_maps", "google_business"],
     description: "Every quarter, re-check an old list, drop the businesses that closed, and update the ones whose details changed.",
   },
+  {
+    title: "Segment a list",
+    ready: true,
+    platforms: [],
+    description: "When I describe the people I want, build the list from my records and tell me how many made it in.",
+  },
+  {
+    title: "Lead scoring by intent",
+    platforms: [],
+    description: "Score every lead on what they've opened and clicked, and move the hottest ones into their own list.",
+  },
+  {
+    title: "Monthly contact cleanup",
+    platforms: [],
+    description: "Every month, merge duplicate contacts, fix broken records, and archive the ones that have gone cold.",
+  },
 ];

@@ -60,4 +60,10 @@ export const GROWTH: Idea[] = [
     platforms: ["shopify"],
     description: "Read my store's products, stock and orders, and flag what's running out and what's worth pushing.",
   },
+  {
+    title: "Deal stage upkeep",
+    ready: true,
+    platforms: [],
+    description: "As deals move, create them, shift them between stages, and keep the next action and close date current.",
+  },
 ];
