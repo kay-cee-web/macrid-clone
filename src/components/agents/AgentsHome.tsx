@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ExternalLink } from "lucide-react";
 import { AnnouncementPill } from "@/components/ui/AnnouncementPill";
-import { buttonStyles } from "@/components/ui/button-styles";
 import { TokenBalance } from "@/components/workspace/TokenBalance";
 import { ComposerWithAttachments } from "@/components/chat/ComposerWithAttachments";
 import { SuggestionChips } from "@/components/chat/SuggestionChips";
 import { useCreateAgent } from "@/hooks/useCreateAgent";
 import { useGreeting } from "@/hooks/useGreeting";
-import { dexisphereAppLink } from "@/lib/config";
 import type { Idea } from "@/types/idea";
 import { IdeaBrowser } from "./IdeaBrowser";
 
@@ -32,17 +29,9 @@ export function AgentsHome() {
 
   return (
     <div className="min-h-full">
-      <div className="flex items-center justify-end gap-2 px-4 pt-4 sm:px-6">
+      {/* Holds its height while the balance is still unknown, so the hero doesn't jump when it appears. */}
+      <div className="flex min-h-14 items-center justify-end gap-2 px-4 pt-4 sm:px-6">
         <TokenBalance className={PILL} />
-        <a
-          href={dexisphereAppLink("/")}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonStyles({ variant: "secondary", className: PILL })}
-        >
-          <ExternalLink className="size-4" />
-          Dexisphere app
-        </a>
       </div>
 
       {/* As wide as the agent hub, so the task cards fill the space; the hero stays narrow inside it. */}
@@ -68,7 +57,7 @@ export function AgentsHome() {
             className="w-full"
           />
 
-          <SuggestionChips variant="pills" onPick={startNow} disabled={creating} />
+          <SuggestionChips onPick={startNow} disabled={creating} />
         </section>
 
         {/* Two rows is enough to start from; the whole catalogue lives on Workbench → Workflows. */}

@@ -59,4 +59,16 @@ export const CREATIVE: Idea[] = [
     platforms: [],
     description: "When I paste something I have to answer, draft the reply the way I'd write it, not the way a robot would.",
   },
+  {
+    title: "Top-performing copy",
+    ready: true,
+    platforms: ["email"],
+    description: "Each quarter, find the subject lines and headlines that earned the most replies and show me the pattern behind them.",
+  },
+  {
+    title: "Spam-filter copy check",
+    ready: true,
+    platforms: ["email"],
+    description: "Before I send, flag the subject lines and phrases likely to trip spam filters and show me a rewrite beside them.",
+  },
 ];

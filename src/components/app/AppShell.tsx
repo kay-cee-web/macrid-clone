@@ -4,16 +4,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Menu as MenuIcon, X } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import { Logo } from "@/components/ui/Logo";
+import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { cn } from "@/lib/cn";
 import { AppSidebar } from "./AppSidebar";
 import { BottomTabs } from "./BottomTabs";
+import { SidebarRail } from "./SidebarRail";
 
 /**
- * Fixed sidebar on large screens; below that, a slide-in drawer and a bottom tab bar.
+ * Fixed sidebar on large screens, which folds to an icon rail and back; below
+ * that, a slide-in drawer and a bottom tab bar.
  * <main> is the scroll container, so full-height views (the chat) can use h-full.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const sidebar = useSidebarCollapsed();
   const close = () => setDrawerOpen(false);
 
   useEffect(() => {
@@ -24,10 +28,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [drawerOpen]);
 
   return (
-    <div className="flex h-dvh flex-col lg:grid lg:grid-cols-[272px_minmax(0,1fr)]">
+    <div
+      className={cn(
+        "flex h-dvh flex-col lg:grid",
+        sidebar.collapsed ? "lg:grid-cols-[64px_minmax(0,1fr)]" : "lg:grid-cols-[272px_minmax(0,1fr)]",
+      )}
+    >
       {/* Translucent, so the page backdrop glows through. */}
       <aside className="hidden h-dvh border-r border-line bg-surface/55 backdrop-blur-xl lg:block">
-        <AppSidebar />
+        {sidebar.collapsed ? <SidebarRail onExpand={sidebar.toggle} /> : <AppSidebar onCollapse={sidebar.toggle} />}
       </aside>
 
       <header className="flex shrink-0 items-center gap-3 border-b border-line bg-surface/70 px-4 py-2.5 backdrop-blur-xl lg:hidden">

@@ -2,18 +2,20 @@ import type { PlatformId } from "@/data/platforms";
 
 /**
  * Categories are the user-facing headings, not the Macrid area names: the first
- * four cover Prospect Finder, Funnels, Outreach and CRM in that order.
+ * three cover Prospect Finder, Funnels and Outreach in that order. CRM,
+ * deliverability and analytics work have no heading of their own: they sit
+ * with the category the work serves (sending checks under Message sending,
+ * list health under Lead sourcing, reports where they're read).
  */
 export type IdeaCategory =
   | "Lead sourcing"
   | "Page building"
   | "Message sending"
-  | "Pipeline handling"
-  | "Deliverability"
-  | "Analytics"
   | "Creative"
   /** Writing and publishing posts on social networks. */
   | "Social media"
+  /** Video, podcast and press work: scripts, show notes, pitches. */
+  | "Media"
   | "Research"
   | "Work productivity"
   | "Business growth"

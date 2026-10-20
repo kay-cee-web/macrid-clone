@@ -55,4 +55,34 @@ export const WORK: Idea[] = [
     platforms: [],
     description: "When I list what's on my plate, turn it into a day with times against it, built around the meetings already booked.",
   },
+  {
+    title: "Day's calendar brief",
+    ready: true,
+    platforms: [],
+    description: "Every morning, list today's appointments with who each one is with and what we last agreed.",
+  },
+  {
+    title: "Appointment booking",
+    ready: true,
+    platforms: [],
+    description: "When someone asks for a time, check what's free, book the appointment and send the confirmation back.",
+  },
+  {
+    title: "Reschedule without the back-and-forth",
+    ready: true,
+    platforms: [],
+    description: "When someone asks to move a meeting, find a time that works, move it and confirm it.",
+  },
+  {
+    title: "Follow-up task on every promise",
+    ready: true,
+    platforms: [],
+    description: "After each call or reply, create the follow-up task with a due date so nothing I said I'd do gets lost.",
+  },
+  {
+    title: "Monday performance brief",
+    ready: true,
+    platforms: [],
+    description: "Every Monday, sum up last week's sends, replies and closed deals in one short report I can read in a minute.",
+  },
 ];

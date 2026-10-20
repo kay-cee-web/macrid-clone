@@ -1,14 +1,12 @@
 import { PLATFORMS } from "@/data/platforms";
 import { missingIn, platformNames, type WorkspaceSetup } from "@/lib/setup/platforms";
 import type { Idea, IdeaCategory } from "@/types/idea";
-import { ANALYTICS } from "./analytics";
 import { CORPORATE } from "./corporate";
 import { CREATIVE } from "./creative";
-import { CRM } from "./crm";
-import { DELIVERABILITY } from "./deliverability";
 import { EDUCATION } from "./education";
 import { FUNNELS } from "./funnels";
 import { GROWTH } from "./growth";
+import { MEDIA } from "./media";
 import { MONEY } from "./money";
 import { OUTREACH } from "./outreach";
 import { PROSPECTING } from "./prospecting";
@@ -18,7 +16,7 @@ import { SOCIAL } from "./social";
 import { WORK } from "./work";
 
 /**
- * The first six cover a Macrid product area each, in sidebar order; the rest is
+ * The first three cover a Macrid product area each, in sidebar order; the rest is
  * the work around them, and Reminders is standing personal routines.
  * **Every category carries at least eight workflows**, so no filter looks bare.
  */
@@ -26,11 +24,9 @@ export const CATEGORIES: IdeaCategory[] = [
   "Lead sourcing",
   "Page building",
   "Message sending",
-  "Pipeline handling",
-  "Deliverability",
-  "Analytics",
   "Creative",
   "Social media",
+  "Media",
   "Research",
   "Work productivity",
   "Business growth",
@@ -44,11 +40,9 @@ export const IDEAS: Record<IdeaCategory, Idea[]> = {
   "Lead sourcing": PROSPECTING,
   "Page building": FUNNELS,
   "Message sending": OUTREACH,
-  "Pipeline handling": CRM,
-  Deliverability: DELIVERABILITY,
-  Analytics: ANALYTICS,
   Creative: CREATIVE,
   "Social media": SOCIAL,
+  Media: MEDIA,
   Research: RESEARCH,
   "Work productivity": WORK,
   "Business growth": GROWTH,
