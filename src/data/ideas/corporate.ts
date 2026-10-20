@@ -72,4 +72,10 @@ export const CORPORATE: Idea[] = [
     platforms: [],
     description: "When I paste an agreement, summarise the terms, the dates and the obligations, and flag the clauses worth arguing with.",
   },
+  {
+    title: "Month in review",
+    ready: true,
+    platforms: [],
+    description: "On the first of each month, write the review: what was sent, what it returned, and what changed since last month.",
+  },
 ];

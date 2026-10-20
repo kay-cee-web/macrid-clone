@@ -58,4 +58,27 @@ export const PROSPECTING: Idea[] = [
     platforms: [],
     description: "Every month, merge duplicate contacts, fix broken records, and archive the ones that have gone cold.",
   },
+  // List health and what each list is worth.
+  {
+    title: "Monthly list health report",
+    ready: true,
+    platforms: ["email"],
+    description: "Every month, verify each list and tell me what share is valid, risky or dead, worst list first.",
+  },
+  {
+    title: "List quality scoreboard",
+    ready: true,
+    platforms: [],
+    description: "Rank my lists by how they actually perform — opens, replies and deals — not by how big they are.",
+  },
+  {
+    title: "Inactive address retirement",
+    platforms: ["email"],
+    description: "Each month, retire the contacts who haven't opened anything in six months so my reputation holds.",
+  },
+  {
+    title: "Cost per lead tracking",
+    platforms: [],
+    description: "Every week, work out what each list cost me per lead and per closed deal, and rank them.",
+  },
 ];

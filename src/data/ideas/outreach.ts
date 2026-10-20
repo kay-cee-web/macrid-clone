@@ -71,4 +71,56 @@ export const OUTREACH: Idea[] = [
     platforms: ["email"],
     description: "When someone misses a booked call, mark it, draft the note offering a new time, and set the reminder.",
   },
+  // Keeping sends out of spam: the checks that used to be Deliverability.
+  {
+    title: "Pre-send list verification",
+    ready: true,
+    platforms: ["email"],
+    description: "Before a campaign goes out, verify the list and hold back every invalid, risky or catch-all address.",
+  },
+  {
+    title: "Pre-flight check",
+    ready: true,
+    platforms: ["email"],
+    description: "Before anything goes out, check the list, the domain records and the copy, and hold the send if any of the three fails.",
+  },
+  {
+    title: "Bounce clean-up",
+    ready: true,
+    platforms: ["email"],
+    description: "After every campaign, pull the addresses that bounced out of the list so the next send isn't dragged down.",
+  },
+  {
+    title: "Sending domain watch",
+    platforms: ["email"],
+    description: "Every week, re-check SPF, DKIM and DMARC on my sending domains and tell me the moment one breaks.",
+  },
+  {
+    title: "New sender warm-up",
+    platforms: ["email"],
+    description: "When I add a sender, ramp its volume gradually over its first weeks instead of sending everything at once.",
+  },
+  {
+    title: "Spam placement alerts",
+    platforms: ["email"],
+    description: "Watch inbox placement per campaign and alert me as soon as one of my domains starts going to spam.",
+  },
+  {
+    title: "Sender rotation",
+    platforms: ["email"],
+    description: "Spread a big send across my connected mailboxes so no single sender carries a volume spike.",
+  },
+  // Reading how sends did, to plan the next one.
+  {
+    title: "Channel comparison",
+    ready: true,
+    platforms: ["email", "whatsapp", "sms"],
+    description: "Each month, compare replies and closed deals per channel and tell me where to put the next campaign.",
+  },
+  {
+    title: "Send-time report",
+    ready: true,
+    platforms: ["email"],
+    description: "Tell me which day and hour my sends do best, per list, and use it for the next schedule.",
+  },
 ];

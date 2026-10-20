@@ -79,4 +79,10 @@ export const WORK: Idea[] = [
     platforms: [],
     description: "After each call or reply, create the follow-up task with a due date so nothing I said I'd do gets lost.",
   },
+  {
+    title: "Monday performance brief",
+    ready: true,
+    platforms: [],
+    description: "Every Monday, sum up last week's sends, replies and closed deals in one short report I can read in a minute.",
+  },
 ];

@@ -10,14 +10,22 @@ import type { IdeaCategory } from "@/types/idea";
 const SIGNALS: Record<Exclude<IdeaCategory, "Reminders">, [RegExp, number][]> = {
   "Lead sourcing": [[/prospect|lead gen|find (?:leads|businesses|\d+)|google maps|places|linkedin|scrape|directory/g, 2], [/\bleads?\b/g, 1]],
   "Page building": [[/funnel|landing page|opt-?in|squeeze page/g, 2], [/\bpages?\b|website/g, 1]],
-  "Message sending": [[/outreach|campaign|cold (?:email|message)|follow[- ]?ups?|newsletter|whatsapp|\bsms\b/g, 2], [/e-?mail|message|send/g, 1]],
-  Deliverability: [[/deliverab|bounce|spam|inbox placement|verify (?:e-?mails?|addresses)|sending domain|dmarc|spf|dkim/g, 3]],
-  Analytics: [[/analytics|report|metrics|\bkpis?\b|open rate|click rate|dashboard/g, 2], [/performance|stats/g, 1]],
+  // Deliverability work is sending work, so its words weigh in here.
+  "Message sending": [
+    [/deliverab|bounce|spam|inbox placement|verify (?:e-?mails?|addresses)|sending domain|dmarc|spf|dkim|warm-?up/g, 3],
+    [/outreach|campaign|cold (?:email|message)|follow[- ]?ups?|newsletter|whatsapp|\bsms\b|open rate|click rate|send time/g, 2],
+    [/e-?mail|message|send/g, 1],
+  ],
   Creative: [[/\bseo\b|blog|caption|social post|brand voice|copywrit|repurpos|newsletter copy/g, 2], [/content|draft|write/g, 1]],
   "Social media": [[/social media|linkedin post|instagram|tiktok|\btweets?\b|x thread|hashtags?|\breels?\b|telegram channel|cross-?post|publish (?:the |my )?posts?/g, 3]],
+  Media: [[/video|youtube|podcast|show notes|thumbnail|subtitles|press (?:release|pitch|kit)|journalists?|media kit|\bclips?\b/g, 3], [/script|episode|interview/g, 1]],
   Research: [[/research|compare|pricing|market|\bicp\b|sources?|find out/g, 2]],
   "Work productivity": [[/briefing|wrap-?up|triage|stand-?up|my (?:day|inbox|calendar)|to-?do|appointment|book(?:ing)? (?:a )?(?:call|meeting)|reschedul/g, 2], [/\bdigest\b|reminder|tasks?|calendar|meeting/g, 1]],
-  "Business growth": [[/churn|retention|upsell|competitor|reviews?|feedback|referral|win-?back|\bcrm\b|pipeline|\bdeals?\b/g, 2]],
+  // Reports and metrics read how the business is doing, so the old Analytics words land here.
+  "Business growth": [
+    [/churn|retention|upsell|competitor|reviews?|feedback|referral|win-?back|\bcrm\b|pipeline|\bdeals?\b|analytics|metrics|\bkpis?\b|dashboard/g, 2],
+    [/report|performance|stats/g, 1],
+  ],
   "Money handling": [[/invoice|expense|budget|payment|subscription|billing|receipts?|balance|revenue/g, 2]],
   Corporate: [[/team update|minutes|handover|onboarding|policy|internal|quarterly review|supplier|process/g, 2]],
   Education: [[/stud(?:y|ying)|flashcard|quiz|vocabulary|revision|curriculum|learn(?:ing)?|teach/g, 2]],

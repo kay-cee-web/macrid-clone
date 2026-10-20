@@ -66,4 +66,15 @@ export const GROWTH: Idea[] = [
     platforms: [],
     description: "As deals move, create them, shift them between stages, and keep the next action and close date current.",
   },
+  {
+    title: "Underperformance breakdown",
+    ready: true,
+    platforms: ["email"],
+    description: "When a campaign underperforms, break down what likely caused it and what I should change first.",
+  },
+  {
+    title: "Metric dip alerts",
+    platforms: ["slack"],
+    description: "Watch my open, reply and conversion rates daily and tell me as soon as one falls out of its usual range.",
+  },
 ];

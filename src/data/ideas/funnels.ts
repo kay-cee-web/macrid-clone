@@ -48,4 +48,10 @@ export const FUNNELS: Idea[] = [
     platforms: [],
     description: "When I describe a guide or checklist worth giving away, build the page that trades it for an email.",
   },
+  {
+    title: "Funnel to deal",
+    ready: true,
+    platforms: [],
+    description: "Follow the path from page visit to booked deal and tell me where the most people fall out.",
+  },
 ];

@@ -10,6 +10,7 @@ export const PLATFORMS = {
   x: { name: "X", connectors: ["x"] },
   instagram: { name: "Instagram", connectors: ["instagram"] },
   tiktok: { name: "TikTok", connectors: ["tiktok"] },
+  youtube: { name: "YouTube", connectors: ["youtube"] },
   /** Posting to a channel the user runs, not the agent's own Telegram chat channel. */
   telegram: { name: "Telegram", connectors: ["telegram_channel"] },
   google_business: { name: "Google Business", connectors: ["gbp"] },

@@ -32,7 +32,7 @@ export const FEATURED_SKILLS: Skill[] = [
     description: "Turns one list into a whole sequence: the first message and two follow-ups, each on the channel that contact actually has, pulling anyone who replies out of the run.",
   },
   {
-    slug: "inbox-check", name: "Inbox Check", category: "Protect deliverability", surface: "Deliverability",
+    slug: "inbox-check", name: "Inbox Check", category: "Protect deliverability", surface: "Message sending",
     platforms: ["email"],
     description: "Runs before anything sends. Verifies the list, holds back invalid and risky addresses, re-checks SPF, DKIM and DMARC, and tells you what to fix first.",
   },
