@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { WorkspaceConnectorFlows } from "@/components/plugins/ConnectorFlows";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useWorkspace } from "@/components/workspace/WorkspaceContext";
@@ -72,14 +73,18 @@ export function ChatView() {
             />
           </div>
         ) : (
-          <ChatThread
-            messages={chat.messages}
-            agentName={agent.name}
-            sending={chat.sending}
-            onRetry={chat.retry}
-            onViewInstructions={openInstructions}
-            header={<ChatGreeting agent={agent} onPick={sendNow} busy={!historyReady || chat.sending} />}
-          />
+          <WorkspaceConnectorFlows>
+            <ChatThread
+              messages={chat.messages}
+              agentId={agent.id}
+              agentName={agent.name}
+              sending={chat.sending}
+              onRetry={chat.retry}
+              onViewInstructions={openInstructions}
+              onPick={sendNow}
+              header={<ChatGreeting agent={agent} onPick={sendNow} busy={!historyReady || chat.sending} />}
+            />
+          </WorkspaceConnectorFlows>
         )}
       </div>
 

@@ -78,14 +78,22 @@ export const missingIn = (setup: WorkspaceSetup | null, ids: PlatformId[]) =>
 
 export const platformNames = (ids: PlatformId[]) => ids.map((id) => PLATFORMS[id].name).join(" and ");
 
-/** Words in a task that point at a platform, for the pre-send check in chat. */
+/** Words that point at a platform: the pre-send check, and the connectors offered under a reply. */
 const MENTIONS: [PlatformId, RegExp][] = [
   ["email", /\b(e-?mails?|newsletters?)\b/i],
   ["inbox", /\b(inbox|mailbox|unread)\b/i],
   ["sms", /\b(sms|texts?|text messages?)\b/i],
   ["whatsapp", /\bwhats\s?app\b/i],
+  ["calendar", /\b(calendar|appointments?|meetings?)\b/i],
   ["google_business", /\bgoogle business( profile)?\b|\bgbp\b/i],
   ["payments", /\b(stripe|paypal|paystack|flutterwave|paddle|lemon ?squeezy)\b/i],
+  ["slack", /\bslack\b/i],
+  ["jira", /\bjira\b/i],
+  ["github", /\bgithub\b/i],
+  ["shopify", /\bshopify\b/i],
+  ["linkedin", /\blinked\s?in\b/i],
+  ["instagram", /\binstagram\b/i],
+  ["tiktok", /\btik\s?tok\b/i],
 ];
 
 export const platformsMentioned = (text: string): PlatformId[] =>

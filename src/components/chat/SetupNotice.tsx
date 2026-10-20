@@ -26,7 +26,7 @@ export function SetupNotice({ agent, draft }: { agent: Agent; draft: string }) {
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <CircleAlert className="size-3.5 shrink-0 text-warn" />
           <span className="min-w-0 flex-1 text-ink">
-            {platformNames(missing)} isn&apos;t connected, so {agent.name} can draft this but not send it.
+            {platformNames(missing)} isn&apos;t connected, so {agent.name} can&apos;t use it for this yet.
           </span>
           <Link href={`/agents/${agent.id}/plugins?tab=connectors`} className="font-medium text-accent hover:underline">
             Connect {platformNames(missing)}
