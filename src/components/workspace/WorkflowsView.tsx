@@ -35,7 +35,7 @@ export function WorkflowsView() {
           </p>
         </div>
 
-        <ScheduledWork agentName={agent.name} onSend={sendToChat} onDraft={draftInChat} />
+        <ScheduledWork agentId={agent.id} agentName={agent.name} onDraft={draftInChat} />
 
         <FilterChips
           label="Workflow categories"

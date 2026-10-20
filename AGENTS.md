@@ -67,6 +67,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Home is `/`, not `/agents`.** The composer and idea cards live at the root, so the app opens on the bare domain. Home shows six cards (`IdeaBrowser`'s `limit`) and a "View all" link to Workbench → Workflows, which lists the lot. `DEFAULT_AFTER_LOGIN` is `/`, and `/agents` is a server redirect that forwards its query (`/agents?task=…` still lands on home).
   - **The sections are one list, `MAIN_NAV` in `src/data/nav.ts`** (plus `SETTINGS_NAV`), with `isActivePath` in `src/lib/ui/nav.ts`; the sidebar and the phone tab bar both read it, so add a section there.
   - **Below `lg`, `BottomTabs` sits under `<main>`**: Home, Agent hub, Workbench, Records and Settings. It's in the flex flow, not fixed, so nothing scrolls beneath it. It hides inside an open agent (`isAgentWorkspace`), where the chat composer owns the bottom edge; the drawer (Favorites, Recents, account) stays for everything else.
+  - **The desktop sidebar folds.** `PanelLeftClose` beside the logo collapses it to `SidebarRail` (64px: `PanelLeftOpen`, each `MAIN_NAV` icon, Settings at the foot); `useSidebarCollapsed` keeps the choice in the `sections.ts` store (key `sidebar:collapsed`), so it's open on the server and remembered per browser. The phone drawer is unaffected.
   - Sidebar nav: Home (`/`), Agent hub (`/agents/all`), Workbench, Records — then **Favorites** and **Recents**, in that order. `SidebarFooter` holds the account menu, the `ThemeToggle` box and Settings — no help or inbox links.
     - Both lists are one component, `SidebarAgentList` (title, up to `SIDEBAR_LIST_LIMIT` agents, skeletons, an empty line and "View all" once there are more). `FavoriteAgents` filters the store by `agent.favorite`.
     - **`FavoriteButton` is how an agent gets starred**: on `AgentCard`, left of the actions menu, in both layouts. Starred keeps the filled star on show; unstarred only offers it on hover or focus, like the menu. It toasts failures only — the star itself is the confirmation — while the menu item, which closes on click, toasts either way.
@@ -121,7 +122,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Ask before sending** (`src/lib/agents/approval.ts`): there is no approval queue, so `ApprovalSetting` writes an `[Approval rule]…[/Approval rule]` block into the instructions.
   - The block says: show the draft, the recipients and the checks, then wait for "send".
   - The switch reads its state back from the text, because a chat turn can rewrite the instructions.
-- **Scheduled work:** there is no automations endpoint, so `ScheduledWork` (top of Workflows) asks the agent to list, create or cancel automations in chat. Its tools do the work.
+- **Scheduled tasks** (`ScheduledWork` at the top of the agent's Workflows tab, `src/services/automations.ts`): lists the agent's automations as `AutomationCard`s whose `⋯` menu offers Run now, Pause/Resume, Edit (`AutomationEditModal`) and Delete (`ConfirmModal`). **Creating stays in chat** ("Schedule a task" drafts it) — the agent's `schedule_automation` writes the schedule object correctly, and monthly/interval keys are unconfirmed. Times are shown and edited as **UTC** (how they're stored); the next run is shown in local time from `next_run_at`.
 - **Settings** (`/agents/[id]/settings?section=general|channels|usage&channel=…`):
   - **General:** the sending switch with its 24h counts, "Ask before sending", model (`PUT model`), agent ID, clone and delete.
   - **Channels:** `useChannelConnection` (status check, pairing code, backoff polling, disconnect) + `PairingCard`. Mount the card with `key={code}` so each code gets a fresh countdown.
@@ -512,7 +513,14 @@ Read from Macrid's frontend; the backend itself was not read. The agent reaches 
 
 ### Automations
 
-- **No endpoint lists, creates or cancels automations.** Only the agent's tools (`schedule_automation`, `list_automations`, `cancel_automation`) reach them. Scheduling otherwise exists only as a field on a send (email `schedule_datetime`, SMS `datetime`).
+- **Per-agent routes exist (probed 2026-10-20; `/automations` alone 404s):**
+  - `GET /agents/{id}/automations` → `{status, automations: [row]}`. Row: `{id, agent_id, user_id, name, prompt, schedule_type, schedule, deliver_to, is_active, next_run_at, last_run_at, run_count, state, last_error, created_at, updated_at}`.
+  - `POST` the same path: `name`, `prompt`, `schedule_type` required. `schedule_type` ∈ `daily | weekly | monthly | interval`; `deliver_to` ∈ `none | whatsapp | telegram`; `schedule` must be an object and **its keys aren't validated**. **POST ignores `is_active: false`** (the row comes back active), so creating one paused takes a follow-up `PUT`. It answers `{status, message: "<name> is scheduled.", automation, next_run}`. Seen: weekly `{hour: 9, day_of_week: 1}` (1 = Monday), daily `{hour: 7, minute: 30}`. Monthly and interval keys are unknown.
+  - `PUT …/{id}` takes any of those and answers `{status, automation}` with `next_run_at` recalculated. **There's no pause route**: pause is `PUT {is_active: false}`.
+  - `POST …/{id}/run` answers `{status, reply}` and posts the run into the agent's chat (the prompt as a user turn, then the reply). **It did not bump `run_count` or `last_run_at`.**
+  - `DELETE …/{id}` → `{status, message: "Automation removed."}`. A missing id is a 404 `{status: false, message: "Not found."}` on PUT, DELETE and run.
+  - **Hours are UTC**: "every Monday at 09:00" from a Lagos user was stored `{hour: 9}` with `next_run_at` 09:00Z. No user timezone field exists (`/user` has none).
+- Scheduling otherwise exists only as a field on a send (email `schedule_datetime`, SMS `datetime`).
 
 ### Email outreach
 
