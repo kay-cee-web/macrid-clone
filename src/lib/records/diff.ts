@@ -35,7 +35,7 @@ function diffRows<T extends { id: string }>(before: T[] | undefined, after: T[] 
 
 const change = (area: WorkArea, text: string, href?: string, count = 1): WorkChange => ({ area, text, href, count });
 const quoted = (name: string) => `"${name || "Untitled"}"`;
-const leads = (n: number) => `${n} lead${n === 1 ? "" : "s"}`;
+const leads = (n: number) => `${n} customer${n === 1 ? "" : "s"}`;
 const status = (value: string) => statusLabel(value).toLowerCase();
 
 const EMAIL = "/records/campaigns?channel=email";
@@ -49,15 +49,15 @@ export function diffSnapshots(before: WorkspaceSnapshot, after: WorkspaceSnapsho
     ...diffRows(before.lists, after.lists, {
       created: (l) => [
         change("Lists", `Created list ${quoted(l.name)}`, `/records/lists/${l.id}`),
-        l.contactsCount > 0 ? change("Leads", `Added ${leads(l.contactsCount)} to ${quoted(l.name)}`, `/records/lists/${l.id}`, l.contactsCount) : null,
+        l.contactsCount > 0 ? change("Customers", `Added ${leads(l.contactsCount)} to ${quoted(l.name)}`, `/records/lists/${l.id}`, l.contactsCount) : null,
       ],
       changed: (a, b) => {
         const href = `/records/lists/${b.id}`;
         const delta = b.contactsCount - a.contactsCount;
         return [
           a.name !== b.name ? change("Lists", `Renamed ${quoted(a.name)} to ${quoted(b.name)}`, href) : null,
-          delta > 0 ? change("Leads", `Added ${leads(delta)} to ${quoted(b.name)}`, href, delta) : null,
-          delta < 0 ? change("Leads", `Removed ${leads(-delta)} from ${quoted(b.name)}`, href, -delta) : null,
+          delta > 0 ? change("Customers", `Added ${leads(delta)} to ${quoted(b.name)}`, href, delta) : null,
+          delta < 0 ? change("Customers", `Removed ${leads(-delta)} from ${quoted(b.name)}`, href, -delta) : null,
         ];
       },
       deleted: (l) => change("Lists", `Deleted list ${quoted(l.name)}`, "/records/lists"),
@@ -120,7 +120,7 @@ export function diffSnapshots(before: WorkspaceSnapshot, after: WorkspaceSnapsho
   return changes.sort((a, b) => WORK_AREAS.indexOf(a.area) - WORK_AREAS.indexOf(b.area));
 }
 
-/** One stat per area that changed, e.g. Leads 12 · Deals 1. */
+/** One stat per area that changed, e.g. Customers 12 · Deals 1. */
 export function statsOf(changes: WorkChange[]): { label: WorkArea; value: number }[] {
   return WORK_AREAS.map((area) => ({
     label: area,

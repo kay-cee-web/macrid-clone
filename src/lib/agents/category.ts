@@ -8,7 +8,7 @@ import type { IdeaCategory } from "@/types/idea";
  */
 /** Reminders is never inferred: "every Monday" appears in half the marketing work too. */
 const SIGNALS: Record<Exclude<IdeaCategory, "Reminders">, [RegExp, number][]> = {
-  "Lead sourcing": [[/prospect|lead gen|find (?:leads|businesses|\d+)|google maps|places|linkedin|scrape|directory/g, 2], [/\bleads?\b/g, 1]],
+  "Customer sourcing": [[/prospect|lead gen|find (?:leads|customers|businesses|\d+)|google maps|places|linkedin|scrape|directory/g, 2], [/\b(?:leads?|customers?)\b/g, 1]],
   "Page building": [[/funnel|landing page|opt-?in|squeeze page/g, 2], [/\bpages?\b|website/g, 1]],
   // Deliverability work is sending work, so its words weigh in here.
   "Message sending": [

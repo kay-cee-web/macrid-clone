@@ -10,6 +10,9 @@ import type { Automation, AutomationPatch } from "@/types/automation";
  */
 const base = (agentId: string) => `/agents/${agentId}/automations`;
 
+/** How many agents' schedules are read in parallel. */
+const READS_AT_ONCE = 6;
+
 const normalize = (row: Record<string, unknown>): Automation => ({
   id: toText(row.id),
   agentId: toText(row.agent_id),
@@ -29,6 +32,27 @@ export async function fetchAutomations(agentId: string): Promise<Automation[]> {
   const { data } = await api.get(base(agentId));
   assertEnvelope(data, "Could not load the scheduled tasks");
   return pickList<Record<string, unknown>>(data, "automations").map(normalize);
+}
+
+/**
+ * Every listed agent's tasks. There's no workspace-wide route (`/automations`
+ * 404s), so each agent is read on its own; one that fails is named in `failed`
+ * rather than failing the lot. `agentId` is set from the request, not the row.
+ */
+export async function fetchAutomationsFor(agentIds: string[]) {
+  // A few at a time: a workspace with forty agents shouldn't open forty requests at once.
+  const reads: PromiseSettledResult<Automation[]>[] = [];
+  for (let i = 0; i < agentIds.length; i += READS_AT_ONCE) {
+    const batch = agentIds.slice(i, i + READS_AT_ONCE);
+    reads.push(...(await Promise.allSettled(batch.map((id) => fetchAutomations(id)))));
+  }
+  const automations: Automation[] = [];
+  const failed: string[] = [];
+  reads.forEach((read, i) => {
+    if (read.status === "fulfilled") automations.push(...read.value.map((task) => ({ ...task, agentId: agentIds[i] })));
+    else failed.push(agentIds[i]);
+  });
+  return { automations, failed };
 }
 
 /** Answers with the saved row, `next_run_at` recalculated when the schedule changed. */

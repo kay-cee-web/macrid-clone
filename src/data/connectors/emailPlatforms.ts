@@ -4,8 +4,8 @@ import { API_SECRET, API_URL, apiKeyFields } from "./fields";
 
 /**
  * The eight email platforms the user already pays for (backend doc 2026-09-26).
- * Contacts only, both ways: pull turns their subscribers into leads, push sends
- * leads out to their audience. Nothing here creates or sends a campaign — that
+ * Contacts only, both ways: pull turns their subscribers into customers, push sends
+ * customers out to their audience. Nothing here creates or sends a campaign — that
  * stays with our own campaign path — so no description may imply it does.
  *
  * They are their own group: /email-platforms owns them, and /connectors never
@@ -18,12 +18,12 @@ export const EMAIL_PLATFORM_CONNECTORS: Connector[] = [
   {
     key: "mailchimp", name: "Mailchimp", Icon: AtSign, logo: "mailchimp",
     ...platform(apiKeyFields("Account → Extras → API keys")),
-    description: "Import your audience, or push new leads into it.",
+    description: "Import your audience, or push new customers into it.",
   },
   {
     key: "brevo", name: "Brevo", Icon: Send, logo: "brevo",
     ...platform(apiKeyFields("SMTP & API → API keys")),
-    description: "Import your Brevo list, or push new leads into it.",
+    description: "Import your Brevo list, or push new customers into it.",
   },
   {
     key: "klaviyo", name: "Klaviyo", Icon: Waves,
@@ -31,32 +31,32 @@ export const EMAIL_PLATFORM_CONNECTORS: Connector[] = [
       name: "api_key", label: "Private API key", type: "password", required: true,
       placeholder: "pk_…", help: "Settings → API keys. Needs read and write on Profiles and Lists.",
     }]),
-    description: "Import your Klaviyo list, or push leads into it.",
+    description: "Import your Klaviyo list, or push customers into it.",
   },
   {
     key: "convertkit", name: "ConvertKit", Icon: Flame, logo: "convertkit",
     ...platform([{ ...API_SECRET, help: "Settings → Advanced → API. The secret, not the key." }]),
-    description: "Import your subscribers, or push leads to a form.",
+    description: "Import your subscribers, or push customers to a form.",
   },
   {
     key: "activecampaign", name: "ActiveCampaign", Icon: Layers,
     ...platform([API_URL, ...apiKeyFields("Settings → Developer")]),
-    description: "Import your contacts, or push leads into a list.",
+    description: "Import your contacts, or push customers into a list.",
   },
   {
     key: "mailerlite", name: "MailerLite", Icon: Boxes,
     ...platform(apiKeyFields("Integrations → MailerLite API")),
-    description: "Import a group, or push new leads into it.",
+    description: "Import a group, or push new customers into it.",
   },
   {
     key: "getresponse", name: "GetResponse", Icon: Rocket,
     ...platform(apiKeyFields("Integrations & API → API")),
-    description: "Import a campaign's contacts, or push leads in.",
+    description: "Import a campaign's contacts, or push customers in.",
   },
   {
     key: "systeme", name: "Systeme.io", Icon: Tags,
     ...platform(apiKeyFields("Settings → Public API keys")),
-    description: "Import your contacts, or push leads in as a tag.",
+    description: "Import your contacts, or push customers in as a tag.",
   },
 ];
 

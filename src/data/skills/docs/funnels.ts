@@ -46,7 +46,7 @@ export const FUNNELS_DOCS: Record<string, SkillDoc> = {
   "funnel-health": {
     useCases: [
       "Funnels published months ago and never revisited",
-      "A form that quietly stopped creating leads",
+      "A form that quietly stopped creating customers",
       "Before sending paid traffic anywhere",
     ],
     steps: [
@@ -107,10 +107,10 @@ export const FUNNELS_DOCS: Record<string, SkillDoc> = {
     ],
     steps: [
       "Name the funnel and the list its sign-ups belong in.",
-      "Each submission creates a lead and adds it to that list.",
+      "Each submission creates a customer and adds it to that list.",
       "The welcome sequence starts on the channel the contact gave you.",
       "A follow-up task is scheduled against the deal.",
     ],
-    output: "A funnel whose sign-ups arrive as leads, sequenced, with a task waiting.",
+    output: "A funnel whose sign-ups arrive as customers, sequenced, with a task waiting.",
   },
 };

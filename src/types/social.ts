@@ -18,6 +18,8 @@ export type SocialAccount = {
   /** The page, profile or ad account's own name. */
   name: string;
   kind: SocialKind;
+  /** An ad account's billing currency; empty for posting accounts. */
+  currency: string;
   /** Set when the grant broke — an expired or revoked token. */
   problem: string;
 };
@@ -51,6 +53,8 @@ export type SocialPost = {
   media: string[];
   status: SocialPostStatus;
   publishAt: string;
+  /** When the row was made; the fallback when nothing is scheduled. */
+  createdAt: string;
   /** Why a failed post failed, in the backend's words. */
   problem: string;
 };

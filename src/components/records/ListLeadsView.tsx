@@ -35,7 +35,7 @@ export function ListLeadsView({ listId }: { listId: string }) {
       </div>
 
       <RecordsView
-        noun="leads"
+        noun="customers"
         rows={{ ...state, data: state.data?.leads ?? null }}
         columns={LEAD_COLUMNS}
         rowKey={(lead) => lead.id}
@@ -43,12 +43,12 @@ export function ListLeadsView({ listId }: { listId: string }) {
         searchPlaceholder="Search by name, email, phone or website"
         empty={{
           icon: <UserRound />,
-          title: "No leads in this list",
+          title: "No customers in this list",
           description: "Ask an agent to find prospects and add them to this list.",
         }}
       />
       {state.data?.truncated && (
-        <p className="text-xs text-warn">This list is very large; only the first 10,000 leads are shown.</p>
+        <p className="text-xs text-warn">This list is very large; only the first 10,000 customers are shown.</p>
       )}
     </div>
   );

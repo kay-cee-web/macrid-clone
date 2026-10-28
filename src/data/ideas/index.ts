@@ -21,7 +21,7 @@ import { WORK } from "./work";
  * **Every category carries at least eight workflows**, so no filter looks bare.
  */
 export const CATEGORIES: IdeaCategory[] = [
-  "Lead sourcing",
+  "Customer sourcing",
   "Page building",
   "Message sending",
   "Creative",
@@ -37,7 +37,7 @@ export const CATEGORIES: IdeaCategory[] = [
 ];
 
 export const IDEAS: Record<IdeaCategory, Idea[]> = {
-  "Lead sourcing": PROSPECTING,
+  "Customer sourcing": PROSPECTING,
   "Page building": FUNNELS,
   "Message sending": OUTREACH,
   Creative: CREATIVE,

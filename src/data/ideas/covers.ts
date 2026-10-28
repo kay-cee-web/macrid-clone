@@ -26,7 +26,7 @@ type CategoryLook = {
 
 /** The visual identity of each category, shared by agent icons, idea cards, covers and skill rows. */
 export const COVERS: Record<IdeaCategory, CategoryLook> = {
-  "Lead sourcing": { Icon: Telescope, glow: "from-teal via-accent/60", tint: "bg-teal" },
+  "Customer sourcing": { Icon: Telescope, glow: "from-teal via-accent/60", tint: "bg-teal" },
   "Page building": { Icon: Filter, glow: "from-pink via-violet/60", tint: "bg-pink" },
   "Message sending": { Icon: Send, glow: "from-accent via-violet/60", tint: "bg-accent" },
   Creative: { Icon: Palette, glow: "from-pink via-accent/60", tint: "bg-pink" },

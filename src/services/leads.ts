@@ -12,7 +12,7 @@ export async function fetchLeads(filters: { listId?: string } = {}): Promise<{ l
     key: "leads",
     perPage: 1000,
     maxPages: 10,
-    fallback: "Could not load leads",
+    fallback: "Could not load customers",
   });
   return { leads: newestFirst(uniqueById(rows.map(normalizeLead))), truncated };
 }

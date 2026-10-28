@@ -36,7 +36,7 @@ export const SHOWCASE_RUNS: ShowcaseRun[] = [
     area: "CRM",
     tone: "neutral",
     quote:
-      "Added 31 leads, moved 4 deals to Proposal and booked 3 calls for Thursday. Every task now has a next action and a date.",
+      "Added 31 customers, moved 4 deals to Proposal and booked 3 calls for Thursday. Every task now has a next action and a date.",
   },
   {
     agent: "Ora",

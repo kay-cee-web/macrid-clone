@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Lists",
-  description: "The lead lists in your workspace, with how many contacts each one holds.",
+  description: "The customer lists in your workspace, with how many contacts each one holds.",
   path: "/records/lists",
 });
 

@@ -5,10 +5,10 @@ import type { PlatformId } from "@/data/platforms";
  * three cover Prospect Finder, Funnels and Outreach in that order. CRM,
  * deliverability and analytics work have no heading of their own: they sit
  * with the category the work serves (sending checks under Message sending,
- * list health under Lead sourcing, reports where they're read).
+ * list health under Customer sourcing, reports where they're read).
  */
 export type IdeaCategory =
-  | "Lead sourcing"
+  | "Customer sourcing"
   | "Page building"
   | "Message sending"
   | "Creative"

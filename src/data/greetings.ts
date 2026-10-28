@@ -25,7 +25,7 @@ export const GREETINGS: AgentGreeting[] = [
     hello: (name) => `Hello ${name} 👋`,
     title: "I'm ready when you are",
     paragraphs: [
-      "Give me a job and I'll get on with it — build a lead list, write the follow-up, send it, and tell you how it went.",
+      "Give me a job and I'll get on with it — build a customer list, write the follow-up, send it, and tell you how it went.",
       "Whatever I make lands in [records], and every reply ends with a list of what I changed.",
       "If you want me to work differently, edit my [instructions] or connect more tools in [plugins]. I can also run things on a schedule.",
     ],
@@ -55,8 +55,8 @@ export const GREETINGS: AgentGreeting[] = [
     hello: (name) => `Hi ${name} 👋`,
     title: "what are we working on?",
     paragraphs: [
-      "I can find leads, write and send messages, keep your calendar moving and report back on results, all from this chat.",
-      "Check on me any time: the lists, leads, tasks and campaigns I make appear in [records], and every reply says what changed.",
+      "I can find customers, write and send messages, keep your calendar moving and report back on results, all from this chat.",
+      "Check on me any time: the lists, customers, tasks and campaigns I make appear in [records], and every reply says what changed.",
       "Want a different tone, a stricter rule or a regular routine? Update my [instructions], or connect another tool in [plugins].",
     ],
     closing: "Pick a suggestion, or give me your first task.",

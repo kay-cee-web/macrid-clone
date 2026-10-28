@@ -68,7 +68,7 @@ export function ListsView() {
           title={`Delete “${pending.name}”?`}
           description={
             pending.contactsCount > 0
-              ? `The list goes for good. Its ${pending.contactsCount} leads stay in your workspace.`
+              ? `The list goes for good. Its ${pending.contactsCount} customers stay in your workspace.`
               : "The list goes for good. This can't be undone."
           }
           confirmLabel="Delete list"

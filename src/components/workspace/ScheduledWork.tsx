@@ -1,21 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { CalendarClock, Plus } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAsync } from "@/hooks/useAsync";
-import { extractApiError } from "@/lib/api/errors";
-import { deleteAutomation, fetchAutomations, runAutomation, updateAutomation } from "@/services/automations";
-import type { Automation } from "@/types/automation";
-import { AutomationCard, type AutomationAction } from "./AutomationCard";
-import { AutomationEditModal } from "./AutomationEditModal";
-
-/** What "Schedule a task" drafts in the chat: the agent sets the schedule up with its own tool. */
-const SCHEDULE_PROMPT = "Set up a recurring task: ";
+import { useAutomationActions } from "@/hooks/useAutomationActions";
+import { SCHEDULE_PROMPT } from "@/lib/automations/schedule";
+import { fetchAutomations } from "@/services/automations";
+import { AutomationCard } from "./AutomationCard";
 
 type ScheduledWorkProps = {
   agentId: string;
@@ -29,35 +21,8 @@ type ScheduledWorkProps = {
  * are made in chat; each card runs, pauses, edits or deletes its own.
  */
 export function ScheduledWork({ agentId, agentName, onDraft }: ScheduledWorkProps) {
-  const router = useRouter();
   const tasks = useAsync(() => fetchAutomations(agentId), [agentId], "Could not load the scheduled tasks");
-  const [busy, setBusy] = useState<string | null>(null);
-  const [editing, setEditing] = useState<Automation | null>(null);
-  const [deleting, setDeleting] = useState<Automation | null>(null);
-
-  async function act(action: AutomationAction, task: Automation) {
-    if (action === "edit") return setEditing(task);
-    if (action === "delete") return setDeleting(task);
-    setBusy(task.id);
-    try {
-      if (action === "run") {
-        const running = toast.loading(`Running ${task.name}…`);
-        await runAutomation(agentId, task.id).finally(() => toast.dismiss(running));
-        toast.success(`${task.name} ran. The result is in the chat.`, {
-          action: { label: "Open chat", onClick: () => router.push(`/agents/${agentId}`) },
-        });
-      } else {
-        await updateAutomation(agentId, task.id, { is_active: !task.active });
-        toast.success(task.active ? `${task.name} is paused.` : `${task.name} is running again.`);
-      }
-      tasks.reload();
-    } catch (err) {
-      toast.error(extractApiError(err, action === "run" ? "Could not run that task" : "Could not update that task"));
-    } finally {
-      setBusy(null);
-    }
-  }
-
+  const { busy, act, dialogs } = useAutomationActions(tasks.reload);
   const list = tasks.data ?? [];
 
   return (
@@ -92,40 +57,11 @@ export function ScheduledWork({ agentId, agentName, onDraft }: ScheduledWorkProp
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {list.map((task) => (
-            <AutomationCard key={task.id} automation={task} busy={busy === task.id} onAction={(a, t) => void act(a, t)} />
+            <AutomationCard key={task.id} automation={{ ...task, agentId }} busy={busy === task.id} onAction={act} />
           ))}
         </div>
       )}
-
-      {editing && (
-        <AutomationEditModal
-          automation={editing}
-          onClose={() => setEditing(null)}
-          onSaved={() => {
-            setEditing(null);
-            tasks.reload();
-          }}
-        />
-      )}
-      {deleting && (
-        <ConfirmModal
-          title={`Delete ${deleting.name}?`}
-          description="It stops running and can't be brought back. Ask the agent to set it up again if you need it later."
-          confirmLabel="Delete"
-          onClose={() => setDeleting(null)}
-          onConfirm={async () => {
-            try {
-              await deleteAutomation(agentId, deleting.id);
-              toast.success(`${deleting.name} deleted.`);
-              tasks.reload();
-              return true;
-            } catch (err) {
-              toast.error(extractApiError(err, "Could not delete that task"));
-              return false;
-            }
-          }}
-        />
-      )}
+      {dialogs}
     </section>
   );
 }

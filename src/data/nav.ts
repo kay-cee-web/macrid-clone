@@ -4,7 +4,7 @@ export type NavItem = {
   href: string;
   label: string;
   Icon: LucideIcon;
-  /** Also active on nested routes (/records/leads under /records). */
+  /** Also active on nested routes (/records/customers under /records). */
   matchPrefix?: boolean;
 };
 

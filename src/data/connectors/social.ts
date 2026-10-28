@@ -51,6 +51,20 @@ export const SOCIAL_CONNECTORS: Connector[] = [
 ];
 
 /**
+ * The four ad platforms `/social/platforms` lists as `kind: "ads"`. They have no
+ * card: each arrives on a posting grant (`via`), whose logo stands for it.
+ */
+export const AD_PLATFORMS: Record<string, { name: string; via: string }> = {
+  meta_ads: { name: "Meta Ads", via: "facebook_page" },
+  google_ads: { name: "Google Ads", via: "youtube" },
+  linkedin_ads: { name: "LinkedIn Ads", via: "linkedin" },
+  tiktok_ads: { name: "TikTok Ads", via: "tiktok" },
+};
+
+/** The posting connectors whose sign-in also brings the ad accounts. */
+export const AD_GRANTS = SOCIAL_CONNECTORS.filter((c) => Object.values(AD_PLATFORMS).some((p) => p.via === c.key));
+
+/**
  * The backend's spelling of a platform → our connector key. Only Facebook
  * differs, because `facebook` is already the prospecting connector.
  */

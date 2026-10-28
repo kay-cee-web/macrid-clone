@@ -94,9 +94,9 @@ export const PROSPECTING_DOCS: Record<string, SkillDoc> = {
     steps: [
       "Name the list of companies.",
       "For each one, the agent looks for the owner or the marketing lead.",
-      "The profile it finds is attached to that lead record.",
+      "The profile it finds is attached to that customer record.",
       "Companies where nobody could be found are reported separately.",
     ],
-    output: "Lead records with a named person on them, and the companies still missing one.",
+    output: "Customer records with a named person on them, and the companies still missing one.",
   },
 };

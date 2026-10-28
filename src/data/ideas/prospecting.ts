@@ -14,12 +14,12 @@ export const PROSPECTING: Idea[] = [
   {
     title: "Decision-maker lookup",
     platforms: ["linkedin"],
-    description: "For every company I capture, find the owner or marketing lead and attach their profile to the lead record.",
+    description: "For every company I capture, find the owner or marketing lead and attach their profile to the customer record.",
   },
   {
-    title: "Lead detail enrichment",
+    title: "Customer detail enrichment",
     platforms: ["google_maps"],
-    description: "When a lead lands without an email, phone or website, fill the gaps from its own site and public listings.",
+    description: "When a customer lands without an email, phone or website, fill the gaps from its own site and public listings.",
   },
   {
     title: "Company background check",
@@ -49,9 +49,9 @@ export const PROSPECTING: Idea[] = [
     description: "When I describe the people I want, build the list from my records and tell me how many made it in.",
   },
   {
-    title: "Lead scoring by intent",
+    title: "Customer scoring by intent",
     platforms: [],
-    description: "Score every lead on what they've opened and clicked, and move the hottest ones into their own list.",
+    description: "Score every customer on what they've opened and clicked, and move the hottest ones into their own list.",
   },
   {
     title: "Monthly contact cleanup",
@@ -77,8 +77,8 @@ export const PROSPECTING: Idea[] = [
     description: "Each month, retire the contacts who haven't opened anything in six months so my reputation holds.",
   },
   {
-    title: "Cost per lead tracking",
+    title: "Cost per customer tracking",
     platforms: [],
-    description: "Every week, work out what each list cost me per lead and per closed deal, and rank them.",
+    description: "Every week, work out what each list cost me per customer and per closed deal, and rank them.",
   },
 ];
