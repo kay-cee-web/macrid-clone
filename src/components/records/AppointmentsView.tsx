@@ -74,7 +74,7 @@ export function AppointmentsView() {
       empty={{
         icon: <CalendarDays />,
         title: when === "all" ? "No appointments yet" : `No ${when} appointments`,
-        description: "Ask an agent to book a call with a lead, or share your booking page.",
+        description: "Ask an agent to book a call with a customer, or share your booking page.",
       }}
     />
   );

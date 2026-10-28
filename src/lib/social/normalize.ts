@@ -33,6 +33,7 @@ export function toAccount(row: Row): SocialAccount {
     platform: socialKey(toText(pickField(row, ["platform", "provider", "network", "service"]))),
     name: toText(pickField(row, ["name", "label", "account_name", "username", "title"])),
     kind: (kind === "ads" ? "ads" : "social") as SocialKind,
+    currency: toText(row.currency).toUpperCase(),
     problem: problem || (off ? "Sign in again to keep posting." : ""),
   };
 }
@@ -72,7 +73,8 @@ export function toPost(row: Row): SocialPost {
     body: toText(pickField(row, ["body", "content", "text", "caption"])),
     media: toStrings(pickField(row, ["media", "media_urls", "images"])),
     status: (STATUSES as string[]).includes(status) ? (status as SocialPostStatus) : "draft",
-    publishAt: toText(pickField(row, ["publish_at", "scheduled_at", "publishAt"])),
+    publishAt: toText(pickField(row, ["published_at", "publish_at", "scheduled_at", "publishAt"])),
+    createdAt: toText(row.created_at),
     problem: toText(pickField(row, ["last_error", "error", "failure_reason", "problem"])),
   };
 }

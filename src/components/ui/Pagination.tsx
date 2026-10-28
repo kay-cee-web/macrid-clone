@@ -9,7 +9,7 @@ type PaginationProps = {
   page: number;
   pageCount: number;
   onPage: (page: number) => void;
-  /** Names the control for screen readers, e.g. "leads pages". */
+  /** Names the control for screen readers, e.g. "customers pages". */
   label?: string;
   className?: string;
 };

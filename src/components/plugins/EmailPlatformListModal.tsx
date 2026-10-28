@@ -65,7 +65,7 @@ function ListForm({ connection, lists, onClose, onSaved }: Props & {
       <Field
         id="email-platform-list"
         label={`Which ${listWord}?`}
-        hint="Imports read from here, and leads you send go here. Unsubscribed contacts are left out both ways."
+        hint="Imports read from here, and customers you send go here. Unsubscribed contacts are left out both ways."
       >
         <Select
           id="email-platform-list"

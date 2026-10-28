@@ -1,5 +1,8 @@
 import type { Automation } from "@/types/automation";
 
+/** What "Schedule a task" starts: the agent sets the schedule up with its own tool. */
+export const SCHEDULE_PROMPT = "Set up a recurring task: ";
+
 /** `day_of_week` as the backend writes it: 1 is Monday (seen), 0 or 7 Sunday. */
 export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 

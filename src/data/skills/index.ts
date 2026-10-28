@@ -22,7 +22,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
 
 export const FEATURED_SKILLS: Skill[] = [
   {
-    slug: "lead-sweep", name: "Lead Sweep", category: "Find prospects", surface: "Lead sourcing",
+    slug: "lead-sweep", name: "Customer Sweep", category: "Find prospects", surface: "Customer sourcing",
     platforms: ["google_maps", "linkedin"],
     description: "Your standing search. Sweeps a niche and an area, scores every business on how reachable and ready to buy it looks, drops dead listings, and hands back a list you can send to.",
   },

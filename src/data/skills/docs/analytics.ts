@@ -107,10 +107,10 @@ export const ANALYTICS_DOCS: Record<string, SkillDoc> = {
     ],
     steps: [
       "Name the lists to compare.",
-      "The agent works out cost per lead and cost per closed deal for each.",
+      "The agent works out cost per customer and cost per closed deal for each.",
       "Lists are ranked on what they actually returned.",
       "Sources that lose money are named.",
     ],
-    output: "A ranked table of lists, by cost per lead and per closed deal.",
+    output: "A ranked table of lists, by cost per customer and per closed deal.",
   },
 };

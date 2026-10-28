@@ -4,7 +4,7 @@ export const OUTREACH: Idea[] = [
   {
     title: "Case-study follow-up",
     platforms: ["email"],
-    description: "Forty-eight hours after a lead doesn't reply, follow up with the case study closest to their business.",
+    description: "Forty-eight hours after a customer doesn't reply, follow up with the case study closest to their business.",
   },
   {
     title: "Cold email drafting",

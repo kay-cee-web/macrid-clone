@@ -84,7 +84,7 @@ export async function setEmailPlatformList(id: string, listId: string, listWord:
 }
 
 /**
- * pull imports their subscribers as leads, push sends leads out. Unsubscribed
+ * pull imports their subscribers as customers, push sends customers out. Unsubscribed
  * contacts are dropped by the backend in both directions and that isn't
  * configurable, so nothing here offers to include them.
  */
@@ -98,10 +98,10 @@ export async function syncEmailPlatform(
   if (options.listName) body.list_name = options.listName;
   if (options.limit) body.limit = options.limit;
   const { data } = await api.post(`/email-platforms/${id}/${direction}`, body);
-  assertEnvelope(data, direction === "pull" ? "Could not import the contacts" : "Could not send the leads");
+  assertEnvelope(data, direction === "pull" ? "Could not import the contacts" : "Could not send the customers");
   // Counts may sit in a nested result or flat on the envelope, which also holds the message.
   const merged = { ...(data as Row), ...rowIn(data, ["result", "summary"]) };
-  return toSyncResult(merged, direction === "pull" ? "Contacts imported." : "Leads sent.");
+  return toSyncResult(merged, direction === "pull" ? "Contacts imported." : "Customers sent.");
 }
 
 export async function disconnectEmailPlatform(id: string, name: string) {

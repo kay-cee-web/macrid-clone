@@ -14,7 +14,7 @@ export const FUNNELS: Idea[] = [
   {
     title: "Instant opt-in follow-up",
     platforms: ["email", "whatsapp"],
-    description: "When a lead fills in a funnel form, send the welcome sequence and create the lead in my CRM the same minute.",
+    description: "When a customer fills in a funnel form, send the welcome sequence and create the customer in my CRM the same minute.",
   },
   {
     title: "Split-test variants",

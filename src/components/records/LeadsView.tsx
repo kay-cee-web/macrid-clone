@@ -14,12 +14,12 @@ import { TextCell } from "./cells";
 import { LEAD_COLUMNS, leadMatches } from "./leadColumns";
 import { RecordsView } from "./RecordsView";
 
-/** Every lead in the workspace, with the list it sits in and a status filter. */
+/** Every customer in the workspace, with the list it sits in and a status filter. */
 export function LeadsView() {
   const state = useAsync(
     () => Promise.all([fetchLeads(), fetchLists()]).then(([page, lists]) => ({ ...page, lists })),
     [],
-    "Could not load leads",
+    "Could not load customers",
   );
   const [status, setStatus] = useState("");
 
@@ -55,7 +55,7 @@ export function LeadsView() {
   return (
     <div className="grid gap-2">
       <RecordsView
-        noun="leads"
+        noun="customers"
         rows={{ ...state, data: leads }}
         columns={columns}
         rowKey={(lead) => lead.id}
@@ -74,12 +74,12 @@ export function LeadsView() {
         }
         empty={{
           icon: <UserRound />,
-          title: status ? `No ${status.toLowerCase()} leads` : "No leads yet",
-          description: "Ask an agent to find prospects, or to import leads into a list.",
+          title: status ? `No ${status.toLowerCase()} customers` : "No customers yet",
+          description: "Ask an agent to find prospects, or to import customers into a list.",
         }}
       />
       {state.data?.truncated && (
-        <p className="text-xs text-warn">Your workspace is very large; only the first 10,000 leads are shown.</p>
+        <p className="text-xs text-warn">Your workspace is very large; only the first 10,000 customers are shown.</p>
       )}
     </div>
   );

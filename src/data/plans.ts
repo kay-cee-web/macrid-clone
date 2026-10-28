@@ -96,7 +96,7 @@ export const PLAN_FEATURES: { key: PlanFeatureKey; label: string }[] = [
   { key: "num_sms", label: "SMS campaigns" },
   { key: "num_funnel_campaigns", label: "Funnel campaigns" },
   { key: "num_tokens", label: "AI tokens" },
-  { key: "num_lead_search", label: "Lead searches" },
+  { key: "num_lead_search", label: "Customer searches" },
   { key: "num_email_verifications", label: "Email verifications" },
   { key: "num_teams", label: "Team members" },
   { key: "num_custom_domains", label: "Custom domains" },
@@ -110,7 +110,7 @@ export const CARD_FEATURES: { key: PlanFeatureKey; phrase: string }[] = [
   { key: "num_emails", phrase: "email campaigns" },
   { key: "num_whatsapp", phrase: "WhatsApp campaigns" },
   { key: "num_sms", phrase: "SMS campaigns" },
-  { key: "num_lead_search", phrase: "lead searches" },
+  { key: "num_lead_search", phrase: "customer searches" },
   { key: "num_funnel_campaigns", phrase: "funnel campaigns" },
 ];
 

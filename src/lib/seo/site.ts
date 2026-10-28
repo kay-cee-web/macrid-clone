@@ -9,7 +9,7 @@ export const SITE = {
   shortName: "Dexisphere",
   title: "Dexisphere Agents · AI agents that do your sales busywork",
   description:
-    "Hand a task to an AI agent and it does the work: finds leads, runs outreach, keeps your CRM current and shows a receipt for every change. Free forever plan.",
+    "Hand a task to an AI agent and it does the work: finds customers, runs outreach, keeps your CRM current and shows a receipt for every change. Free forever plan.",
   locale: "en_US",
   /** `--ground` in each theme, so the browser chrome matches the page. */
   themeColor: { light: "#f7f8fc", dark: "#050816" },

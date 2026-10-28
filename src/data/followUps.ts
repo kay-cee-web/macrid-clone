@@ -21,9 +21,9 @@ import type { Suggestion } from "@/types/suggestion";
  * Earlier topics win when a turn touches several.
  */
 export const FOLLOW_UPS: [RegExp, Suggestion[]][] = [
-  [/\b(leads?|prospects?|contacts?|lists?)\b/i, [
-    { label: "Score these leads", text: "Score the leads we just talked about and tell me which are worth contacting first.", Icon: Target },
-    { label: "Check for duplicates", text: "Check my leads for duplicates and tell me what you'd merge.", Icon: CopyCheck },
+  [/\b(leads?|customers?|prospects?|contacts?|lists?)\b/i, [
+    { label: "Score these customers", text: "Score the customers we just talked about and tell me which are worth contacting first.", Icon: Target },
+    { label: "Check for duplicates", text: "Check my customers for duplicates and tell me what you'd merge.", Icon: CopyCheck },
   ]],
   [/\b(e-?mails?|campaigns?|newsletters?|outreach)\b/i, [
     { label: "Check the copy before it goes out", text: "Check the email copy for spam triggers and anything that could hurt deliverability.", Icon: MailCheck },
