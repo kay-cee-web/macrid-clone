@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { AgentPicker } from "@/components/agents/AgentPicker";
 import { useAgents } from "@/hooks/useAgents";
 import { useCreateAgent } from "@/hooks/useCreateAgent";
 import {
@@ -11,7 +12,6 @@ import {
   serverAgentUses,
   subscribeToAgentUses,
 } from "@/lib/agents/lastUsed";
-import { AgentPicker } from "./AgentPicker";
 import { BriefingView } from "./BriefingView";
 
 /**

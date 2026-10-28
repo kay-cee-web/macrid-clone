@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Copy, Eye, MoreHorizontal, PenLine, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import { Markdown } from "@/components/ui/Markdown";
@@ -9,7 +9,9 @@ import { Pill } from "@/components/ui/Pill";
 import { useAutosave, type SaveStatus } from "@/hooks/useAutosave";
 import { useClipboard } from "@/hooks/useClipboard";
 import { formatDateTime } from "@/lib/format";
+import { withAgentDraft } from "@/lib/notes/askAgent";
 import type { Note, NoteInput } from "@/types/note";
+import { AskAgent } from "./AskAgent";
 import { BlockEditor } from "./BlockEditor";
 
 /** Only the states worth a word. "saved" and "idle" leave the edited time showing. */
@@ -41,11 +43,17 @@ export function NoteEditor({
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
   const [reading, setReading] = useState(false);
+  // Bumped when the agent writes in, to remount the blocks on the new body.
+  const [revision, setRevision] = useState(0);
+  // The text as of the last edit, so a reply that arrives later lands on what was
+  // typed in the meantime rather than on the render that asked for it.
+  const latest = useRef<NoteInput>({ title: note.title, body: note.body });
   const autosave = useAutosave<NoteInput>(onSave);
   const clipboard = useClipboard();
 
   const edit = (next: Partial<NoteInput>) => {
-    const input = { title, body, ...next };
+    const input = { ...latest.current, ...next };
+    latest.current = input;
     if (next.title !== undefined) setTitle(next.title);
     if (next.body !== undefined) setBody(next.body);
     // A new note isn't created until there is something in it. Adding a block to
@@ -110,9 +118,24 @@ export function NoteEditor({
             {body.trim() ? <Markdown>{body}</Markdown> : <p className="text-sm text-muted">This note is empty.</p>}
           </div>
         ) : (
-          <BlockEditor initial={note.body} onChange={(markdown) => edit({ body: markdown })} onNewNote={onNewNote} />
+          <BlockEditor
+            key={revision}
+            initial={body}
+            onChange={(markdown) => edit({ body: markdown })}
+            onNewNote={onNewNote}
+          />
         )}
       </div>
+
+      {!note.isFolder && (
+        <AskAgent
+          note={{ title, body }}
+          onReply={(reply) => {
+            edit(withAgentDraft(latest.current, reply));
+            setRevision((n) => n + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
