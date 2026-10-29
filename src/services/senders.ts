@@ -9,8 +9,19 @@ import { pickList, toText } from "@/lib/api/pick";
  */
 type Row = Record<string, unknown>;
 
-export type MailAccount = { id: string; email: string; name: string; host: string };
-export type SmsSender = { id: string; sender: string; active: boolean };
+export type MailAccount = {
+  id: string;
+  email: string;
+  name: string;
+  host: string;
+  port: string;
+  encryption: string;
+  active: boolean;
+};
+
+/** `status` "1" is active; a row that doesn't say counts as active. */
+const isActive = (status: unknown) => status === undefined || ["1", 1, true, "active"].includes(status as never);
+export type SmsSender = { id: string; sender: string; active: boolean; messages: number | null };
 
 export async function fetchMailAccounts(): Promise<MailAccount[]> {
   const { data } = await api.get("/mail-accounts");
@@ -20,6 +31,9 @@ export async function fetchMailAccounts(): Promise<MailAccount[]> {
     email: toText(row.senderemail) || toText(row.username),
     name: toText(row.sendername),
     host: toText(row.host),
+    port: toText(row.port),
+    encryption: toText(row.encryption_type ?? row.encryption),
+    active: isActive(row.status),
   }));
 }
 
@@ -42,7 +56,8 @@ export async function fetchSmsSenders(): Promise<SmsSender[]> {
   return pickList<Row>(data, "sms_senders").map((row) => ({
     id: toText(row.id),
     sender: toText(row.sender),
-    active: row.status === undefined || ["1", 1, true, "active"].includes(row.status as never),
+    active: isActive(row.status),
+    messages: row.messages_count === undefined ? null : Number(row.messages_count) || 0,
   }));
 }
 

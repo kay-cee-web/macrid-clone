@@ -13,11 +13,12 @@ import { MailboxesModal } from "./MailboxesModal";
 import { MailboxModal } from "./MailboxModal";
 import { PaymentAlertsModal } from "./PaymentAlertsModal";
 import { PaymentConnectModal } from "./PaymentConnectModal";
+import { SendersModal } from "./SendersModal";
 import { WorkToolConnectModal } from "./WorkToolConnectModal";
 
 /** Every dialog `ConnectorFlowsProvider` can have open. One at a time. */
 export type Dialog =
-  | { kind: "key" | "payment" | "work" | "alerts" | "list" | "disconnect"; connector: Connector }
+  | { kind: "key" | "payment" | "work" | "alerts" | "list" | "senders" | "disconnect"; connector: Connector }
   | { kind: "mailbox" | "mailboxes" };
 
 type Props = {
@@ -76,6 +77,18 @@ export function ConnectorDialogs({ dialog, connections, source, setDialog, onCha
 
   if (dialog.kind === "mailboxes") {
     return <MailboxesModal onClose={close} onAdd={() => setDialog({ kind: "mailbox" })} onChanged={onChanged} />;
+  }
+
+  if (dialog.kind === "senders") {
+    const { connector } = dialog;
+    return (
+      <SendersModal
+        connector={connector}
+        onClose={close}
+        onAdd={() => setDialog({ kind: "key", connector })}
+        onChanged={onChanged}
+      />
+    );
   }
 
   if (dialog.kind !== "disconnect") return null;

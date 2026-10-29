@@ -22,6 +22,8 @@ type ConnectorFlows = {
   disconnect: (connector: Connector) => void;
   /** The mailbox list: test or remove one at a time. */
   manageMailboxes: () => void;
+  /** SMTP mailboxes or Twilio numbers: list them, remove one, add another. */
+  manageSenders: (connector: Connector) => void;
   /** A payment account's webhook and alert settings. */
   alerts: (connector: Connector) => void;
   /** Ask the backend to try a payment account's key again. */
@@ -74,6 +76,7 @@ export function ConnectorFlowsProvider({ connections, onChanged, agentId, childr
     },
     disconnect: (connector) => setDialog({ kind: "disconnect", connector }),
     manageMailboxes: () => setDialog({ kind: "mailboxes" }),
+    manageSenders: (connector) => setDialog({ kind: "senders", connector }),
     alerts: (connector) => setDialog({ kind: "alerts", connector }),
     chooseList: (connector) => setDialog({ kind: "list", connector }),
     test: (connector) => run(connector, testPaymentConnection, `${connector.name} didn't answer`),
