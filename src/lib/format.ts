@@ -40,6 +40,10 @@ export const formatAmount = (value: number | null) => (value === null ? "" : com
 /** "42%" from 42 or "42.5"; "" when there is no rate yet. */
 export const formatPercent = (value: number | null) => (value === null ? "" : `${compact.format(value)}%`);
 
+/** "1 customer", "12 customers": takes the plural noun the views already use ("ad accounts"). */
+export const countOf = (count: number, plural: string) =>
+  `${count.toLocaleString()} ${count === 1 ? plural.replace(/s$/, "") : plural}`;
+
 /** First name for greetings, from a full name. */
 export const firstName = (name?: string | null) => name?.trim().split(/\s+/)[0] ?? "";
 

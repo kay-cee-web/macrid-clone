@@ -48,13 +48,20 @@ export type SocialPostStatus = "draft" | "scheduled" | "publishing" | "published
 export type SocialPost = {
   id: string;
   accountId: string;
+  /** The account it went to (`account.name`, else `@username`), loaded with the post. */
+  account: string;
   platform: string;
   body: string;
   media: string[];
+  link: string;
+  /** When a scheduled post goes out (`publish_at`), kept apart from when it went (`published_at`). */
+  scheduledFor: string;
   status: SocialPostStatus;
   publishAt: string;
   /** When the row was made; the fallback when nothing is scheduled. */
   createdAt: string;
+  /** The live post on the platform, once published. */
+  permalink: string;
   /** Why a failed post failed, in the backend's words. */
   problem: string;
 };

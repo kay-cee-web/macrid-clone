@@ -1,8 +1,9 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
+import { fetchPage } from "@/lib/api/paginate";
 import { pickList, toText } from "@/lib/api/pick";
 import { toAccount, toPlatform, toPost } from "@/lib/social/normalize";
-import type { SocialAccount, SocialKind, SocialPlatform, SocialPost } from "@/types/social";
+import type { SocialAccount, SocialKind, SocialPlatform } from "@/types/social";
 
 /**
  * /social owns the six publishing platforms and their ad accounts.
@@ -33,17 +34,68 @@ export async function fetchSocialAccounts(kind?: SocialKind): Promise<SocialAcco
   return pickList<Row>(data, "accounts").map(toAccount);
 }
 
-/** `posts` is a Laravel paginator, so the rows are at `posts.data` (seen 2026-09-26). */
-export async function fetchSocialPosts(): Promise<SocialPost[]> {
-  const { data } = await api.get("/social/posts");
-  assertEnvelope(data, "Could not read your posts");
-  const posts = (data as Row)?.posts;
-  const rows = Array.isArray(posts) ? (posts as Row[]) : pickList<Row>(posts, "data");
-  return rows.map(toPost);
+export type PostFilters = { account_id: string; platform: string; status: string };
+
+/**
+ * `GET /social/posts?account_id=&platform=&status=` — a Laravel paginator at
+ * `posts` (seen 2026-09-26; filters accepted 2026-10-29). Empty filters are left out.
+ */
+export async function fetchSocialPosts(filters: PostFilters) {
+  const page = await fetchPage("/social/posts", "posts", filters, "Could not read your posts");
+  return { ...page, rows: page.rows.map(toPost) };
 }
 
 export async function disconnectSocialAccount(id: string, name: string) {
   const { data } = await api.delete(`/social/accounts/${id}`);
   assertEnvelope(data, `Could not disconnect ${name}`);
   return toText((data as Row)?.message) || `${name} disconnected.`;
+}
+
+/** `POST /social/posts/{id}/publish`: queues a draft or scheduled post; it goes out within the minute. */
+export async function publishSocialPost(id: string) {
+  const { data } = await api.post(`/social/posts/${id}/publish`);
+  assertEnvelope(data, "Could not publish that post");
+  return toText((data as Row)?.message) || "Queued to publish.";
+}
+
+/** `DELETE /social/posts/{id}`: only a post that isn't live yet; a published one answers 422 with why. */
+export async function deleteSocialPost(id: string) {
+  const { data } = await api.delete(`/social/posts/${id}`);
+  assertEnvelope(data, "Could not delete that post");
+  return toText((data as Row)?.message) || "Deleted.";
+}
+
+export type PostDraft = {
+  body: string;
+  /** Up to 10 hosted image URLs. */
+  media: string[];
+  link: string | null;
+  /** ISO time to schedule for, or null for a draft. */
+  publish_at: string | null;
+};
+
+/**
+ * `POST /social/posts {account_ids, body, media, link, publish_at, publish_now}`:
+ * one post per account, so each can fail or be retried alone. Answers
+ * `{status, message: "2 post(s) saved." | "… queued to publish.", posts}`;
+ * a past time is refused with 422 "That time has already passed.".
+ */
+export async function createSocialPost(accountIds: string[], draft: PostDraft, publishNow: boolean) {
+  const { data } = await api.post("/social/posts", {
+    ...draft,
+    account_ids: accountIds.map(Number),
+    publish_now: publishNow,
+  });
+  assertEnvelope(data, "Could not save the post");
+  return toText((data as Row)?.message) || "Post saved.";
+}
+
+/**
+ * `PUT /social/posts/{id}`: a draft or scheduled post only (a live one is a 422
+ * saying why). Answers `{status, post}` with no message.
+ */
+export async function updateSocialPost(id: string, draft: PostDraft) {
+  const { data } = await api.put(`/social/posts/${id}`, draft);
+  assertEnvelope(data, "Could not save the post");
+  return toText((data as Row)?.message);
 }

@@ -22,6 +22,22 @@ type PageOptions = {
   fallback: string;
 };
 
+export type Page = { rows: Row[]; lastPage: number; total: number };
+
+/**
+ * One page of a Laravel paginator nested under `key` (`{posts: {data, last_page,
+ * total}}`), or at `data`. Filters go in `params`; empty ones are left out.
+ */
+export async function fetchPage(path: string, key: string, params: Record<string, string>, fallback: string): Promise<Page> {
+  const query = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== ""));
+  const { data } = await api.get(path, { params: query });
+  assertEnvelope(data, fallback);
+  const body = data as Row;
+  const paginator = ((body[key] ?? body.data ?? {}) as Row) || {};
+  const rows = Array.isArray(paginator) ? (paginator as Row[]) : pickList<Row>(paginator, "data");
+  return { rows, lastPage: Math.max(1, toNumber(paginator.last_page)), total: toNumber(paginator.total) || rows.length };
+}
+
 /**
  * Read every page of a Laravel paginator: page 1 first for `last_page`, then
  * the rest in parallel. `search` is ignored by these endpoints, so callers filter.

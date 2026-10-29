@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useAsync } from "@/hooks/useAsync";
 import { extractApiError } from "@/lib/api/errors";
 import { cn } from "@/lib/cn";
+import { countOf } from "@/lib/format";
 import { deleteGalleryItem, fetchGallery } from "@/services/gallery";
 import type { GalleryItem, MediaType } from "@/types/gallery";
 import { MediaTile } from "./MediaTile";
@@ -41,7 +42,7 @@ export function MediaGallery() {
   return (
     <RecordsSection
       title="Gallery"
-      description="Files hosted in your workspace, including everything you've attached in chat."
+      description="Files you uploaded or attached in chat."
       action={
         <div className="flex flex-wrap items-center gap-2">
           <FilterChips label="Filter media" value={filter} items={FILTERS} onChange={pick} variant="outline" />
@@ -69,7 +70,7 @@ export function MediaGallery() {
             {shown.map((item) => <MediaTile key={item.id || item.url} item={item} onDelete={setDeleting} />)}
           </ul>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-muted">{files.data?.total} files</p>
+            <p className="text-xs text-muted">{countOf(files.data?.total ?? 0, "files")}</p>
             <Pagination page={page} pageCount={files.data?.lastPage ?? 1} onPage={setPage} label="Gallery pages" />
           </div>
         </>

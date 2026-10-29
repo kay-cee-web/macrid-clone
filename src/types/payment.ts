@@ -41,3 +41,18 @@ export type PaymentWebhook = {
   verified: boolean;
   lastEvent: string;
 };
+
+/** One row of `GET /payments/events` (a paginator at `events`; fields per the backend guide, 2026-10-29). */
+export type PaymentEvent = {
+  id: string;
+  connectionId: string;
+  provider: string;
+  /** The event type as sent — the Sale / Refund badge. */
+  kind: string;
+  amount: number | null;
+  currency: string;
+  customer: string;
+  reference: string;
+  description: string;
+  at: string;
+};
