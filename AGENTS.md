@@ -201,7 +201,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - **Senders** (`src/services/senders.ts`) are set up in the clone:
     - SMTP (`store: "mail_accounts"`): `POST /mail-accounts` with `port` as a number and encryption `TLS|SSL|None`.
     - Twilio (`store: "sms_senders"`): `POST /sms-senders {sid, auth_token, sender}`.
-    - These can hold several senders, so their cards offer "Add another" and "Manage" (in Macrid) beside Disconnect, which removes them all. `/mail-accounts` and `/sms-senders` override whatever `/connectors` says about them.
+    - These can hold several senders, so their cards offer "Add another" and "Manage" beside Disconnect, which removes them all. **Manage is a pop-up here, never a link out** (`SendersModal` via `flows.manageSenders`, kinds in `lib/connections/senderKinds.ts`): each mailbox or number as a row with Remove, and Add opens the key form. **`GET /mail-accounts` returns each row's `password`** (seen 2026-10-29) — a backend leak to report; the client never reads it. `/mail-accounts` and `/sms-senders` override whatever `/connectors` says about them.
   - **`POST /platform-apis` replaces the whole row** (the Places key and every AI key). `savePlatformKeys` reads the row first and sends it all back with only the changed fields.
   - **External connectors** (WhatsApp Business via Meta) link out to the Macrid app at `NEXT_PUBLIC_MACRID_APP_URL` (default `https://app.macrid.com`).
   - **Skills:** the same catalogue as `/agents/skills` (`SkillRow` + `SkillPreview`), scoped to this agent: "Use in chat" drafts `/slug` into its composer.

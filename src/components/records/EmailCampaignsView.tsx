@@ -7,16 +7,21 @@ import { useAsync } from "@/hooks/useAsync";
 import { formatPercent } from "@/lib/format";
 import { fetchEmailCampaigns } from "@/services/campaigns";
 import type { EmailCampaign } from "@/types/records";
-import { CreatedCell, StackCell, StatusCell, TextCell } from "./cells";
+import { CreatedCell, StackCell, TextCell } from "./cells";
+import { FailureReason } from "./FailureReason";
 import { RecordsView } from "./RecordsView";
 
 const columns: Column<EmailCampaign>[] = [
   {
     key: "subject",
     header: "Subject",
-    cell: (c) => <StackCell primary={<span className="font-medium">{c.subject}</span>} secondary={c.reason} />,
+    cell: (c) => <StackCell primary={<span className="font-medium">{c.subject}</span>} />,
   },
-  { key: "status", header: "Status", cell: (c) => <StatusCell status={c.status} /> },
+  {
+    key: "status",
+    header: "Status",
+    cell: (c) => <FailureReason status={c.status} reason={c.reason} title={c.subject} />,
+  },
   { key: "recipients", header: "Recipients", numeric: true, cell: (c) => <TextCell value={c.recipients} /> },
   { key: "open", header: "Opened", numeric: true, wide: true, cell: (c) => <TextCell value={formatPercent(c.openRate)} /> },
   { key: "click", header: "Clicked", numeric: true, wide: true, cell: (c) => <TextCell value={formatPercent(c.clickRate)} /> },
