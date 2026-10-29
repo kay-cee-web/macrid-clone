@@ -1,7 +1,8 @@
 import { api } from "@/lib/api/client";
 import { assertEnvelope } from "@/lib/api/errors";
 import { pickList, pickOne, toText } from "@/lib/api/pick";
-import { toConnection, toProvider, toWebhook } from "@/lib/payments/normalize";
+import { fetchPage } from "@/lib/api/paginate";
+import { toConnection, toEvent, toProvider, toWebhook } from "@/lib/payments/normalize";
 import type { Notifications, PaymentConnection, PaymentProvider, PaymentWebhook } from "@/types/payment";
 
 /**
@@ -70,4 +71,10 @@ export async function savePaymentNotifications(id: string, body: Notifications) 
   const { data } = await api.post(`/payments/connections/${id}/notifications`, body);
   assertEnvelope(data, "Could not save the alerts");
   return messageOf(data, "Alerts saved.");
+}
+
+/** The sales and refunds feed, newest first: what the payment webhooks have delivered. */
+export async function fetchPaymentEvents() {
+  const page = await fetchPage("/payments/events", "events", { per_page: "100" }, "Could not load your payments");
+  return { ...page, rows: page.rows.map(toEvent) };
 }

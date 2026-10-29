@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useAsync } from "@/hooks/useAsync";
 import { fetchLeads } from "@/services/leads";
 import { fetchList } from "@/services/lists";
+import { ExportCustomers } from "./ExportCustomers";
 import { LEAD_COLUMNS, leadMatches } from "./leadColumns";
 import { RecordsView } from "./RecordsView";
 
@@ -41,6 +42,7 @@ export function ListLeadsView({ listId }: { listId: string }) {
         rowKey={(lead) => lead.id}
         matches={leadMatches}
         searchPlaceholder="Search by name, email, phone or website"
+        toolbar={<ExportCustomers customers={state.data?.leads ?? null} title={list?.name ?? `List ${listId}`} />}
         empty={{
           icon: <UserRound />,
           title: "No customers in this list",

@@ -1,17 +1,31 @@
 "use client";
 
-import { ExternalLink, FileText, Music, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ExternalLink, FileText, ImageOff, Music, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import type { GalleryItem } from "@/types/gallery";
 import { CreatedCell } from "./cells";
 
 const FRAME = "aspect-4/3 w-full bg-raised";
 
-/** The file itself: the picture, a playable video or clip, or a document glyph. */
+/**
+ * The file itself: the picture, a playable video or clip, or a document glyph.
+ * A picture whose link doesn't load (files on assets.macrid.com, seen
+ * 2026-10-29) gets a plain tile rather than the browser's broken-image alt text.
+ */
 function Preview({ item }: { item: GalleryItem }) {
+  const [broken, setBroken] = useState(false);
+  if (item.type === "image" && broken) {
+    return (
+      <div className={`${FRAME} grid place-items-center content-center gap-2 p-4 text-center`}>
+        <ImageOff className="size-7 text-faint" />
+        <span className="text-xs text-muted">Preview unavailable</span>
+      </div>
+    );
+  }
   if (item.type === "image") {
     // eslint-disable-next-line @next/next/no-img-element -- hosted files on another domain
-    return <img src={item.url} alt={item.name} loading="lazy" className={`${FRAME} object-cover`} />;
+    return <img src={item.url} alt="" loading="lazy" onError={() => setBroken(true)} className={`${FRAME} object-cover`} />;
   }
   if (item.type === "video") {
     return <video src={item.url} controls preload="metadata" className={`${FRAME} object-cover`} />;

@@ -5,6 +5,7 @@ import { WorkspaceConnectorFlows } from "@/components/plugins/ConnectorFlows";
 import { PAYMENT_CONNECTORS } from "@/data/connectors/payments";
 import { AskAgent, type AgentPrompt } from "./AskAgent";
 import { ConnectorShelf } from "./ConnectorShelf";
+import { PaymentEvents } from "./PaymentEvents";
 import { RecordsSection } from "./RecordsSection";
 
 const PROMPTS: AgentPrompt[] = [
@@ -14,18 +15,14 @@ const PROMPTS: AgentPrompt[] = [
   { label: "Did they pay?", hint: "Check one customer's payment", Icon: ReceiptText, task: "Check whether a customer has paid me. Ask me for their name or email, then look across my payment accounts." },
 ];
 
-/**
- * The user's own payment accounts (read-only), and their sales and refunds,
- * which an agent reads through those accounts.
- */
+/** The sales and refunds feed (`/payments/events`), an agent to ask about it, and the payment accounts behind it. */
 export function PaymentsView() {
   return (
     <WorkspaceConnectorFlows>
       <div className="grid gap-10">
-        <RecordsSection
-          title="Sales and refunds"
-          description="An agent reads them straight from your connected payment accounts."
-        >
+        <PaymentEvents />
+
+        <RecordsSection title="Ask about payments" description="An agent reads your payment accounts and answers.">
           <AskAgent label="Ask about payments" prompts={PROMPTS} />
         </RecordsSection>
 

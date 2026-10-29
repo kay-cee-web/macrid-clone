@@ -1,7 +1,7 @@
 import { pickField, toBool, toMaybeNumber, toText } from "@/lib/api/pick";
 import { paymentKey } from "@/data/connectors/payments";
 import { toFields } from "@/lib/connections/providerFields";
-import type { PaymentConnection, PaymentProvider, PaymentWebhook } from "@/types/payment";
+import type { PaymentConnection, PaymentEvent, PaymentProvider, PaymentWebhook } from "@/types/payment";
 
 /** Readers for the /payments routes (shapes seen 2026-09-24, read tolerantly all the same). */
 type Row = Record<string, unknown>;
@@ -66,5 +66,25 @@ export function toWebhook(body: Row): PaymentWebhook {
     secretSet: toBool(body.secret_set, false),
     verified: toBool(body.verified, false),
     lastEvent: toText(pickField(body, ["last_event", "last_event_at"])),
+  };
+}
+
+/**
+ * `GET /payments/events` row (backend guide 2026-10-29): `{id, connection_id,
+ * provider, type, amount, currency, customer, reference, description, created_at}`.
+ * `type` drives the badge; its full list of values isn't published yet.
+ */
+export function toEvent(row: Row): PaymentEvent {
+  return {
+    id: toText(row.id),
+    connectionId: toText(row.connection_id),
+    provider: paymentKey(toText(row.provider)),
+    kind: toText(row.type),
+    amount: toMaybeNumber(row.amount),
+    currency: toText(row.currency).toUpperCase(),
+    customer: toText(row.customer),
+    reference: toText(row.reference),
+    description: toText(row.description),
+    at: toText(row.created_at),
   };
 }

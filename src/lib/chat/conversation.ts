@@ -37,8 +37,17 @@ export const replyMessage = (id: string, { reply, instructions, usage }: ChatRep
   usage,
 });
 
+/** Every AI provider failed (backend guide, 2026-10-29): the message lists each provider's raw error. */
+const ALL_PROVIDERS_FAILED = /^AI chat failed/i;
+const PROVIDERS_DOWN = "The assistant is unavailable right now. Try again in a minute.";
+
 /** A failed turn, shown inline with a retry (and an upgrade link when tokens ran out). */
 export function failureMessage(id: string, err: unknown, retry: ThreadMessage["retry"]): ThreadMessage {
-  const text = extractApiError(err, "Could not reach the agent");
+  let text = extractApiError(err, "Could not reach the agent");
+  if (ALL_PROVIDERS_FAILED.test(text)) {
+    // The provider errors are for us, not the user: keep them in the console.
+    console.error(text);
+    text = PROVIDERS_DOWN;
+  }
   return { id, role: "assistant", text, at: now(), error: true, outOfTokens: isTokenExhausted(text), retry };
 }

@@ -8,9 +8,9 @@ export function statusLabel(status: string): string {
   return words[0].toUpperCase() + words.slice(1);
 }
 
-const GOOD = ["sent", "published", "delivered", "completed", "confirmed", "closed", "closing won", "won", "booked", "contacted"];
+const GOOD = ["sent", "published", "done", "delivered", "completed", "confirmed", "closed", "closing won", "won", "booked", "contacted"];
 const BAD = ["failed", "cancelled", "canceled", "no show", "closing lost", "lost", "invalid"];
-const WARN = ["pending", "scheduled", "publishing", "in progress", "sending", "processing", "queued", "draft"];
+const WARN = ["pending", "scheduled", "publishing", "running", "in progress", "sending", "processing", "queued", "draft"];
 
 /** Pill tone for any Macrid status string; unknown values stay neutral. */
 export function statusTone(status: string): PillTone {

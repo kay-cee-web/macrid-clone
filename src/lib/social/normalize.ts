@@ -62,19 +62,35 @@ export function toPlatform(row: Row, fallbackKey = ""): SocialPlatform {
   };
 }
 
-const STATUSES: SocialPostStatus[] = ["draft", "scheduled", "publishing", "published", "failed", "deleted"];
+export const POST_STATUSES: SocialPostStatus[] = ["draft", "scheduled", "publishing", "published", "failed", "deleted"];
 
+/** `account: {id, platform, name, username}`, loaded with each post (DexiSocialController::posts). */
+const accountLabel = (value: unknown) => {
+  const account = (value ?? {}) as Row;
+  const username = toText(account.username);
+  return toText(account.name) || (username ? `@${username}` : "");
+};
+
+/**
+ * A `DexiSocialPost`: `{id, account_id, platform, body, media, link, status,
+ * publish_at, error, account}`. Status is draft → scheduled → published, or
+ * failed / deleted (a disconnect cancels scheduled posts as deleted).
+ */
 export function toPost(row: Row): SocialPost {
   const status = toText(pickField(row, ["status", "state"])).toLowerCase();
   return {
     id: toText(row.id),
     accountId: toText(pickField(row, ["account_id", "accountId", "social_account_id"])),
+    account: accountLabel(row.account),
     platform: socialKey(toText(pickField(row, ["platform", "provider", "network"]))),
     body: toText(pickField(row, ["body", "content", "text", "caption"])),
     media: toStrings(pickField(row, ["media", "media_urls", "images"])),
-    status: (STATUSES as string[]).includes(status) ? (status as SocialPostStatus) : "draft",
+    link: toText(row.link),
+    scheduledFor: toText(row.publish_at),
+    status: (POST_STATUSES as string[]).includes(status) ? (status as SocialPostStatus) : "draft",
     publishAt: toText(pickField(row, ["published_at", "publish_at", "scheduled_at", "publishAt"])),
     createdAt: toText(row.created_at),
+    permalink: toText(row.permalink),
     problem: toText(pickField(row, ["last_error", "error", "failure_reason", "problem"])),
   };
 }

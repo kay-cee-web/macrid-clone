@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePagination } from "@/hooks/usePagination";
 import { cn } from "@/lib/cn";
+import { countOf } from "@/lib/format";
 
 type AsyncRows<T> = {
   data: T[] | null;
@@ -112,7 +113,7 @@ export function RecordsView<T>({
           {all && (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs text-muted">
-                {paged.pageCount > 1 ? `${paged.from}–${paged.to} of ${paged.total}` : paged.total} {noun}
+                {paged.pageCount > 1 ? `${paged.from}–${paged.to} of ${paged.total} ${noun}` : countOf(paged.total, noun)}
                 {q && <span className="text-faint"> · filtered from {all.length}</span>}
                 {rows.status === "error" && <span className="text-bad"> · Refresh failed: {rows.error}</span>}
               </p>
