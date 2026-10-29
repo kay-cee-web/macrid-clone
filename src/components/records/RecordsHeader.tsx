@@ -6,7 +6,6 @@ const TABS: RouteTab[] = [
   { href: "/records/tasks", label: "Tasks" },
   { href: "/records/appointments", label: "Appointments" },
   { href: "/records/campaigns", label: "Campaigns", matchPrefix: true },
-  { href: "/records/funnels", label: "Funnels", matchPrefix: true },
   { href: "/records/schedules", label: "Schedules" },
   { href: "/records/social", label: "Social media" },
   { href: "/records/ads", label: "Ads" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ListChecks, Trash } from "lucide-react";
+import { ListChecks, Pencil, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Column } from "@/components/ui/DataTable";
@@ -10,6 +10,7 @@ import { extractApiError } from "@/lib/api/errors";
 import { deleteList, fetchLists } from "@/services/lists";
 import type { RecordList } from "@/types/records";
 import { CreatedCell, StackCell } from "./cells";
+import { ListEditModal } from "./ListEditModal";
 import { RecordsView } from "./RecordsView";
 import { actionsColumn } from "./rowActions";
 
@@ -27,6 +28,7 @@ const columns: Column<RecordList>[] = [
 export function ListsView() {
   const rows = useAsync(fetchLists, [], "Could not load your lists");
   const [pending, setPending] = useState<RecordList | null>(null);
+  const [editing, setEditing] = useState<RecordList | null>(null);
 
   async function remove(list: RecordList) {
     try {
@@ -43,6 +45,7 @@ export function ListsView() {
   const withActions = [
     ...columns,
     actionsColumn<RecordList>([
+      { label: "Edit list", icon: <Pencil />, onSelect: setEditing },
       { label: "Delete list", icon: <Trash />, tone: "danger", onSelect: setPending },
     ]),
   ];
@@ -63,6 +66,7 @@ export function ListsView() {
           description: "Ask an agent to build one, e.g. “Create a list of dentists in Lagos”.",
         }}
       />
+      {editing && <ListEditModal list={editing} onClose={() => setEditing(null)} onSaved={rows.reload} />}
       {pending && (
         <ConfirmModal
           title={`Delete “${pending.name}”?`}

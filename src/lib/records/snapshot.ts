@@ -1,10 +1,8 @@
 import { fetchAppointments } from "@/services/appointments";
 import { fetchEmailCampaigns, fetchSmsCampaigns, fetchWhatsAppCampaigns } from "@/services/campaigns";
 import { fetchDeals } from "@/services/deals";
-import { fetchFunnels } from "@/services/funnels";
 import { fetchLists } from "@/services/lists";
 import { fetchTasks } from "@/services/tasks";
-import type { Funnel } from "@/types/funnels";
 import type { Appointment, Deal, EmailCampaign, RecordList, SmsCampaign, Task, WhatsAppCampaign } from "@/types/records";
 
 /**
@@ -22,13 +20,12 @@ export type WorkspaceSnapshot = {
   emailCampaigns?: EmailCampaign[];
   smsCampaigns?: SmsCampaign[];
   whatsappCampaigns?: WhatsAppCampaign[];
-  funnels?: Funnel[];
 };
 
 const valueOf = <T,>(result: PromiseSettledResult<T>) => (result.status === "fulfilled" ? result.value : undefined);
 
 export async function takeSnapshot(): Promise<WorkspaceSnapshot> {
-  const [lists, deals, tasks, appointments, emailCampaigns, smsCampaigns, whatsappCampaigns, funnels] = await Promise.allSettled([
+  const [lists, deals, tasks, appointments, emailCampaigns, smsCampaigns, whatsappCampaigns] = await Promise.allSettled([
     fetchLists(),
     fetchDeals(),
     fetchTasks(),
@@ -36,7 +33,6 @@ export async function takeSnapshot(): Promise<WorkspaceSnapshot> {
     fetchEmailCampaigns(),
     fetchSmsCampaigns(),
     fetchWhatsAppCampaigns(),
-    fetchFunnels(),
   ]);
   return {
     takenAt: Date.now(),
@@ -47,6 +43,5 @@ export async function takeSnapshot(): Promise<WorkspaceSnapshot> {
     emailCampaigns: valueOf(emailCampaigns),
     smsCampaigns: valueOf(smsCampaigns),
     whatsappCampaigns: valueOf(whatsappCampaigns),
-    funnels: valueOf(funnels),
   };
 }

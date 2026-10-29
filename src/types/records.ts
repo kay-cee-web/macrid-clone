@@ -14,6 +14,9 @@ export type Lead = {
   email: string;
   phone: string;
   website: string;
+  /** The raw columns, for editing; `location` is what tables show. */
+  city: string;
+  country: string;
   location: string;
   /** Raw status; casing varies (ACTIVE, not_contacted, booked). */
   status: string;
