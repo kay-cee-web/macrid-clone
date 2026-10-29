@@ -28,13 +28,17 @@ export function normalizeLead(row: Row): Lead {
   const email = toText(row.email);
   const website = toText(row.website);
   const fullName = `${toText(row.first_name)} ${toText(row.last_name)}`.trim();
+  const city = toText(row.city);
+  const country = toText(row.country);
   return {
     id: toText(row.id),
     name: fullName || email.split("@")[0] || website || "Unknown",
     email,
     phone: toText(row.phone),
     website,
-    location: [toText(row.city), toText(row.country)].filter(Boolean).join(", ") || toText(row.address),
+    city,
+    country,
+    location: [city, country].filter(Boolean).join(", ") || toText(row.address),
     status: toText(row.lead_status) || toText(row.status),
     score: toMaybeNumber(row.score),
     listId: toText(row.list_id),

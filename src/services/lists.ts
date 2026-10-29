@@ -31,6 +31,12 @@ export async function deleteList(id: string) {
   }
 }
 
+/** PUT /lists/{id} {name, description} — the same call Macrid's CRM → Lists makes. */
+export async function updateList(id: string, fields: { name: string; description: string }) {
+  const { data } = await api.put(`/lists/${id}`, fields);
+  return assertEnvelope(data, "Could not save the list");
+}
+
 /** There is no single-list endpoint; find it in the full list. */
 export async function fetchList(id: string): Promise<RecordList | null> {
   const lists = await fetchLists();

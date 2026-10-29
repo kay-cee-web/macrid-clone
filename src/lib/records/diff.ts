@@ -41,7 +41,6 @@ const status = (value: string) => statusLabel(value).toLowerCase();
 const EMAIL = "/records/campaigns?channel=email";
 const SMS = "/records/campaigns?channel=sms";
 const WHATSAPP = "/records/campaigns?channel=whatsapp";
-const funnelHref = (f: { slug: string; id: string }) => `/records/funnels/${encodeURIComponent(f.slug || f.id)}`;
 
 /** What changed between two snapshots, in the order the areas are shown. */
 export function diffSnapshots(before: WorkspaceSnapshot, after: WorkspaceSnapshot): WorkChange[] {
@@ -105,16 +104,6 @@ export function diffSnapshots(before: WorkspaceSnapshot, after: WorkspaceSnapsho
       changed: (a, b) =>
         status(a.status) !== status(b.status) ? change("Campaigns", `WhatsApp ${quoted(b.name)} is now ${status(b.status)}`, WHATSAPP) : null,
       deleted: (c) => change("Campaigns", `WhatsApp ${quoted(c.name)} deleted`, WHATSAPP),
-    }),
-    ...diffRows(before.funnels, after.funnels, {
-      created: (f) => change("Funnels", `Built funnel ${quoted(f.name)}`, funnelHref(f)),
-      changed: (a, b) =>
-        a.published !== b.published
-          ? change("Funnels", `${b.published ? "Published" : "Unpublished"} ${quoted(b.name)}`, funnelHref(b))
-          : a.name !== b.name
-            ? change("Funnels", `Renamed funnel ${quoted(a.name)} to ${quoted(b.name)}`, funnelHref(b))
-            : null,
-      deleted: (f) => change("Funnels", `Deleted funnel ${quoted(f.name)}`, "/records/funnels"),
     }),
   ];
   return changes.sort((a, b) => WORK_AREAS.indexOf(a.area) - WORK_AREAS.indexOf(b.area));

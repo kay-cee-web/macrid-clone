@@ -13,6 +13,7 @@ import type { Lead } from "@/types/records";
 import { TextCell } from "./cells";
 import { LEAD_COLUMNS, leadMatches } from "./leadColumns";
 import { RecordsView } from "./RecordsView";
+import { useCustomerEdit } from "./useCustomerEdit";
 
 /** Every customer in the workspace, with the list it sits in and a status filter. */
 export function LeadsView() {
@@ -22,6 +23,7 @@ export function LeadsView() {
     "Could not load customers",
   );
   const [status, setStatus] = useState("");
+  const customerEdit = useCustomerEdit(state.reload);
 
   const listNames = useMemo(
     () => new Map((state.data?.lists ?? []).map((list) => [list.id, list.name])),
@@ -50,6 +52,7 @@ export function LeadsView() {
         ),
     },
     ...LEAD_COLUMNS.slice(2),
+    customerEdit.column,
   ];
 
   return (
@@ -81,6 +84,7 @@ export function LeadsView() {
       {state.data?.truncated && (
         <p className="text-xs text-warn">Your workspace is very large; only the first 10,000 customers are shown.</p>
       )}
+      {customerEdit.dialog}
     </div>
   );
 }

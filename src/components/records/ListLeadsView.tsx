@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, UserRound } from "lucide-react";
+import { ArrowLeft, Pencil, UserRound } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAsync } from "@/hooks/useAsync";
 import { fetchLeads } from "@/services/leads";
 import { fetchList } from "@/services/lists";
 import { ExportCustomers } from "./ExportCustomers";
 import { LEAD_COLUMNS, leadMatches } from "./leadColumns";
+import { ListEditModal } from "./ListEditModal";
 import { RecordsView } from "./RecordsView";
+import { useCustomerEdit } from "./useCustomerEdit";
 
 export function ListLeadsView({ listId }: { listId: string }) {
   const state = useAsync(
@@ -17,6 +21,8 @@ export function ListLeadsView({ listId }: { listId: string }) {
     "Could not load this list",
   );
   const list = state.data?.list;
+  const [editing, setEditing] = useState(false);
+  const customerEdit = useCustomerEdit(state.reload);
 
   return (
     <div className="grid gap-5">
@@ -38,11 +44,20 @@ export function ListLeadsView({ listId }: { listId: string }) {
       <RecordsView
         noun="customers"
         rows={{ ...state, data: state.data?.leads ?? null }}
-        columns={LEAD_COLUMNS}
+        columns={[...LEAD_COLUMNS, customerEdit.column]}
         rowKey={(lead) => lead.id}
         matches={leadMatches}
         searchPlaceholder="Search by name, email, phone or website"
-        toolbar={<ExportCustomers customers={state.data?.leads ?? null} title={list?.name ?? `List ${listId}`} />}
+        toolbar={
+          <>
+            {list && (
+              <Button variant="secondary" icon={<Pencil className="size-3.5" />} onClick={() => setEditing(true)}>
+                Edit
+              </Button>
+            )}
+            <ExportCustomers customers={state.data?.leads ?? null} title={list?.name ?? `List ${listId}`} />
+          </>
+        }
         empty={{
           icon: <UserRound />,
           title: "No customers in this list",
@@ -52,6 +67,8 @@ export function ListLeadsView({ listId }: { listId: string }) {
       {state.data?.truncated && (
         <p className="text-xs text-warn">This list is very large; only the first 10,000 customers are shown.</p>
       )}
+      {customerEdit.dialog}
+      {editing && list && <ListEditModal list={list} onClose={() => setEditing(false)} onSaved={state.reload} />}
     </div>
   );
 }
