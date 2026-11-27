@@ -48,6 +48,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <InlineScript html={THEME_BOOT_SCRIPT} />
         <JsonLd data={structuredData()} />
+        {/* Woxelo live chat widget */}
+        <script
+          defer
+          src="https://app.woxelo.com/livechat/settings.js"
+          data-widget="ceiVG9evbRilc5koOo2QVr9Uha29kx485miN1Sqq"
+        />
       </head>
       <body className="min-h-full bg-ground text-ink">
         <Backdrop />
